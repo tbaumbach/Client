@@ -273,7 +273,7 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
    * Same as in MailHandler.
    * @return
    */
-  private List<CanBeLostInSpace> getLostInSpace(Class classToShow, List<CanBeLostInSpace> allLostInSpace, String aFactionName, Player aPlayer){
+  private List<CanBeLostInSpace> getLostInSpace(Class<?> classToShow, List<CanBeLostInSpace> allLostInSpace, String aFactionName, Player aPlayer){
 		List<CanBeLostInSpace> lisList = new LinkedList<CanBeLostInSpace>();
 	  	for (Iterator<CanBeLostInSpace> iter = allLostInSpace.iterator(); iter.hasNext();) {
 			CanBeLostInSpace aLis = iter.next();

@@ -1041,7 +1041,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		// boolean engineer = false;
 		VIP tempBuild;
 
-		// visa bara den översta choicen om den �r satt till upgrade
+		// visa bara den översta choicen om den är satt till upgrade
 		// TODO (Tobbe) Fixa så att vald upgrade byggnad blir byggd
 		// (MinBuildingPanel.java) och visas
 
@@ -1193,11 +1193,11 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		VIP tempBuild = player.getGalaxy().findVIPBuildingBuildBonus(currentBuilding.getLocation(), player,
 				player.getOrders());
 
-		// visa bara den översta choicen om den �r satt till upgrade
+		// visa bara den översta choicen om den är satt till upgrade
 		// TODO (Tobbe) Fixa så att vald upgrade byggnad blir byggd
 		// (MinBuildingPanel.java) och visas
 
-		// boolean showUpgrade = true; // skall endast visas i den �versta choicen
+		// boolean showUpgrade = true; // skall endast visas i den översta choicen
 
 		upgradeBuildingTypeChoice[0].addItem("None");
 		addUpgradeBuildTypes(upgradeBuildingTypeChoice[0], false);
