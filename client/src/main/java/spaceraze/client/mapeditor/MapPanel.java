@@ -144,7 +144,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 	        g.fillOval(tmpX-(size/2), tmpY-(size/2), size, size);
 			// draw planet name
 	        g.setColor(StyleGuide.colorMapPlanetNames);  // ljusbl� text
-	        g.setFont(new Font("Helvetica",0,12));
+	        g.setFont(new Font("Helvetica",Font.PLAIN,12));
 	        g.drawString(aPlanet.getName(),(tmpX+(size/2)+2),(tmpY));
 		}
 		
@@ -190,7 +190,6 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 	
 	/**
 	 * Get the number of pixels for each LY
-	 * @return
 	 */
 	public int getScaleFromZoom(){
 		int scale = 2;

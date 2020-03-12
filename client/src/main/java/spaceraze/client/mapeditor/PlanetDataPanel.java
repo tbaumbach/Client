@@ -152,44 +152,11 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 	public void showPlanet(Planet aPlanet){
 		selectedPlanet = aPlanet;
 		if (aPlanet == null){
-			planetNameLbl.setVisible(false);
-			xLbl.setVisible(false);
-			yLbl.setVisible(false);
-			zLbl.setVisible(false);
-			connectionLbl.setVisible(false);
-			updateBtn.setVisible(false);
-			addLongBtn.setVisible(false);
-			addShortBtn.setVisible(false);
-			removeConnBtn.setVisible(false);
-			removePlanetBtn.setVisible(false);
-			moveBtn.setVisible(false);
-			planetNameTf.setVisible(false);
-			startPlanet.setVisible(false);
-			xTf.setVisible(false);
-			yTf.setVisible(false);
-			zTf.setVisible(false);
-			connectionsList.setVisible(false);
-			noPlanetLbl.setVisible(true);
+			ToggleShowPlanet(false);
 		}else{
+			//TODO removeConnBtn Kolla upp om den ska visas här? annars kommer den aldrig visas.
 			removeConnBtn.setEnabled(false);
-			planetNameLbl.setVisible(true);
-			xLbl.setVisible(true);
-			yLbl.setVisible(true);
-			zLbl.setVisible(true);
-			connectionLbl.setVisible(true);
-			updateBtn.setVisible(true);
-			addLongBtn.setVisible(true);
-			addShortBtn.setVisible(true);
-			removeConnBtn.setVisible(true);
-			removePlanetBtn.setVisible(true);
-			moveBtn.setVisible(true);
-			planetNameTf.setVisible(true);
-			startPlanet.setVisible(true);
-			xTf.setVisible(true);
-			yTf.setVisible(true);
-			zTf.setVisible(true);
-			connectionsList.setVisible(true);
-			noPlanetLbl.setVisible(false);
+			ToggleShowPlanet(true);
 			// set data
 			planetNameTf.setText(selectedPlanet.getName());
 			startPlanet.setSelected(selectedPlanet.isPosssibleStartplanet());
@@ -227,7 +194,28 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 			repaint();
 		}
 	}
-	
+
+	private void ToggleShowPlanet(boolean isPlanetExist) {
+		planetNameLbl.setVisible(isPlanetExist);
+		xLbl.setVisible(isPlanetExist);
+		yLbl.setVisible(isPlanetExist);
+		zLbl.setVisible(isPlanetExist);
+		connectionLbl.setVisible(isPlanetExist);
+		updateBtn.setVisible(isPlanetExist);
+		addLongBtn.setVisible(isPlanetExist);
+		addShortBtn.setVisible(isPlanetExist);
+		removeConnBtn.setVisible(isPlanetExist);
+		removePlanetBtn.setVisible(isPlanetExist);
+		moveBtn.setVisible(isPlanetExist);
+		planetNameTf.setVisible(isPlanetExist);
+		startPlanet.setVisible(isPlanetExist);
+		xTf.setVisible(isPlanetExist);
+		yTf.setVisible(isPlanetExist);
+		zTf.setVisible(isPlanetExist);
+		connectionsList.setVisible(isPlanetExist);
+		noPlanetLbl.setVisible(!isPlanetExist);
+	}
+
 	public void enableBtnsWhileMapAction(boolean enable){
 		addLongBtn.setEnabled(enable);
 		addShortBtn.setEnabled(enable);
