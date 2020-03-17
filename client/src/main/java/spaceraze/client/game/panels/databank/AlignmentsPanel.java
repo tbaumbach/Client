@@ -2,6 +2,7 @@ package spaceraze.client.game.panels.databank;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JScrollPane;
@@ -46,7 +47,7 @@ public class AlignmentsPanel extends SRBasePanel implements ListSelectionListene
     private final int yInterval = 20;
     
     public AlignmentsPanel(Player p, String id){
-      alignments = Functions.cloneList(p.getGalaxy().getGameWorld().getAlignments().getAllAlignments());
+      alignments = p.getGalaxy().getGameWorld().getAlignments().getAllAlignments().stream().collect(Collectors.toList());
 	  Collections.sort(alignments,new AlignmentNameComparator<Alignment>());
       this.id = id;
 

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.DefaultListModel;
 import javax.swing.border.LineBorder;
@@ -75,7 +76,7 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
     final int column4X = 650;
 
     public TroopTypePanel(List<TroopType> aTroopTypes, Player p, String id){
-      troopTypes = Functions.cloneList(aTroopTypes);
+      troopTypes = aTroopTypes.stream().collect(Collectors.toList());
 	  Collections.sort(troopTypes,new TroopTypeComparator());
       this.id = id;
       this.p = p;
@@ -355,7 +356,7 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
     	filterChoice.addItem("All (sort by name)");
     	filterChoice.addItem("All (sort by class & size)");
     	filterChoice.addItem("Yours");
-    	factions = Functions.cloneList(p.getGalaxy().getGameWorld().getFactions());
+    	factions = p.getGalaxy().getGameWorld().getFactions().stream().collect(Collectors.toList());
     	Collections.sort(factions,new FactionsComparator());
     	for (Faction aFaction : factions) {
 			filterChoice.addItem(aFaction.getName());

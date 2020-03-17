@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import spaceraze.client.components.ComboBoxPanel;
 import spaceraze.client.components.SRBasePanel;
@@ -241,7 +242,7 @@ public class MapControls extends SRBasePanel implements ItemListener, MouseListe
 
 	private void addPlanets(List<Planet> pplanets, ComboBoxPanel thischoice) {
 		thischoice.addItem("Sector origo");
-		List<Planet> sortedPlanets = Functions.cloneList(pplanets);
+		List<Planet> sortedPlanets = pplanets.stream().collect(Collectors.toList());
 		Collections.sort(sortedPlanets, new PlanetNameComparator<Planet>());
 		for (Planet planet : sortedPlanets) {
 			thischoice.addItem(planet.getName());
@@ -250,7 +251,7 @@ public class MapControls extends SRBasePanel implements ItemListener, MouseListe
 
 	private void addPlayers(List<Player> players, ComboBoxPanel thischoice) {
 		thischoice.addItem("None");
-		List<Player> sortedPlayers = Functions.cloneList(players);
+		List<Player> sortedPlayers = players.stream().collect(Collectors.toList());
 		Collections.sort(sortedPlayers, new PlayerNameComparator<Player>());
 		for (Player player : sortedPlayers) {
 			thischoice.addItem(player.getGovenorName());

@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JScrollPane;
@@ -248,7 +249,7 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
     private void fillFilterList(){
     	filterChoice.addItem("All (sort by name)");
     	filterChoice.addItem("All (sort by class & size)");
-    	factions = Functions.cloneList(p.getGalaxy().getGameWorld().getFactions());
+    	factions = p.getGalaxy().getGameWorld().getFactions().stream().collect(Collectors.toList());
     	Collections.sort(factions,new FactionsComparator());
     	for (Faction aFaction : factions) {
 			filterChoice.addItem(aFaction.getName());

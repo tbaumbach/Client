@@ -6,6 +6,7 @@ package spaceraze.client.mapeditor;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
@@ -35,10 +36,17 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 	 */
 	private int zoom = 1;
 	// 0 = center in the middle of the map panel. Measured in LY
-	private int xOffset,yOffset,startX,startY,xDragOffset,yDragOffset,xOldOffset,yOldOffset;
+	private int xOffset;
+	private int yOffset;
+	private int startX;
+	private int startY;
+	private int xDragOffset;
+	private int yDragOffset;
+	private int xOldOffset;
+	private int yOldOffset;
 //	private final int MAX = 558; 
-	private final int CENTER = 279;
-	private final int MOVE_STEP = 64;
+	private static final int CENTER = 279;
+	private static final int MOVE_STEP = 64;
 	private EditorGUIPanel guiPanel;
 	private Planet chosenPlanet;
 
@@ -52,6 +60,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 		addMouseListener(this);
 	}
 
+	@Override
 	public void paintComponent(Graphics g){
 		g.setColor(StyleGuide.colorBackground);
 		g.fillRect(0,0,getSize().width,getSize().height);
@@ -62,7 +71,6 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 		int maxX = (xOffset * scale) + CENTER + (100 * scale);
 		int minY = (yOffset * scale) + CENTER - (100 * scale);
 		int maxY = (yOffset * scale) + CENTER + (100 * scale);
-//		System.out.println(minX + " " + maxX);
 		g.setColor(StyleGuide.colorMapEditorGrid.darker().darker().darker().darker());
 		for (int i = 0; i < 201; i++){
 			g.drawLine(minX,minY + (i*scale),maxX,minY + (i*scale));
@@ -92,36 +100,14 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 		// long range
 		for (PlanetConnection aConnection : allConnections) {
 			if (aConnection.isLongRange()){
-				Planet tmpPlanet1 = aConnection.getPlanet1();
-				Planet tmpPlanet2 = aConnection.getPlanet2();
-				int tmpX1 = (int)Math.round(tmpPlanet1.getXcoor());
-				int tmpY1 = (int)Math.round(tmpPlanet1.getYcoor());
-				int tmpX2 = (int)Math.round(tmpPlanet2.getXcoor());
-				int tmpY2 = (int)Math.round(tmpPlanet2.getYcoor());
-				tmpX1 = (xOffset * scale) + CENTER + (tmpX1 * scale);
-				tmpY1 = (yOffset * scale) + CENTER + (tmpY1 * scale);
-				tmpX2 = (xOffset * scale) + CENTER + (tmpX2 * scale);
-				tmpY2 = (yOffset * scale) + CENTER + (tmpY2 * scale);
-				g.setColor(StyleGuide.colorMapLongRange);
-				g.drawLine(tmpX1,tmpY1,tmpX2,tmpY2);
+				drawPlanetconnection(g, StyleGuide.colorMapLongRange, scale,  aConnection.getPlanet1(),  aConnection.getPlanet2());
 			}
 		}
 		
 		// short range
 		for (PlanetConnection aConnection : allConnections) {
 			if (!aConnection.isLongRange()){
-				Planet tmpPlanet1 = aConnection.getPlanet1();
-				Planet tmpPlanet2 = aConnection.getPlanet2();
-				int tmpX1 = (int)Math.round(tmpPlanet1.getXcoor());
-				int tmpY1 = (int)Math.round(tmpPlanet1.getYcoor());
-				int tmpX2 = (int)Math.round(tmpPlanet2.getXcoor());
-				int tmpY2 = (int)Math.round(tmpPlanet2.getYcoor());
-				tmpX1 = (xOffset * scale) + CENTER + (tmpX1 * scale);
-				tmpY1 = (yOffset * scale) + CENTER + (tmpY1 * scale);
-				tmpX2 = (xOffset * scale) + CENTER + (tmpX2 * scale);
-				tmpY2 = (yOffset * scale) + CENTER + (tmpY2 * scale);
-				g.setColor(StyleGuide.colorMapShortRange);
-				g.drawLine(tmpX1,tmpY1,tmpX2,tmpY2);
+				drawPlanetconnection(g, StyleGuide.colorMapShortRange, scale,  aConnection.getPlanet1(),  aConnection.getPlanet2());
 			}
 		}
 
@@ -148,6 +134,19 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 	        g.drawString(aPlanet.getName(),(tmpX+(size/2)+2),(tmpY));
 		}
 		
+	}
+
+	private void drawPlanetconnection(Graphics g, Color color, int scale, Planet tmpPlanet1, Planet tmpPlanet2){
+		int tmpX1 = (int)Math.round(tmpPlanet1.getXcoor());
+		int tmpY1 = (int)Math.round(tmpPlanet1.getYcoor());
+		int tmpX2 = (int)Math.round(tmpPlanet2.getXcoor());
+		int tmpY2 = (int)Math.round(tmpPlanet2.getYcoor());
+		tmpX1 = (xOffset * scale) + CENTER + (tmpX1 * scale);
+		tmpY1 = (yOffset * scale) + CENTER + (tmpY1 * scale);
+		tmpX2 = (xOffset * scale) + CENTER + (tmpX2 * scale);
+		tmpY2 = (yOffset * scale) + CENTER + (tmpY2 * scale);
+		g.setColor(color);
+		g.drawLine(tmpX1,tmpY1,tmpX2,tmpY2);
 	}
 	
     private void drawChosenPlanet(Graphics g,int x,int y){
@@ -243,11 +242,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 		zoom = 1;
 		repaint();
 	}
-	
-	public int getZoom(){
-		return zoom;
-	}
-	
+
 	public boolean canZoomIn(){
 		return zoom < 5;
 	}
@@ -264,6 +259,8 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 	 * Not used, must be present due to Interface MouseMotionListener
 	 */
 	public void mouseDragged(MouseEvent me) {
+		System.out.println("me.getModifiers(): " + me.getModifiers());
+		System.out.println("me.getModifiersEx(): " + me.getModifiersEx());
 	    if (me.getModifiers() == 16){ // left mousebutton dragged
 	    	int newX = me.getX();
 	    	int newY = me.getY();
@@ -341,7 +338,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 			if (guiPanel.getMovePlanet()){
 				guiPanel.movePlanet(xLY,yLY);
 			}else{ // select planet
-				if (theMap.getPlanets().size() > 0){
+				if (!theMap.getPlanets().isEmpty()){
 					Planet closestPlanet = theMap.findClosestPlanet(xLY,yLY);
 					guiPanel.selectPlanet(closestPlanet);
 					chosenPlanet = closestPlanet;

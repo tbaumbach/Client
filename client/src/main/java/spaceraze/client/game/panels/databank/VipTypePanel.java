@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.DefaultListModel;
 import javax.swing.border.LineBorder;
@@ -61,7 +62,7 @@ public class VipTypePanel extends SRBasePanel implements ListSelectionListener, 
     private final int yInterval = 20;
     
     public VipTypePanel(Player p, String id){
-      viptypes = Functions.cloneList(p.getGalaxy().getGameWorld().getVipTypes());
+      viptypes = p.getGalaxy().getGameWorld().getVipTypes().stream().collect(Collectors.toList());
 	  Collections.sort(viptypes,new VIPTypeComparator());
       this.id = id;
       this.p = p;
@@ -173,7 +174,7 @@ public class VipTypePanel extends SRBasePanel implements ListSelectionListener, 
     	for (Alignment alignment : alignments) {
     		filterChoice.addItem("Alignment: " + alignment.getName());
 		}
-    	factions = Functions.cloneList(p.getGalaxy().getGameWorld().getFactions());
+    	factions = p.getGalaxy().getGameWorld().getFactions().stream().collect(Collectors.toList());
     	Collections.sort(factions,new FactionsComparator());
     	for (Faction aFaction : factions) {
 			filterChoice.addItem("Faction: " + aFaction.getName());

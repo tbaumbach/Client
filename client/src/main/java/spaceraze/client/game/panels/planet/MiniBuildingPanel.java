@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.swing.DefaultListModel;
 import javax.swing.event.ListSelectionEvent;
@@ -1258,7 +1259,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		// System.out.println("efter upgrade");
 		// Vector alltypes = player.getSpaceshipTypes(); Old
 		List<SpaceshipType> alltypes = player.getAvailableSpaceshipTypes();
-		List<SpaceshipType> copyAllTypes = Functions.cloneList(alltypes);
+		List<SpaceshipType> copyAllTypes = alltypes.stream().collect(Collectors.toList());
 		Collections.sort(copyAllTypes, new SpaceshipTypeSizeComparator());
 		// Collections.reverse(copyAllTypes);
 		// System.out.println("efter alltypes");
@@ -1307,7 +1308,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		// System.out.println("efter upgrade");
 		List<TroopType> alltypes = player.getAvailableTroopTypes();
 		Logger.finer("player.getAvailableTroopTypes().size(): " + alltypes.size());
-		List<TroopType> copyAllTypes = Functions.cloneList(alltypes);
+		List<TroopType> copyAllTypes = alltypes.stream().collect(Collectors.toList());
 		Collections.sort(copyAllTypes, new TroopTypeComparator());
 		Collections.reverse(copyAllTypes);
 

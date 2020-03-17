@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JScrollPane;
@@ -283,7 +284,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 	 private void fillTreeList(){
 		 treeChoice.addItem("My tree");
 		 
-		 factions = Functions.cloneList(p.getGalaxy().getGameWorld().getFactions());
+		 factions = p.getGalaxy().getGameWorld().getFactions().stream().collect(Collectors.toList());
 	    	Collections.sort(factions,new FactionsComparator());
 	    	for (Faction aFaction : factions) {
 				treeChoice.addItem(aFaction.getName());

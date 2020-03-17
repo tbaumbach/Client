@@ -3,6 +3,7 @@ package spaceraze.client.game.panels.databank;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.DefaultListModel;
 import javax.swing.border.LineBorder;
@@ -72,7 +73,7 @@ public class FactionPanel extends SRBasePanel implements ListSelectionListener, 
       factionlist.setBorder(new LineBorder(StyleGuide.colorCurrent));
       // fill list
       DefaultListModel dlm = (DefaultListModel)factionlist.getModel();
-      List<Faction> factionsCopy = Functions.cloneList(factions);
+      List<Faction> factionsCopy = factions.stream().collect(Collectors.toList());
       Collections.sort(factionsCopy,new FactionsComparator());
       
       // Adding player

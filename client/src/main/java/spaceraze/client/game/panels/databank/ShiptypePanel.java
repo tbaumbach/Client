@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JScrollPane;
@@ -95,7 +96,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     private SpaceshipType spaceShipType;
     
     public ShiptypePanel(List<SpaceshipType> spaceshiptypes, Player p, String id, boolean hasSquadrons){
-      this.spaceshiptypes = Functions.cloneList(spaceshiptypes);
+      this.spaceshiptypes = spaceshiptypes.stream().collect(Collectors.toList());
 	  Collections.sort(this.spaceshiptypes,new SpaceshipTypeComparator());
       this.id = id;
       this.p = p;
@@ -710,7 +711,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	filterChoice.addItem("All (sort by name)");
     	filterChoice.addItem("All (sort by class & size)");
     	filterChoice.addItem("Yours");
-    	factions = Functions.cloneList(p.getGalaxy().getGameWorld().getFactions());
+    	factions = p.getGalaxy().getGameWorld().getFactions().stream().collect(Collectors.toList());
     	Collections.sort(factions,new FactionsComparator());
     	for (Faction aFaction : factions) {
 			filterChoice.addItem(aFaction.getName());
