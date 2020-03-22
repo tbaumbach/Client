@@ -497,7 +497,7 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
     		graph.setPointsList(graphPoints);
     		stopSimBtn.setEnabled(true);
     		int res = Integer.parseInt(resTF.getText());
-    		landBattleSim.simulateBattles(tf1troops,tf2troops,1000,1000,0,false,res);
+    		landBattleSim.simulateBattles(tf1troops,tf2troops,1000,0,false,res);
     	}else{
     		// show error message
     		String title = "Error when parsing ships";
