@@ -12,6 +12,8 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTable;
 import spaceraze.client.components.SRTableHeader;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.expenses.ExpensePureFunction;
+import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Player;
@@ -150,7 +152,7 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
     expencesLabel = new SRLabel("Expences this turn total:");
     expencesLabel.setBounds(x,250,col1width,20);
     add(expencesLabel);
-    expencesValueLabel = new SRLabel("-" + p.getOrders().getExpensesCost(p.getGalaxy()));
+    expencesValueLabel = new SRLabel("-" + ExpensePureFunction.getExpensesCost(p.getGalaxy(), p));
     expencesValueLabel.setBounds(col1width+x,250,250,20);
     expencesValueLabel.setOpaque(true);
     expencesValueLabel.setBackground(StyleGuide.colorBackground);
@@ -159,7 +161,7 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
     newTreasuryLabel = new SRLabel("Total left to spend:");
     newTreasuryLabel.setBounds(x,290,col1width,20);
     add(newTreasuryLabel);
-    newTreasuryValueLabel = new SRLabel(String.valueOf(p.getSum()));
+    newTreasuryValueLabel = new SRLabel(String.valueOf(PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy())));
     newTreasuryValueLabel.setBounds(col1width+x,290,250,20);
     newTreasuryValueLabel.setOpaque(true);
     newTreasuryValueLabel.setBackground(StyleGuide.colorBackground);
@@ -245,8 +247,8 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
 
   public void updateData(){
   	Logger.finer("called");
-    expencesValueLabel.setText("-" + p.getOrders().getExpensesCost(p.getGalaxy()));
-    newTreasuryValueLabel.setText(String.valueOf(p.getSum()));
+    expencesValueLabel.setText("-" + ExpensePureFunction.getExpensesCost(p.getGalaxy(), p));
+    newTreasuryValueLabel.setText(String.valueOf(PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy())));
   }
 
 }

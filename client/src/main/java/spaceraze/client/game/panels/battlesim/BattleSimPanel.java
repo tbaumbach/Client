@@ -41,6 +41,7 @@ import spaceraze.world.comparator.FactionsComparator;
 import spaceraze.world.comparator.SpaceshipTypeComparator;
 import spaceraze.world.comparator.SpaceshipTypeNameComparator;
 import spaceraze.world.comparator.VIPTypeComparator;
+import spaceraze.world.enums.SpaceShipSize;
 
 public class BattleSimPanel extends SRBasePanel
 		implements ListSelectionListener, SRUpdateablePanel, ActionListener, BattleSimListener {
@@ -293,10 +294,10 @@ public class BattleSimPanel extends SRBasePanel
 			types.add("defense");
 			types.add("civilan");
 			types.add("squadron");
-			types.add("small");
-			types.add("medium");
-			types.add("large");
-			types.add("huge");
+			types.add(SpaceShipSize.SMALL.getName());
+			types.add(SpaceShipSize.MEDIUM.getName());
+			types.add(SpaceShipSize.LARGE.getName());
+			types.add(SpaceShipSize.HUGE.getName());
 
 			for (int i = 0; i < tempSstList.size(); i++) {
 				String shipTypename = checkIfNewShipType(tempSstList.get(i), types);
@@ -332,7 +333,7 @@ public class BattleSimPanel extends SRBasePanel
 				|| (spaceshipType.isCivilian() && types.contains("civilan"))
 				|| (spaceshipType.isSquadron() && types.contains("squadron"))
 				|| (!spaceshipType.isDefenceShip() && !spaceshipType.isSquadron() && !spaceshipType.isCivilian()
-						&& types.contains(spaceshipType.getSizeString()))) {
+						&& types.contains(spaceshipType.getSize().getName()))) {
 			if (spaceshipType.isDefenceShip()) {
 				types.remove("defense");
 				type = "defense";
@@ -343,8 +344,8 @@ public class BattleSimPanel extends SRBasePanel
 				types.remove("squadron");
 				type = "squadron";
 			} else {
-				types.remove(spaceshipType.getSizeString());
-				type = spaceshipType.getSizeString();
+				types.remove(spaceshipType.getSize().getName());
+				type = spaceshipType.getSize().getName();
 			}
 		}
 		return type;

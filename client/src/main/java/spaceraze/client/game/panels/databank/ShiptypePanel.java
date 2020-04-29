@@ -22,6 +22,7 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Faction;
@@ -30,6 +31,7 @@ import spaceraze.world.SpaceshipType;
 import spaceraze.world.comparator.FactionsComparator;
 import spaceraze.world.comparator.SpaceshipTypeComparator;
 import spaceraze.world.comparator.SpaceshipTypeNameComparator;
+import spaceraze.world.enums.SpaceShipSize;
 
 @SuppressWarnings("serial")
 public class ShiptypePanel extends SRBasePanel implements ListSelectionListener, SRUpdateablePanel, ActionListener {
@@ -739,7 +741,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		Faction showOnlyFaction = factions.get(filterChoice.getSelectedIndex() - 3);
     		tempSstList = showOnlyFaction.getSpaceshipTypes();
     	}else if(filterChoice.getSelectedIndex() == 2){
-    		tempSstList = p.getSpaceshipTypes();
+    		tempSstList = PlayerPureFunctions.getAvailableSpaceshipTypes(p.getGalaxy(), p);
     	}
     	else{
     		tempSstList = spaceshiptypes;
@@ -761,10 +763,10 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		types.add("defense");
     		types.add("civilan");
     		types.add("squadron");
-    		types.add("small");
-    		types.add("medium");
-    		types.add("large");
-    		types.add("huge");
+    		types.add("Small");
+    		types.add("Medium");
+    		types.add("Large");
+    		types.add("Huge");
     		
     		for(int i=0;i < tempSstList.size();i++){
     			String shipTypename = checkIfNewShipType(tempSstList.get(i), types);
@@ -799,7 +801,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     			(spaceshipType.isCivilian() && types.contains("civilan")) ||
     			(spaceshipType.isSquadron() && types.contains("squadron")) ||
     			(!spaceshipType.isDefenceShip() && !spaceshipType.isSquadron() && !spaceshipType.isCivilian() 
-    					&& types.contains(spaceshipType.getSizeString())) ){
+    					&& types.contains(spaceshipType.getSize().getName())) ){
     		if(spaceshipType.isDefenceShip()){
     			types.remove("defense");
     			type = "defense";
@@ -810,8 +812,8 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     			types.remove("squadron");
     			type = "squadron";
     		}else{
-    			types.remove(spaceshipType.getSizeString());
-    			type = spaceshipType.getSizeString();
+    			types.remove(spaceshipType.getSize().getName());
+    			type = spaceshipType.getSize().getName();
     		}
     	}
     	return type;
@@ -832,7 +834,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
       SpaceshipType sst = null;
       int i = 0;
       if(filterChoice.getSelectedIndex() == 2){
-    	  sst = p.findSpaceshipType(findname);
+    	  sst = PlayerPureFunctions.findSpaceshipType(findname, p, p.getGalaxy());
       }else
       if (filterChoice.getSelectedIndex() > 2){
   		Faction aFaction = factions.get(filterChoice.getSelectedIndex() - 3);
@@ -911,7 +913,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	  targetingTypeLbl2.setLocation(column2X,yPosition);
     	  
     	  sizelbl.setText("Size: ");
-    	  sizelbl2.setText(sst.getSizeString());
+    	  sizelbl2.setText(sst.getSize().getName());
     	  sizelbl.setLocation(column1X,newLine());
     	  sizelbl2.setLocation(column2X,yPosition);
     	  
@@ -1085,9 +1087,9 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		  cloakingLbl2.setVisible(false);
     	  }
     	  
-    	  if(sst.getMaxResupply() > 0){
+    	  if(sst.getSupply() != SpaceShipSize.NONE){
     		  supplyLabel.setText("Supply level:");
-    		  supplyLabel2.setText(sst.getMaxResupplyString());
+    		  supplyLabel2.setText(sst.getSupply().getName());
     		  supplyLabel.setLocation(column1X,newLine());
     		  supplyLabel2.setLocation(column2X,yPosition);
     		  supplyLabel.setVisible(true);
@@ -1174,7 +1176,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		  screenedLbl2.setVisible(false);
     	  }
     	  
-    	  if(sst.getIncEnemyOpenBonus() > 0 || sst.getIncFrendlyOpenBonus() > 0 || sst.getIncNeutralOpenBonus() > 0 || sst.getIncOwnOpenBonus() > 0){
+    	  if(sst.getIncEnemyOpenBonus() > 0 || sst.getIncFriendlyOpenBonus() > 0 || sst.getIncNeutralOpenBonus() > 0 || sst.getIncOwnOpenBonus() > 0){
     		  incomeOpenLbl.setText("Income Open (o/f/n/e):");
     		  incomeOpenLbl2.setText(sst.getIncomeOpenString());
     		  incomeOpenLbl.setLocation(column1X,newLine());
@@ -1186,7 +1188,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		  incomeOpenLbl2.setVisible(false);
     	  }
     	  
-    	  if(sst.getIncEnemyClosedBonus() > 0 || sst.getIncFrendlyClosedBonus() > 0 || sst.getIncNeutralClosedBonus() > 0 || sst.getIncOwnClosedBonus() > 0){
+    	  if(sst.getIncEnemyClosedBonus() > 0 || sst.getIncFriendlyClosedBonus() > 0 || sst.getIncNeutralClosedBonus() > 0 || sst.getIncOwnClosedBonus() > 0){
     		  incomeClosedLbl.setText("Income Closed (o/f/n/e):");
     		  incomeClosedLbl2.setText(sst.getIncomeClosedString());
     		  incomeClosedLbl.setLocation(column1X,newLine());
@@ -1301,7 +1303,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
 		  targetingTypeLbl4.setLocation(column4X,yPosition);
 		  
 		  sizelbl3.setText("Size: ");
-		  sizelbl4.setText(sst.getSizeString());
+		  sizelbl4.setText(sst.getSize().getName());
 		  sizelbl3.setLocation(column3X,newLine());
 		  sizelbl4.setLocation(column4X,yPosition);
 		  
@@ -1475,9 +1477,9 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		  cloakingLbl4.setVisible(false);
     	  }
     	  
-    	  if(sst.getMaxResupply() > 0){
+    	  if(sst.getSupply() !=SpaceShipSize.NONE){
     		  supplyLabel3.setText("Supply level:");
-    		  supplyLabel4.setText(sst.getMaxResupplyString());
+    		  supplyLabel4.setText(sst.getSupply().getName());
     		  supplyLabel3.setLocation(column3X,newLine());
     		  supplyLabel4.setLocation(column4X,yPosition);
     		  supplyLabel3.setVisible(true);
@@ -1540,7 +1542,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		  lookLikeCivilianLbl4.setVisible(false);
     	  }
     	  
-    	  if(sst.getIncEnemyOpenBonus() > 0 || sst.getIncFrendlyOpenBonus() > 0 || sst.getIncNeutralOpenBonus() > 0 || sst.getIncOwnOpenBonus() > 0){
+    	  if(sst.getIncEnemyOpenBonus() > 0 || sst.getIncFriendlyOpenBonus() > 0 || sst.getIncNeutralOpenBonus() > 0 || sst.getIncOwnOpenBonus() > 0){
     		  incomeOpenLbl3.setText("Income Open (o/f/n/e):");
     		  incomeOpenLbl4.setText(sst.getIncomeOpenString());
     		  incomeOpenLbl3.setLocation(column3X,newLine());
@@ -1552,7 +1554,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		  incomeOpenLbl4.setVisible(false);
     	  }
     	  
-    	  if(sst.getIncEnemyClosedBonus() > 0 || sst.getIncFrendlyClosedBonus() > 0 || sst.getIncNeutralClosedBonus() > 0 || sst.getIncOwnClosedBonus() > 0){
+    	  if(sst.getIncEnemyClosedBonus() > 0 || sst.getIncFriendlyClosedBonus() > 0 || sst.getIncNeutralClosedBonus() > 0 || sst.getIncOwnClosedBonus() > 0){
     		  incomeClosedLbl3.setText("Income Closed (o/f/n/e):");
     		  incomeClosedLbl4.setText(sst.getIncomeClosedString());
     		  incomeClosedLbl3.setLocation(column3X,newLine());

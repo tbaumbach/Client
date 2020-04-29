@@ -10,6 +10,7 @@ import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.scrollable.TextAreaPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.expenses.ExpensePureFunction;
 import spaceraze.world.Building;
 import spaceraze.world.Galaxy;
 import spaceraze.world.Planet;
@@ -71,7 +72,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
 	    infoarea.append(sepLine);
 	    for (int i = 0; i < temp.size(); i++){
 	      Expense tempExpense = temp.get(i);
-	      infoarea.append(tempExpense.getText(g,aPlayer.getOrders()) + "\n");
+	      infoarea.append(tempExpense.getText(g, ExpensePureFunction.getCost(tempExpense, g, aPlayer)) + "\n");
 	    }
 	    infoarea.append("\n");
     }

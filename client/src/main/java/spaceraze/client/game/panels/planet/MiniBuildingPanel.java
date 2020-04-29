@@ -20,6 +20,7 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.components.scrollable.TextAreaPanel;
 import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
 import spaceraze.world.Building;
@@ -34,6 +35,7 @@ import spaceraze.world.comparator.BuildingTypeBuildCostAndNameComparator;
 import spaceraze.world.comparator.SpaceshipTypeSizeComparator;
 import spaceraze.world.comparator.VIPTypeComparator;
 import spaceraze.world.comparator.trooptype.TroopTypeComparator;
+import spaceraze.world.orders.Expense;
 import spaceraze.world.orders.Orders;
 
 public class MiniBuildingPanel extends SRBasePanel implements ActionListener, ListSelectionListener {
@@ -967,7 +969,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		// (MinBuildingPanel.java) och visas
 
 		int index = 0;
-		boolean showUpgrade = true; // skall endast visas i den �versta choicen
+		boolean showUpgrade = true; // skall endast visas i den översta choicen
 		int slotsleft = currentBuilding.getBuildingType().getWharfSize();
 		int tempMaxTonnage = slotsleft * 300;
 
@@ -976,13 +978,13 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			tempBuild = player.getGalaxy().findVIPBuildingBuildBonus(currentBuilding.getLocation(), player,
 					player.getOrders());
 			int cost = buildingType.getBuildCost(tempBuild);
-			addShipTypes(shipTypeChoice[index], showUpgrade, tempMaxTonnage);
+			addShipTypes(shipTypeChoice[index], showUpgrade, slotsleft);
 			shipTypeChoice[0].setSelectedItem(
 					buildingType.getName() + " (cost: " + cost + ") " + buildingType.getUniqueString());
 			shipTypeChoice[0].setVisible(true);
 			detailsUpgrade.setVisible(true);
 		} else {
-			List<SpaceshipType> buildsst = playersOrders.getAllShipBuilds(currentBuilding);
+			List<SpaceshipType> buildsst = getAllShipBuilds(currentBuilding);
 			// System.out.println("buildsst: " + buildsst.size());
 
 			if (buildsst.size() > 0) {
@@ -995,12 +997,12 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 				// System.out.println("slotsleft: " + slotsleft);
 				// System.out.println("");
 				SpaceshipType tempsst = buildsst.get(index);
-				addShipTypes(shipTypeChoice[index], showUpgrade, tempMaxTonnage);
+				addShipTypes(shipTypeChoice[index], showUpgrade, slotsleft);
 				if (showUpgrade) { // s�tt till false s� att endast den f�rsta choicen visar upgrade
 					showUpgrade = false;
 				}
 				// beräkna hur många slots det finns kvar efter detta skeppsbygge
-				slotsleft = slotsleft - tempsst.getSlots();
+				slotsleft = slotsleft - tempsst.getSize().getSlots();
 				// System.out.println("slotsleft: " + slotsleft);
 				tempMaxTonnage = slotsleft * 300;
 				// compute cost
@@ -1029,11 +1031,22 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 				// System.out.println("tempMaxTonnage: " + tempMaxTonnage);
 				// System.out.println("slotsleft: " + slotsleft);
 				// System.out.println("");
-				addShipTypes(shipTypeChoice[index], showUpgrade, tempMaxTonnage);
+				addShipTypes(shipTypeChoice[index], showUpgrade, slotsleft);
 				shipTypeChoice[index].setVisible(true);
 			}
 		}
 
+	}
+
+	// ska returnera en lista med alla skeppstyper det finns byggorder på för currentBuilding.
+	private List<SpaceshipType> getAllShipBuilds(Building currentBuilding){
+		List<SpaceshipType> allsst = new ArrayList<>();
+		for (Expense expense : player.getOrders().getExpenses()){
+			if (expense.isBuildingBuildingShip(currentBuilding)){
+				allsst.add(PlayerPureFunctions.findOwnSpaceshipType(expense.getSpaceshipTypeName(), player, player.getGalaxy()));
+			}
+		}
+		return allsst;
 	}
 
 	private void showTroopTypeChoices(Building currentBuilding) {
@@ -1239,7 +1252,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 
 	}
 
-	private void addShipTypes(ComboBoxPanel shiptypechoice, boolean showUpgrade, int currentMaxTonnage) {
+	private void addShipTypes(ComboBoxPanel shiptypechoice, boolean showUpgrade, int slotsleft) {
 		// System.out.println("addShipTypes " + showUpgrade + " " +
 		// shiptypechoice.getItemCount());
 		shiptypechoice.addItem("None");
@@ -1258,37 +1271,29 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		}
 		// System.out.println("efter upgrade");
 		// Vector alltypes = player.getSpaceshipTypes(); Old
-		List<SpaceshipType> alltypes = player.getAvailableSpaceshipTypes();
-		List<SpaceshipType> copyAllTypes = alltypes.stream().collect(Collectors.toList());
-		Collections.sort(copyAllTypes, new SpaceshipTypeSizeComparator());
+		List<SpaceshipType> alltypes = PlayerPureFunctions.getAvailableSpaceshipTypes(player.getGalaxy(), player);
+		//List<SpaceshipType> alltypes = player.getAvailableSpaceshipTypes();
+		//List<SpaceshipType> copyAllTypes = alltypes.stream().collect(Collectors.toList());
+		Collections.sort(alltypes, new SpaceshipTypeSizeComparator());
 		// Collections.reverse(copyAllTypes);
 		// System.out.println("efter alltypes");
 		String shipSize = "";
-		for (SpaceshipType tempsst : copyAllTypes) {
-			if (tempsst.getTonnage() <= currentMaxTonnage) {
+		for (SpaceshipType tempsst : alltypes) {
+			if (tempsst.getSize().getSlots() <= slotsleft) {
 				int cost = tempsst.getBuildCost(tempBuild);
 
-				if (!tempsst.getSizeString().equals(shipSize)
+				if (!tempsst.getSize().getName().equals(shipSize)
 						&& !(shipSize.equals("squadron") && tempsst.isSquadron())) {
 					if (tempsst.isSquadron()) {
 						shipSize = "squadron";
 					} else {
-						shipSize = tempsst.getSizeString();
+						shipSize = tempsst.getSize().getName();
 					}
 					shiptypechoice.addItem(getItemDescription(shipSize));
 				}
 				shiptypechoice.addItem(tempsst.getName() + " (cost: " + cost + ") " + tempsst.getUniqueString());
 			}
 		}
-		/*
-		 * for (int x = 0; x < alltypes.size(); x++){ SpaceshipType tempsst =
-		 * (SpaceshipType)alltypes.elementAt(x); //System.out.println("x: " + x +
-		 * " tempsst: " + tempsst.getName() + " " + tempsst.getTonnage() + " <=  " +
-		 * currentMaxTonnage); if (tempsst.getTonnage() <= currentMaxTonnage){
-		 * //System.out.println("adding"); int cost = tempsst.getBuildCost(tempBuild);
-		 * shiptypechoice.addItem(tempsst.getName() + " (cost: " + cost + ")"); } }
-		 */ alltypes = new ArrayList<SpaceshipType>();
-		currentMaxTonnage = 0;
 		// dumpdata(shiptypechoice);
 	}
 
@@ -1354,20 +1359,8 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 	}
 
 	private SpaceshipType getShipType(String typeName) {
-		String aTypeName = typeName;
-		// find shiptype
-		SpaceshipType st = null;
-		// Vector allshiptypes = player.getSpaceshipTypes(); old
-		Vector<SpaceshipType> allshiptypes = player.getAvailableSpaceshipTypes();
-		int i = 0;
-		while (st == null && i < allshiptypes.size()) {
-			SpaceshipType temp = allshiptypes.elementAt(i);
-			if (temp.getName().equalsIgnoreCase(aTypeName)) {
-				st = temp;
-			}
-			i++;
-		}
-		return st;
+		List<SpaceshipType> allShipTypes = PlayerPureFunctions.getAvailableSpaceshipTypes(player.getGalaxy(), player);
+		return allShipTypes.stream().filter(ship -> ship.getName().equalsIgnoreCase(typeName)).findFirst().orElse(null);
 	}
 
 	private VIPType getVIPType(String typeName) {
