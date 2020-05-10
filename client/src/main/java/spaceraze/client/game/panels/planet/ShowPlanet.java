@@ -256,7 +256,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 					bg.drawString("Neutral", textX, 54);
 				} else {
 					String tmpOwner = aPlanet.getPlayerInControl().getFaction().getName();
-					tmpOwner = tmpOwner + " (" + aPlanet.getPlayerInControl().getGovenorName() + ")";
+					tmpOwner = tmpOwner + " (" + aPlanet.getPlayerInControl().getGovernorName() + ")";
 					// planet belonging to other player
 					bg.setColor(ColorConverter
 							.getColorFromHexString(aPlanet.getPlayerInControl().getFaction().getPlanetHexColor()));

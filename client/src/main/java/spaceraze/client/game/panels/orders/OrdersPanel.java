@@ -224,12 +224,12 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	infoarea.append(sepLine);
     	for (DiplomacyOffer anOffer : offersList) {
     		if (anOffer.getSuggestedLevel() == DiplomacyLevel.VASSAL){
-    			infoarea.append("Make offer to " + anOffer.getOtherPlayer(g).getGovenorName() + " for you to become his lord and he your vassal\n");
+    			infoarea.append("Make offer to " + anOffer.getOtherPlayer(g).getGovernorName() + " for you to become his lord and he your vassal\n");
     		}else
     		if (anOffer.getSuggestedLevel() == DiplomacyLevel.LORD){
-    			infoarea.append("Make offer to " + anOffer.getOtherPlayer(g).getGovenorName() + " for him to become your lord and you his vassal\n");
+    			infoarea.append("Make offer to " + anOffer.getOtherPlayer(g).getGovernorName() + " for him to become your lord and you his vassal\n");
     		}else{ // other offer
-    			infoarea.append("Make offer to " + anOffer.getOtherPlayer(g).getGovenorName() + " for " + anOffer.getSuggestedLevel().toString() + "\n");
+    			infoarea.append("Make offer to " + anOffer.getOtherPlayer(g).getGovernorName() + " for " + anOffer.getSuggestedLevel().toString() + "\n");
     		}
     	}
         if (offersList.size() > 0){
@@ -237,12 +237,12 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
         }
     	for (DiplomacyChange aChange : changesList) {
     		if (aChange.getNewLevel() == DiplomacyLevel.VASSAL){
-    			infoarea.append("Make change for " + aChange.getOtherPlayer(g).getGovenorName() + " that you become his lord and he your vassal\n");
+    			infoarea.append("Make change for " + aChange.getOtherPlayer(g).getGovernorName() + " that you become his lord and he your vassal\n");
     		}else
     		if (aChange.getNewLevel() == DiplomacyLevel.LORD){
-    			infoarea.append("Make change for " + aChange.getOtherPlayer(g).getGovenorName() + " to become your lord and you his vassal\n");
+    			infoarea.append("Make change for " + aChange.getOtherPlayer(g).getGovernorName() + " to become your lord and you his vassal\n");
     		}else{ // other change
-    			infoarea.append("Make change for " + aChange.getOtherPlayer(g).getGovenorName() + " to " + aChange.getNewLevel().toString() + "\n");
+    			infoarea.append("Make change for " + aChange.getOtherPlayer(g).getGovernorName() + " to " + aChange.getNewLevel().toString() + "\n");
     		}
     	}
     	infoarea.append("\n");

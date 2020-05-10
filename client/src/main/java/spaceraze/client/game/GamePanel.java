@@ -99,7 +99,7 @@ public class GamePanel extends SRBasePanel implements SRUpdateablePanel{
     	
     	turnLbl2.setText(turnText);
     	
-    	govNameLbl2.setText(p.getGovenorName());
+    	govNameLbl2.setText(p.getGovernorName());
     	gameWorldLbl2.setText(gw.getFullName());
     	mapNameLbl2.setText(p.getGalaxy().getMapNameFull());
     	factionNameLbl2.setText(p.getFaction().getName());

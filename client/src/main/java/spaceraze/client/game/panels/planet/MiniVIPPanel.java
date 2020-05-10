@@ -308,7 +308,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 			} else {
 				destinationChoice.setSelectedItem("None");
 			}
-			if (player.isRetreatingGovenor()) {
+			if (player.isRetreatingGovernor()) {
 				destinationChoice.setEnabled(false);
 			} else if (player.isBrokeClient()) {
 				destinationChoice.setEnabled(false);

@@ -6,7 +6,6 @@ package spaceraze.client.mapeditor;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
@@ -260,7 +259,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 	 */
 	public void mouseDragged(MouseEvent me) {
 		System.out.println("me.getModifiers(): " + me.getModifiers());
-		System.out.println("me.getModifiersEx(): " + me.getModifiersEx());
+		System.out.println("New method me.getModifiersEx(), check number and replace the deprecated me.getModifiers(): " + me.getModifiersEx());
 	    if (me.getModifiers() == 16){ // left mousebutton dragged
 	    	int newX = me.getX();
 	    	int newY = me.getY();

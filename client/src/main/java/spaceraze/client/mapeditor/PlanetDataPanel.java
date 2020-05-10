@@ -159,7 +159,7 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 			ToggleShowPlanet(true);
 			// set data
 			planetNameTf.setText(selectedPlanet.getName());
-			startPlanet.setSelected(selectedPlanet.isPosssibleStartplanet());
+			startPlanet.setSelected(selectedPlanet.isPossibleStartPlanet());
 			String tmpX = String.valueOf(Math.round(selectedPlanet.getXcoor()));
 			String tmpY = String.valueOf(Math.round(selectedPlanet.getYcoor()));
 			String tmpZ = String.valueOf(Math.round(selectedPlanet.getZcoor()));
@@ -275,7 +275,7 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 			repaint();
 		}else
 		if(ae.getSource() == startPlanet){
-			selectedPlanet.setPosssibleStartplanet(startPlanet.isSelected());
+			selectedPlanet.setPossibleStartPlanet(startPlanet.isSelected());
 		}
 	}
 

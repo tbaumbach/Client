@@ -47,7 +47,7 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 		setBackground(Color.BLACK);
 		setOpaque(true);
 
-		playerLbl = new SRLabel(otherPlayer.getGovenorName() + " (" + otherPlayer.getFaction().getName() + ")");
+		playerLbl = new SRLabel(otherPlayer.getGovernorName() + " (" + otherPlayer.getFaction().getName() + ")");
 		playerLbl.setBounds(0, 5, 190, 20);
 		playerLbl.setForeground(ColorConverter.getColorFromHexString(otherPlayer.getFaction().getPlanetHexColor()));
 		add(playerLbl);
@@ -255,7 +255,7 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 						// ta ev. bort f�reslaget offer
 						GeneralConfirmPopupPanel popup = new GeneralConfirmPopupPanel("Remove diplomatic action?", this,
 								"Do you want to remove the existing diplomacy order to Govenor "
-										+ otherPlayer.getGovenorName() + "?");
+										+ otherPlayer.getGovernorName() + "?");
 						popup.setPopupSize(450, 110);
 						popup.open(this);
 					}
@@ -265,13 +265,13 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 					// �ppna skapa ny offer dialog s� man kan �ngra sitt f�rslag
 					GeneralConfirmPopupPanel popup = new GeneralConfirmPopupPanel("Remove diplomatic offer?", this,
 							"Do you want to remove the existing diplomacy offer to Govenor "
-									+ otherPlayer.getGovenorName() + "?");
+									+ otherPlayer.getGovernorName() + "?");
 					popup.setPopupSize(450, 110);
 					popup.open(this);
 				} else if (clickedIcon.getState() == DiplomacyIconState.PASSIVE_AND_SELECTED_AND_SUGGESTED) {
 					// �ppna reply to offer dialog s� man kan �ndra texten p� sitt accepterande
 					GeneralConfirmPopupPanel popup = new GeneralConfirmPopupPanel("Remove diplomatic acceptance?", this,
-							"Do you want to remove the existing acceptance to Govenor " + otherPlayer.getGovenorName()
+							"Do you want to remove the existing acceptance to Govenor " + otherPlayer.getGovernorName()
 									+ "'s offer?");
 					popup.setPopupSize(450, 110);
 					popup.open(this);
@@ -282,14 +282,14 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 							// create message that action cannot be performed
 							errorPopup = true;
 							GeneralMessagePopupPanel popup = new GeneralMessagePopupPanel("Conflicting offer exist",
-									this, "You cannot create offer to " + otherPlayer.getGovenorName()
+									this, "You cannot create offer to " + otherPlayer.getGovernorName()
 											+ " since you already have an offer for confederacy/vassal to a player");
 							popup.setPopupSize(650, 110);
 							popup.open(this);
 						} else {
 							// �ppna reply to offer dialogen att den andra blir vasall (och du blir lord)
 							GeneralConfirmPopupPanel popup = new GeneralConfirmPopupPanel("Accept Lordship?", this,
-									"Do you want to accept that Govenor " + otherPlayer.getGovenorName()
+									"Do you want to accept that Govenor " + otherPlayer.getGovernorName()
 											+ " become your vassal and you his lord?");
 							popup.setPopupSize(450, 110);
 							popup.open(this);
@@ -300,14 +300,14 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 							// create message that action cannot be performed
 							errorPopup = true;
 							GeneralMessagePopupPanel popup = new GeneralMessagePopupPanel("Conflicting offer exist",
-									this, "You cannot create offer to " + otherPlayer.getGovenorName()
+									this, "You cannot create offer to " + otherPlayer.getGovernorName()
 											+ " since you already have an offer for confederacy/vassal/lord to a player");
 							popup.setPopupSize(650, 110);
 							popup.open(this);
 						} else {
 							// �ppna reply to offer dialogen att du blir vasall
 							GeneralConfirmPopupPanel popup = new GeneralConfirmPopupPanel("Accept Vassalship?", this,
-									"Do you want to accept that Govenor " + otherPlayer.getGovenorName()
+									"Do you want to accept that Govenor " + otherPlayer.getGovernorName()
 											+ " become your lord and you a vassal?");
 							popup.setPopupSize(450, 110);
 							popup.open(this);
@@ -318,7 +318,7 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 							// create message that action cannot be performed
 							errorPopup = true;
 							GeneralMessagePopupPanel popup = new GeneralMessagePopupPanel("Conflicting offer exist",
-									this, "You cannot create offer to " + otherPlayer.getGovenorName()
+									this, "You cannot create offer to " + otherPlayer.getGovernorName()
 											+ " since you already have an offer for confederacy/vassal/lord to a player");
 							popup.setPopupSize(650, 110);
 							popup.open(this);
@@ -329,7 +329,7 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 								// �ppna reply to offer dialogen
 								GeneralConfirmPopupPanel popup = new GeneralConfirmPopupPanel(
 										"Accept diplomatic offer?", this,
-										"Do you want to accept Govenor " + otherPlayer.getGovenorName()
+										"Do you want to accept Govenor " + otherPlayer.getGovernorName()
 												+ "'s offer for " + clickedIcon.getLevel().getName() + "?");
 								popup.setPopupSize(450, 110);
 								popup.open(this);
@@ -346,7 +346,7 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 					} else {
 						// �ppna reply to offer dialogen
 						GeneralConfirmPopupPanel popup = new GeneralConfirmPopupPanel("Accept diplomatic offer?", this,
-								"Do you want to accept Govenor " + otherPlayer.getGovenorName() + "'s offer for "
+								"Do you want to accept Govenor " + otherPlayer.getGovernorName() + "'s offer for "
 										+ clickedIcon.getLevel().getName() + "?");
 						popup.setPopupSize(450, 110);
 						popup.open(this);
@@ -363,7 +363,7 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 								// create message that action cannot be performed
 								errorPopup = true;
 								GeneralMessagePopupPanel popup = new GeneralMessagePopupPanel("Conflicting offer exist",
-										this, "You cannot create offer to " + otherPlayer.getGovenorName()
+										this, "You cannot create offer to " + otherPlayer.getGovernorName()
 												+ " since you already have an offer for confederacy/vassal/lord to a player");
 								popup.setPopupSize(650, 110);
 								popup.open(this);
@@ -376,7 +376,7 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 										GeneralConfirmPopupPanel popup = new GeneralConfirmPopupPanel(
 												"New diplomatic offer?", this,
 												"Do you want to propose " + clickedIcon.getLevel().getName()
-														+ " to Govenor " + otherPlayer.getGovenorName() + "?");
+														+ " to Govenor " + otherPlayer.getGovernorName() + "?");
 										popup.setPopupSize(400, 110);
 										popup.open(this);
 									} else { // otherPlayer is in conf with at least one other players
@@ -401,7 +401,7 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 							// skapa ett nytt offer
 							GeneralConfirmPopupPanel popup = new GeneralConfirmPopupPanel("New diplomatic offer?", this,
 									"Do you want to propose " + clickedIcon.getLevel().getName() + " to Govenor "
-											+ otherPlayer.getGovenorName() + "?");
+											+ otherPlayer.getGovernorName() + "?");
 							popup.setPopupSize(400, 110);
 							popup.open(this);
 						}
@@ -410,7 +410,7 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 						// skapa ett nytt change
 						GeneralConfirmPopupPanel popup = new GeneralConfirmPopupPanel("New diplomatic change?", this,
 								"Do you want to change to " + clickedIcon.getLevel().getName() + " towards Govenor "
-										+ otherPlayer.getGovenorName() + "?");
+										+ otherPlayer.getGovernorName() + "?");
 						popup.setPopupSize(400, 110);
 						popup.open(this);
 					} else if (clickedIcon.getLevel() == DiplomacyLevel.LORD) {
@@ -419,14 +419,14 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 							// create message that action cannot be performed
 							errorPopup = true;
 							GeneralMessagePopupPanel popup = new GeneralMessagePopupPanel("Conflicting offer exist",
-									this, "You cannot create offer to " + otherPlayer.getGovenorName()
+									this, "You cannot create offer to " + otherPlayer.getGovernorName()
 											+ " since you already have an offer for confederacy/vassal to a player");
 							popup.setPopupSize(650, 110);
 							popup.open(this);
 						} else {
 							// skapa ett nytt offer att den andra blir vassall
 							GeneralConfirmPopupPanel popup = new GeneralConfirmPopupPanel("New diplomatic offer?", this,
-									"Do you want to propose that Govenor " + otherPlayer.getGovenorName()
+									"Do you want to propose that Govenor " + otherPlayer.getGovernorName()
 											+ " admit his defeat and become your vassal?");
 							popup.setPopupSize(550, 110);
 							popup.open(this);
@@ -438,14 +438,14 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 							// create message that action cannot be performed
 							errorPopup = true;
 							GeneralMessagePopupPanel popup = new GeneralMessagePopupPanel("Conflicting offer exist",
-									this, "You cannot create offer to " + otherPlayer.getGovenorName()
+									this, "You cannot create offer to " + otherPlayer.getGovernorName()
 											+ " since you already have an offer for confederacy/vassal/lord to a player");
 							popup.setPopupSize(650, 110);
 							popup.open(this);
 						} else {
 							// skapa ett nytt offer att den andra blir lord
 							GeneralConfirmPopupPanel popup = new GeneralConfirmPopupPanel("New diplomatic offer?", this,
-									"Do you want to propose to Govenor " + otherPlayer.getGovenorName()
+									"Do you want to propose to Govenor " + otherPlayer.getGovernorName()
 											+ " that you become his vassal?");
 							popup.setPopupSize(450, 110);
 							popup.open(this);

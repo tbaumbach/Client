@@ -154,8 +154,8 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
     for (int i = 0; i < g.getPlayers().size(); i++){
       Player tempPlayer = (Player)g.getPlayers().get(i);
       if ((!tempPlayer.isDefeated()) & (tempPlayer != p)){
-      	dlm.addElement("Governor " + tempPlayer.getGovenorName() + " (" + tempPlayer.getFaction().getName() + ")");
-      	originalRecipientStrings.add("Governor " + tempPlayer.getGovenorName() + " (" + tempPlayer.getFaction().getName() + ")");
+      	dlm.addElement("Governor " + tempPlayer.getGovernorName() + " (" + tempPlayer.getFaction().getName() + ")");
+      	originalRecipientStrings.add("Governor " + tempPlayer.getGovernorName() + " (" + tempPlayer.getFaction().getName() + ")");
       }
     }
   }

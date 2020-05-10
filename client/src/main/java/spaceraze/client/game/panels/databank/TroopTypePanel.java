@@ -21,6 +21,7 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Faction;
@@ -386,7 +387,7 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
     		tempTtList = showOnlyFaction.getTroopTypes(); // borde funka som == 2 nedan
     	}else 
     	if(filterChoice.getSelectedIndex() == 2){
-    		tempTtList = p.getTroopTypes();
+    		tempTtList = PlayerPureFunctions.getTroopTypes(p.getGalaxy(), p);
     	}
     	else{
     		tempTtList = troopTypes;
@@ -469,7 +470,7 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
       TroopType tt = null;
       int i = 0;
       if(filterChoice.getSelectedIndex() == 2){
-    	  tt = p.findTroopType(findname);
+    	  tt = PlayerPureFunctions.findOwnTroopType(findname, p, p.getGalaxy());
       }else
       if(filterChoice.getSelectedIndex() > 2){
     	  Faction aFaction = factions.get(filterChoice.getSelectedIndex() - 3);

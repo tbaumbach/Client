@@ -741,7 +741,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		Faction showOnlyFaction = factions.get(filterChoice.getSelectedIndex() - 3);
     		tempSstList = showOnlyFaction.getSpaceshipTypes();
     	}else if(filterChoice.getSelectedIndex() == 2){
-    		tempSstList = PlayerPureFunctions.getAvailableSpaceshipTypes(p.getGalaxy(), p);
+    		tempSstList = PlayerPureFunctions.getSpaceshipTypes(p.getGalaxy(), p);
     	}
     	else{
     		tempSstList = spaceshiptypes;

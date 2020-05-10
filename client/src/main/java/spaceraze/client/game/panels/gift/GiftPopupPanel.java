@@ -33,7 +33,7 @@ public class GiftPopupPanel extends BasicPopupPanel {
 	    transactionRecipientLabel.setBounds(10,40,100,20);
 	    add(transactionRecipientLabel);
 
-	    transactionRecipientNameLabel = new SRLabel(p.getGovenorName());
+	    transactionRecipientNameLabel = new SRLabel(p.getGovernorName());
 	    transactionRecipientNameLabel.setBounds(130,40,150,20);
 	    add(transactionRecipientNameLabel);
 

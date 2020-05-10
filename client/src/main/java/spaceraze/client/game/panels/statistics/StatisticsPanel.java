@@ -64,7 +64,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     		strGov.setBounds(10,70,90,20);
     		add(strGov);
 
-    		mostKills = new SRLabel(getMostKills().getOwner().getGovenorName() + " have a ship ("+ getMostKills().getName()  +") with most kills in the Galaxy ( " + getMostKills().getKills() + " Kills)." , ColorConverter.getColorFromHexString(getMostKills().getOwner().getFaction().getPlanetHexColor()));
+    		mostKills = new SRLabel(getMostKills().getOwner().getGovernorName() + " have a ship ("+ getMostKills().getName()  +") with most kills in the Galaxy ( " + getMostKills().getKills() + " Kills)." , ColorConverter.getColorFromHexString(getMostKills().getOwner().getFaction().getPlanetHexColor()));
     		mostKills.setBounds(70,70,500,20);
     		add(mostKills);
     	}
@@ -193,7 +193,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     private void fillPlayerList(){
     	highlightPlayerChoice.addItem("None");
     	for (Player aPlayer : g.getPlayers()) {
-    		highlightPlayerChoice.addItem(aPlayer.getGovenorName() + " (" + aPlayer.getFaction().getName() + ")");
+    		highlightPlayerChoice.addItem(aPlayer.getGovernorName() + " (" + aPlayer.getFaction().getName() + ")");
     	}
     }
 

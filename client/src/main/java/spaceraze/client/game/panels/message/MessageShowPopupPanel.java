@@ -46,7 +46,7 @@ public class MessageShowPopupPanel extends BasicPopupPanel {
 
 	    String senderText = null;
 	    if (aMessage.getSender(aGalaxy) != null){
-	    	senderText = "Governor " + aMessage.getSender(aGalaxy).getGovenorName(); 
+	    	senderText = "Governor " + aMessage.getSender(aGalaxy).getGovernorName();
 	    }else{
 	    	senderText = aMessage.getSender();
 	    }

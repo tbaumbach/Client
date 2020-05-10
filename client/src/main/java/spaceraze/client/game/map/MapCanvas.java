@@ -414,7 +414,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 							Planet tempPlanet = player.getGalaxy().findPlanet(c.getName());
 							String planetOwner = null;
 							if (tempPlanet.getPlayerInControl() != null) {
-								planetOwner = tempPlanet.getPlayerInControl().getGovenorName();
+								planetOwner = tempPlanet.getPlayerInControl().getGovernorName();
 							}
 							boolean spy = (player.getGalaxy().findVIPSpy(tempPlanet, player) != null);
 							boolean shipInSystem = player.getGalaxy().playerHasShipsInSystem(player, tempPlanet);
@@ -423,7 +423,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 								troopInSystem = true;
 							}
 							if ((planetOwner != null) && (planetOwner.equals(highlightPlayer))) {
-								if (c.isOpen() | planetOwner.equals(player.getGovenorName()) | spy | shipInSystem
+								if (c.isOpen() | planetOwner.equals(player.getGovernorName()) | spy | shipInSystem
 										| troopInSystem) {
 									// highlight planet
 									drawSelectedPlanet(bg, newx, newy, cc);
@@ -887,7 +887,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 					// skriv ut st�rsta skeppsstorleken + (GovName) i r�tt f�rg
 					if (!shipSize.equalsIgnoreCase("")) {
 						g.setColor(ColorConverter.getColorFromHexString(tempPlayer.getFaction().getPlanetHexColor()));
-						g.drawString(shipSize + " (" + tempPlayer.getGovenorName() + ")", x, y);
+						g.drawString(shipSize + " (" + tempPlayer.getGovernorName() + ")", x, y);
 						y = y + 9;
 					}
 				}
@@ -921,7 +921,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 					if (numberOfTroops > 0) {
 						troopString = numberOfTroops + " troops";
 						g.setColor(ColorConverter.getColorFromHexString(tempPlayer.getFaction().getPlanetHexColor()));
-						g.drawString(troopString + " (" + tempPlayer.getGovenorName() + ")", x, y);
+						g.drawString(troopString + " (" + tempPlayer.getGovernorName() + ")", x, y);
 						y = y - 9;
 						troopString = "";
 					}

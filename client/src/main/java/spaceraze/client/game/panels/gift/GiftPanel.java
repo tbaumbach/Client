@@ -84,7 +84,7 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
 		  Player tempPlayer = (Player)players.get(i);
 		  if (tempPlayer != p){ // can not give money to himself
 			  int giftSum = p.getOrders().findGift(tempPlayer);
-			  String rowText = tempPlayer.getGovenorName() + " (" + tempPlayer.getFaction().getName() + ")";
+			  String rowText = tempPlayer.getGovernorName() + " (" + tempPlayer.getFaction().getName() + ")";
 			  if (giftSum > 0){
 				  rowText += ", give:" + giftSum;
 			  }
@@ -113,7 +113,7 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
   private void showButtons(int index){
 	  Logger.fine("showButtons: " + index);
 	  Player giveToPlayer = (Player)otherPlayers.get(index);
-	  Logger.fine("Player found: " + giveToPlayer.getGovenorName());
+	  Logger.fine("Player found: " + giveToPlayer.getGovernorName());
 	  int amount = p.getOrders().findGift(giveToPlayer);
 	  if (amount > 0){
 		  // if amount is > 0, gift exists

@@ -40,13 +40,13 @@ import spaceraze.world.orders.ResearchOrder;
 public class ResearchPanel extends SRBasePanel implements ListSelectionListener, SRUpdateablePanel, ActionListener {
 	private String id;
 	//private List<SRButton> parent, child;
-	private ListPanel rotResearchAdvantageList,shipList,troopsList,vipsList, buildingsList;
+	private ListPanel rotResearchAdvantageList,shipList,troopsList, buildingsList;
 	private List<Faction> factions;
 	private ComboBoxPanel treeChoice;
-	private SRLabel name, name2, childLabel, parentLabel,descriptionLabel,detailsLabel,shipListLabel,troopListLabel,vipListLabel,buildingListLabel ,turnInfo,costLabel;
+	private SRLabel name, name2, childLabel, parentLabel,descriptionLabel,detailsLabel,shipListLabel,troopListLabel,buildingListLabel ,turnInfo,costLabel;
 	private JScrollPane scrollPaneDetails,scrollPaneDescription;
     private SRTextArea detailsArea,descriptionArea;
-    private SRButton viewShipButton,viewTroopButton,viewVIPButton, viewBuildingButton, doResearchButton;
+    private SRButton viewShipButton,viewTroopButton, viewBuildingButton, doResearchButton;
     private Player p;
     private static int column1X = 220, columnUnitX = 660;
     private int parentAndChildButtonMaxIndexNumber= 0;
@@ -121,33 +121,6 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 	    viewTroopButton.setToolTipText("Mark a Troop in the list and hit this button to view troop details");
 	    viewTroopButton.setVisible(false);
 	    add(viewTroopButton);
-	    
-	    //VIP List label
-	    vipListLabel = new SRLabel();
-	    vipListLabel.setBounds(columnUnitX,344,175,16);
-	    vipListLabel.setText("New VIPs:");
-	    vipListLabel.setToolTipText("Shows new VIPs that will be added to you.");
-	    vipListLabel.setVisible(false);
-        add(vipListLabel);
-	    
-	    // VIP List
-        vipsList = new ListPanel();
-        vipsList.setBounds(columnUnitX,363,175,45);
-        vipsList.setListSelectionListener(this);
-        vipsList.setForeground(StyleGuide.colorCurrent);
-        vipsList.setBackground(StyleGuide.colorBackground);
-        vipsList.setBorder(new LineBorder(StyleGuide.colorCurrent));
-        vipsList.setToolTipText("Mark a VIP in the list and hit 'View VIP Details' button to view VIP details");
-        vipsList.setVisible(false);
-	    add(vipsList);
-	    
-	    // View VIP Info
-	    viewVIPButton = new SRButton("View VIP Details");
-	    viewVIPButton.setBounds(columnUnitX,411,175,20);
-	    viewVIPButton.addActionListener(this);
-	    viewVIPButton.setToolTipText("Mark a VIP in the list and hit this button to view VIP details");
-	    viewVIPButton.setVisible(false);
-	    add(viewVIPButton);
 	    
 	    // Building List label
 	    buildingListLabel = new SRLabel();
@@ -352,11 +325,6 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 			 viewTroopButton.setVisible(true);
 			 repaint();
 		 }
-		 if (lse.getSource() == vipsList){
-			 Logger.fine("viewVIPButton.setVisible(true)");
-			 viewVIPButton.setVisible(true);
-			 repaint();
-		 }
 		 if (lse.getSource() == buildingsList){
 			 Logger.fine("viewBuildingButton.setVisible(true)");
 			 viewBuildingButton.setVisible(true);
@@ -424,29 +392,6 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 			 troopListLabel.setVisible(false);
 			 troopsList.setVisible(false);
 			 viewTroopButton.setVisible(false);
-		 }
-		 
-		 if(researchAdvantage.getVIPTypes().size() > 0){
-			 DefaultListModel dlm = (DefaultListModel)vipsList.getModel();
-			 dlm.removeAllElements();
-			 List<VIPType> tmpVIPs = null;
-			 tmpVIPs = researchAdvantage.getVIPTypes();
-			 for (VIPType aVIPType : tmpVIPs) {
-				 dlm.addElement(aVIPType.getName());
-			 }
-			 vipsList.setLocation(columnUnitX, 259+ xpos);
-			 vipListLabel.setLocation(columnUnitX, 240+ xpos);
-			 viewVIPButton.setLocation(columnUnitX, 307+ xpos);
-			 vipsList.updateScrollList();
-			 vipListLabel.setVisible(true);
-			 vipsList.setVisible(true);
-			 //viewVIPButton.setVisible(true);
-			 
-			 xpos+=90;
-		 }else{
-			 vipListLabel.setVisible(false);
-			 vipsList.setVisible(false);
-			 viewVIPButton.setVisible(false);
 		 }
 		 
 		 if(researchAdvantage.getBuildingTypes().size() > 0){
@@ -647,8 +592,6 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 		shipList.setVisible(false);
 		troopListLabel.setVisible(false);
 		troopsList.setVisible(false);
-		vipListLabel.setVisible(false);
-		vipsList.setVisible(false);
 		buildingListLabel.setVisible(false);
 		buildingsList.setVisible(false);
 		name2.setText("");
@@ -662,7 +605,6 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 		descriptionArea.setText("");
 		viewShipButton.setVisible(false);
 		viewTroopButton.setVisible(false);
-		viewVIPButton.setVisible(false);
 		doResearchButton.setVisible(false);
 		turnInfo.setVisible(false);
 		costLabel.setVisible(false);
@@ -689,15 +631,6 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 				client.showTroopTypeDetails(troopsList.getSelectedItem(), "Yours");
 			}else{
 				client.showTroopTypeDetails(troopsList.getSelectedItem(), treeChoice.getSelectedItem());
-			}
-			
-	  	}else
-		if (o == viewVIPButton){
-			// fixa s� att man tittar p� sinna egna vipar i player eller i faction f�r resten.
-			if(treeChoice.getSelectedItem().equalsIgnoreCase("My tree")){
-				client.showVIPTypeDetails(vipsList.getSelectedItem(), "All");
-			}else{
-				client.showVIPTypeDetails(vipsList.getSelectedItem(), treeChoice.getSelectedItem());
 			}
 			
 	  	}else

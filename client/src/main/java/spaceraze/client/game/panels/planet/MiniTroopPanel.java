@@ -451,7 +451,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			destinationchoice.setVisible(true);
 
 			// set properties and initial value
-			if (player.isBrokeClient() | player.isRetreatingGovenor() | !aTroop.isSpaceshipTravel()
+			if (player.isBrokeClient() | player.isRetreatingGovernor() | !aTroop.isSpaceshipTravel()
 					| player.getTroopSelfDestruct(aTroop)) {
 				destinationchoice.setEnabled(false);
 			} else {
@@ -529,7 +529,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 					noSelfdestruct = false;
 				}
 			}
-			if (player.isBrokeClient() | player.isRetreatingGovenor() | allCanMove | noSelfdestruct) {
+			if (player.isBrokeClient() | player.isRetreatingGovernor() | allCanMove | noSelfdestruct) {
 				destinationchoice.setEnabled(false);
 			} else {
 				destinationchoice.setVisible(true);

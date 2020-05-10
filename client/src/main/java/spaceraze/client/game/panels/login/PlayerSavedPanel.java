@@ -26,7 +26,7 @@ public class PlayerSavedPanel extends SRBasePanel {
 		setForeground(StyleGuide.colorCurrent);
 		setBorder(new LineBorder(StyleGuide.colorCurrent));
 
-		titleLabel = new SRLabel("Player " + p.getName() + " (Govenor " + p.getGovenorName() + ") Saved",
+		titleLabel = new SRLabel("Player " + p.getName() + " (Govenor " + p.getGovernorName() + ") Saved",
 				SwingConstants.CENTER);
 		titleLabel.setBounds(100, 155, 400, 20);
 		titleLabel.setFont(new Font("Helvetica", 1, 14));

@@ -115,7 +115,7 @@ public class TurnInfoPanel extends SRBasePanel implements ActionListener {
 
 		gameInfo = "Turn: " + p.getGalaxy().turn;
 		// gameInfo += " | " + "Map: " + p.getGalaxy().getMapNameFull();
-		gameInfo += "  |  " + "Governor: " + p.getGovenorName();
+		gameInfo += "  |  " + "Governor: " + p.getGovernorName();
 		gameInfo += "  |  " + "Faction: " + p.getFaction().getName();
 		// gameInfo += " | " + "Game world: " +
 		// p.getGalaxy().getGameWorld().getFullName();

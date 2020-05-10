@@ -17,7 +17,6 @@ import spaceraze.client.components.ComboBoxPanel;
 import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRButton;
 import spaceraze.client.components.SRLabel;
-import spaceraze.util.general.Functions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Planet;
 import spaceraze.world.Player;
@@ -254,7 +253,7 @@ public class MapControls extends SRBasePanel implements ItemListener, MouseListe
 		List<Player> sortedPlayers = players.stream().collect(Collectors.toList());
 		Collections.sort(sortedPlayers, new PlayerNameComparator<Player>());
 		for (Player player : sortedPlayers) {
-			thischoice.addItem(player.getGovenorName());
+			thischoice.addItem(player.getGovernorName());
 		}
 	}
 

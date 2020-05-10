@@ -39,10 +39,10 @@ public class DiplomacyPanel extends SRBasePanel implements SRUpdateablePanel, It
 		playerChoice.setBounds(130, 10, 220, 20);
 		for (Player aPlayer : p.getGalaxy().players) {
 			if (!aPlayer.isDefeated()) {
-				playerChoice.addItem(aPlayer.getGovenorName() + " (" + aPlayer.getFaction().getName() + ")");
+				playerChoice.addItem(aPlayer.getGovernorName() + " (" + aPlayer.getFaction().getName() + ")");
 			}
 		}
-		playerChoice.setSelectedItem(p.getGovenorName() + " (" + p.getFaction().getName() + ")");
+		playerChoice.setSelectedItem(p.getGovernorName() + " (" + p.getFaction().getName() + ")");
 		playerChoice.addItemListener(this);
 		add(playerChoice);
 

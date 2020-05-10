@@ -725,7 +725,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 				destinationchoice.setEnabled(false);
 			} else if (player.isBrokeClient()) {
 				destinationchoice.setEnabled(false);
-			} else if (player.isRetreatingGovenor()) {
+			} else if (player.isRetreatingGovernor()) {
 				destinationchoice.setEnabled(false);
 			} else {
 				if (ss.isRetreating()) { // cannot happen, retreating ships are not included in selectable list?
@@ -926,7 +926,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			if (player.isBrokeClient()) {
 				destinationLabel.setText("Destination: ");
 				destinationchoice.setEnabled(false);
-			} else if (player.isRetreatingGovenor()) {
+			} else if (player.isRetreatingGovernor()) {
 				destinationLabel.setText("Destination: ");
 				destinationchoice.setEnabled(false);
 			} else {
