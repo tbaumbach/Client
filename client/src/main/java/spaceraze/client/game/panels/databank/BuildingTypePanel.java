@@ -22,6 +22,8 @@ import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.BuildingPureFunctions;
+import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
@@ -210,9 +212,9 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 		 if (filterChoice.getSelectedIndex() > 0){
    		// get faction root ResearchAdvantages
 			 Faction showOnlyFaction = factions.get(filterChoice.getSelectedIndex() - 1);
-			 tmpRootBuildings = showOnlyFaction.getBuildings().getRootBuildings();
+			 tmpRootBuildings = BuildingPureFunctions.getRootBuildings(showOnlyFaction.getBuildings().getBuildings());
 		 }else{
-			 tmpRootBuildings = p.getBuildings().getRootBuildings();
+			 tmpRootBuildings = BuildingPureFunctions.getRootBuildings(p);
 		 }
    	
 		 for(int i = 0; i < tmpRootBuildings.size(); i++){
@@ -256,12 +258,12 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 	    	
 		 Logger.fine("showBuilding(String BuildingName) " + buildingName);
 		 if(filterChoice.getSelectedIndex() == 0){
-			 buildingType = p.findBuildingType(buildingName);
-			 nextBuildingTypes = p.getBuildings().getNextBuildingSteps(buildingType);
+			 buildingType = PlayerPureFunctions.findOwnBuildingType(buildingName, p);
+			 nextBuildingTypes = BuildingPureFunctions.getNextBuildingSteps(buildingType, PlayerPureFunctions.getBuildingTypes(p));
 		 }
 		 else{
 			 buildingType = p.getGalaxy().getFaction(filterChoice.getSelectedItem()).getBuildings().getBuildingType(buildingName);
-			 nextBuildingTypes = p.getGalaxy().getFaction(filterChoice.getSelectedItem()).getBuildings().getNextBuildingSteps(buildingType);
+			 nextBuildingTypes = BuildingPureFunctions.getNextBuildingSteps(buildingType, p.getGalaxy().getFaction(filterChoice.getSelectedItem()).getBuildings().getBuildings());
 		 }
 		 
     	
@@ -345,9 +347,9 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 
 		 tmpY += 18;
 		 
-		 if(buildingType.getParentBuilding() != null){
-			 parentbutton.setToolTipText("Hit this button to see the parent building: " + buildingType.getParentBuilding().getName());
-			 parentbutton.setText(buildingType.getParentBuilding().getName());
+		 if(buildingType.getParentBuildingName() != null){
+			 parentbutton.setToolTipText("Hit this button to see the parent building: " + buildingType.getParentBuildingName());
+			 parentbutton.setText(buildingType.getParentBuildingName());
 			 parentbutton.setBounds(column1X, tmpY, buttonWidth, 20);
 			 parentbutton.setVisible(true);
 			 

@@ -20,18 +20,12 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.components.scrollable.TextAreaPanel;
 import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.servlethelper.game.BuildingPureFunctions;
 import spaceraze.servlethelper.game.VipPureFunctions;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
-import spaceraze.world.Building;
-import spaceraze.world.BuildingType;
-import spaceraze.world.Planet;
-import spaceraze.world.Player;
-import spaceraze.world.SpaceshipType;
-import spaceraze.world.TroopType;
-import spaceraze.world.VIP;
-import spaceraze.world.VIPType;
+import spaceraze.world.*;
 import spaceraze.world.comparator.BuildingTypeBuildCostAndNameComparator;
 import spaceraze.world.comparator.SpaceshipTypeSizeComparator;
 import spaceraze.world.comparator.VIPTypeComparator;
@@ -41,7 +35,7 @@ import spaceraze.world.orders.Orders;
 
 public class MiniBuildingPanel extends SRBasePanel implements ActionListener, ListSelectionListener {
 	private static final long serialVersionUID = 1L;
-	List<Building> allBuildings = new ArrayList<Building>();
+	List<Building> allBuildings = new ArrayList<>();
 	ListPanel buildingList;
 	SRLabel maxTonnageLabel, statusLabel, nameLabel, locationLabel, buildTypeLabel, slotsLabel, abilitiesLabel,
 			currentBuildBuildingLabel, newBuildBuildingLabel;
@@ -86,7 +80,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		if (enemyTroopsOnPlanet | underSiege | abandonPlanet) {
 			buildnewBuildingChoice.setEnabled(false);
 		} else {
-			fillnewBuildingsChoice();
+			fillNewBuildingsChoice();
 			buildnewBuildingChoice.addActionListener(this);
 		}
 		buildnewBuildingChoice.setToolTipText("Choose a new building to build.");
@@ -220,13 +214,12 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		add(detailsButton);
 
 		Orders o = player.getOrders();
-		if (o.getNewBuilding(aPlanet) != null) {
-			BuildingType buildingType = o.getNewBuilding(aPlanet);
+		if (BuildingPureFunctions.getNewBuilding(aPlanet, player, o.getExpenses()) != null) {
+			BuildingType buildingType = BuildingPureFunctions.getNewBuilding(aPlanet, player, o.getExpenses());
 			VIP tempEngineer = player.getGalaxy().findVIPBuildingBuildBonus(aPlanet, player, player.getOrders());
 			int cost = buildingType.getBuildCost(tempEngineer);
 			buildnewBuildingChoice.setSelectedItem(buildingType.getName() + " (cost: " + cost + ")");
 			detailsNewBuildingChoice.setVisible(true);
-			// buildnewBuildingChoice.setVisible(true);
 		}
 
 	}
@@ -412,7 +405,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 	}
 
 	private void newOrder(int choiceIndex, String unitType) {
-		// f�rst ta bort alla gamla orders f�r det aktuella varvet
+		// först ta bort alla gamla orders för det aktuella varvet
 		System.out.println("newOrder currentBuilding: " + currentBuilding.getUniqueId());
 
 		player.getOrders().removeUpgradeBuilding(currentBuilding, player.getGalaxy());
@@ -430,19 +423,18 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 				if (selected.equalsIgnoreCase("None") || selected.startsWith("---")) {
 					// g�r inget
 				} else {
-					if (i == 0 && shipTypeChoice[i].getSelectedIndex() <= currentBuilding.getBuildingType()
-							.getUpgradebleBuildingTypes(currentBuilding).size() + 1) {// i == 0 �r f�rsta
+
+					if (i == 0 && shipTypeChoice[i].getSelectedIndex() <= BuildingPureFunctions.getUpgradableBuildingTypes(player.getGalaxy(), player, currentBuilding.getBuildingType(), currentBuilding, aPlanet, null).size() + 1) {// i == 0 är första
 																						// valet(selectboxen) i
-																						// comboBoxen och d�r fins
-																						// m�jligheten att g�ra en
+																						// comboBoxen och där fins
+																						// möjligheten att göra en
 																						// uppdatering till en ny
 																						// byggnad.
 						// Is a upgrade (Building)
 						System.out.println("currentBuilding " + currentBuilding.getUniqueId() + " "
 								+ currentBuilding.getBuildingType().getName());
-						System.out.println("currentBuilding.getBuildingType().getNextBuildingType(selected) "
-								+ currentBuilding.getBuildingType().getNextBuildingType(selected, player).getName());
-						player.addUpgradeBuilding(currentBuilding, player.getBuildings().getBuildingType(selected));
+
+						player.addUpgradeBuilding(currentBuilding, PlayerPureFunctions.findOwnBuildingType(selected, player));
 					} else { // eller skeppsbygge */
 						SpaceshipType tempsst = getShipType(selected);
 						player.addBuildShip(currentBuilding, tempsst); // l�gg till en ny order f�r denna choice
@@ -462,17 +454,13 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 					// g�r inget
 				} else {
 					if (i == 0
-							&& troopTypeChoice[i].getSelectedIndex() <= currentBuilding.getBuildingType()
-									.getUpgradebleBuildingTypes(currentBuilding).size() + 1
-							&& currentBuilding.getBuildingType().getUpgradebleBuildingTypes(currentBuilding)
-									.size() > 0) {// i == 0 �r f�rsta valet(selectboxen) i comboBoxen och d�r fins
-													// m�jligheten att g�ra en uppdatering till en ny byggnad.
+							&& troopTypeChoice[i].getSelectedIndex() <= BuildingPureFunctions.getUpgradableBuildingTypes(player.getGalaxy(), player, currentBuilding.getBuildingType(), currentBuilding, aPlanet, null).size() + 1
+							&& BuildingPureFunctions.getUpgradableBuildingTypes(player.getGalaxy(), player, currentBuilding.getBuildingType(), currentBuilding, aPlanet, null).size() > 0) {// i == 0 är första valet(selectboxen) i comboBoxen och där fins
+													// möjligheten att göra en uppdatering till en ny byggnad.
 						// Is a upgrade (Building)
 						System.out.println("currentBuilding " + currentBuilding.getUniqueId() + " "
 								+ currentBuilding.getBuildingType().getName());
-						System.out.println("currentBuilding.getBuildingType().getNextBuildingType(selected) "
-								+ currentBuilding.getBuildingType().getNextBuildingType(selected, player).getName());
-						player.addUpgradeBuilding(currentBuilding, player.getBuildings().getBuildingType(selected));
+						player.addUpgradeBuilding(currentBuilding, PlayerPureFunctions.findOwnBuildingType(selected, player));
 					} else { // eller troopbygge */
 						player.addBuildTroop(currentBuilding, PlayerPureFunctions.findOwnTroopType(selected, player, player.getGalaxy())); // lägg till en ny order för denna choice
 
@@ -492,17 +480,14 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			if (selected.equalsIgnoreCase("None") || selected.startsWith("---")) {
 				// g�r inget
 			} else {
-				if (VIPTypeChoice[0].getSelectedIndex() <= currentBuilding.getBuildingType()
-						.getUpgradebleBuildingTypes(currentBuilding).size()) {// i == 0 är första valet(selectboxen) i
+				if (VIPTypeChoice[0].getSelectedIndex() <= BuildingPureFunctions.getUpgradableBuildingTypes(player.getGalaxy(), player, currentBuilding.getBuildingType(), currentBuilding, aPlanet, null).size()) {// i == 0 är första valet(selectboxen) i
 																				// comboBoxen och där fins möjligheten
 																				// att göra en uppdatering till en ny
 																				// byggnad.
 					// Is a upgrade (Building)
 					System.out.println("currentBuilding " + currentBuilding.getUniqueId() + " "
 							+ currentBuilding.getBuildingType().getName());
-					System.out.println("currentBuilding.getBuildingType().getNextBuildingType(selected) "
-							+ currentBuilding.getBuildingType().getNextBuildingType(selected, player).getName());
-					player.addUpgradeBuilding(currentBuilding, player.getBuildings().getBuildingType(selected));
+					player.addUpgradeBuilding(currentBuilding, PlayerPureFunctions.findOwnBuildingType(selected, player));
 				} else { // eller VIPsbygge */
 					VIPType vipType = getVIPType(selected);
 					player.addBuildVIP(currentBuilding, vipType); // lägg till en ny order för denna choice
@@ -525,9 +510,9 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 				System.out.println("currentBuilding " + currentBuilding.getUniqueId() + " "
 						+ currentBuilding.getBuildingType().getName());
 				System.out.println("currentBuilding.getBuildingType().getNextBuildingType(selected) "
-						+ player.getBuildings().getBuildingType(selected).getName());
+						+ PlayerPureFunctions.findOwnBuildingType(selected, player).getName());
 
-				player.addUpgradeBuilding(currentBuilding, player.getBuildings().getBuildingType(selected));
+				player.addUpgradeBuilding(currentBuilding, PlayerPureFunctions.findOwnBuildingType(selected, player));
 
 			}
 		}
@@ -600,7 +585,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			detailsNewBuildingChoice.setVisible(false);
 			// g�r inget
 		} else {
-			player.addNewBuilding(aPlanet, player.getBuildings().getBuildingType(selected));
+			player.addNewBuilding(aPlanet, PlayerPureFunctions.findOwnBuildingType(selected, player));
 			detailsNewBuildingChoice.setVisible(true);
 			// uppdatera "left to spend" och send-knappen
 
@@ -875,7 +860,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			// show and set selfdestruct cb
 			selfDestructCheckBox.setSelected(player.getBuildingSelfDestruct(currentBuilding));
 			boolean destructable = false;
-			if (currentBuilding.getBuildingType().isSelfDestructable()) {
+			if (currentBuilding.getBuildingType().isSelfDestructible()) {
 				destructable = true;
 			}
 
@@ -974,7 +959,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		int tempMaxTonnage = slotsleft * 300;
 
 		if (playersOrders.alreadyUpgrading(currentBuilding)) {
-			BuildingType buildingType = playersOrders.getUppgradeBuilding(currentBuilding);
+			BuildingType buildingType = BuildingPureFunctions.getUpgradeBuilding(currentBuilding, player, playersOrders.getExpenses());
 			tempBuild = player.getGalaxy().findVIPBuildingBuildBonus(currentBuilding.getLocation(), player,
 					player.getOrders());
 			int cost = buildingType.getBuildCost(tempBuild);
@@ -1075,7 +1060,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		System.out.println(
 				"playersOrders.alreadyUpgrading(currentBuilding): " + playersOrders.alreadyUpgrading(currentBuilding));
 		if (playersOrders.alreadyUpgrading(currentBuilding)) {
-			BuildingType buildingType = playersOrders.getUppgradeBuilding(currentBuilding);
+			BuildingType buildingType = BuildingPureFunctions.getUpgradeBuilding(currentBuilding, player, playersOrders.getExpenses());
 			tempBuild = player.getGalaxy().findVIPBuildingBuildBonus(currentBuilding.getLocation(), player,
 					player.getOrders());
 			int cost = buildingType.getBuildCost(tempBuild);
@@ -1188,7 +1173,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		}
 
 		if (playersOrders.alreadyUpgrading(currentBuilding)) {
-			BuildingType buildingType = playersOrders.getUppgradeBuilding(currentBuilding);
+			BuildingType buildingType = BuildingPureFunctions.getUpgradeBuilding(currentBuilding, player, playersOrders.getExpenses());
 			VIP tempBuild = player.getGalaxy().findVIPBuildingBuildBonus(currentBuilding.getLocation(), player,
 					player.getOrders());
 			int cost = buildingType.getBuildCost(tempBuild);
@@ -1230,7 +1215,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		// System.out.println("efter alltypes");
 
 		if (playersOrders.alreadyUpgrading(currentBuilding)) {
-			BuildingType buildingType = playersOrders.getUppgradeBuilding(currentBuilding);
+			BuildingType buildingType = BuildingPureFunctions.getUpgradeBuilding(currentBuilding, player, playersOrders.getExpenses());
 			int cost = buildingType.getBuildCost(tempBuild);
 			upgradeBuildingTypeChoice[0].setSelectedItem(
 					buildingType.getName() + " (cost: " + cost + ") " + buildingType.getUniqueString());
@@ -1239,25 +1224,29 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		}
 	}
 
-	private void addUpgradeBuildTypes(ComboBoxPanel unitTypeChoice, boolean addDescriptionitem) {
+	private void addUpgradeBuildTypes(ComboBoxPanel unitTypeChoice, boolean addDescriptionItem) {
 
-		if (currentBuilding.getBuildingType().getUpgradebleBuildingTypes(currentBuilding) != null) {
-			List<BuildingType> alltypes = Functions
-					.deepClone(currentBuilding.getBuildingType().getUpgradebleBuildingTypes(currentBuilding));
-			Collections.sort(alltypes, new BuildingTypeBuildCostAndNameComparator());
-			Collections.reverse(alltypes);
+		PlayerBuildingImprovement improvement = PlayerPureFunctions.findBuildingImprovement(currentBuilding.getBuildingType().getName(), player);
+		List<BuildingType> upgradableBuildingTypes =
+				BuildingPureFunctions.getUpgradableBuildingTypes(player.getGalaxy(), player, currentBuilding.getBuildingType(), currentBuilding, aPlanet, improvement);
+		if (!upgradableBuildingTypes.isEmpty()) {
+			//TODO 2020-05-24 Why clone?
+			List<BuildingType> allTypes = Functions
+					.deepClone(upgradableBuildingTypes);
+			Collections.sort(allTypes, new BuildingTypeBuildCostAndNameComparator());
+			Collections.reverse(allTypes);
 
 			VIP tempVIP = player.getGalaxy().findVIPBuildingBuildBonus(currentBuilding.getLocation(), player,
 					player.getOrders());
 
-			if (alltypes.size() > 0 && addDescriptionitem) {
+			if (allTypes.size() > 0 && addDescriptionItem) {
 				unitTypeChoice.addItem(getItemDescription("buildings"));
 			}
 
-			for (int i = 0; i < alltypes.size(); i++) {
-				int cost = alltypes.get(i).getBuildCost(tempVIP);
+			for (int i = 0; i < allTypes.size(); i++) {
+				int cost = allTypes.get(i).getBuildCost(tempVIP);
 				unitTypeChoice.addItem(
-						alltypes.get(i).getName() + " (cost: " + cost + ") " + alltypes.get(i).getUniqueString());
+						allTypes.get(i).getName() + " (cost: " + cost + ") " + allTypes.get(i).getUniqueString());
 			}
 		}
 
@@ -1376,15 +1365,15 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 	 * vipType = temp; } i++; } return vipType; }
 	 */
 
-	private void fillnewBuildingsChoice() {
+	private void fillNewBuildingsChoice() {
 		buildnewBuildingChoice.removeAllItems();
 		VIP tempEngineer = player.getGalaxy().findVIPBuildingBuildBonus(aPlanet, player, player.getOrders());
 
-		Vector<BuildingType> tempBuildingTypes = player.getAvailableNewBuildings(aPlanet);
+		List<BuildingType> tempBuildingTypes = BuildingPureFunctions.getAvailableBuildingsToConstruct(player.getGalaxy(), player, aPlanet);
 		buildnewBuildingChoice.addItem("None");
-		for (int i = 0; i < tempBuildingTypes.size(); i++) {
-			int cost = tempBuildingTypes.get(i).getBuildCost(tempEngineer);
-			buildnewBuildingChoice.addItem(tempBuildingTypes.get(i).getName() + " (cost: " + cost + ")");
+		for (BuildingType buildingType : tempBuildingTypes) {
+			int cost = buildingType.getBuildCost(tempEngineer);
+			buildnewBuildingChoice.addItem(buildingType.getName() + " (cost: " + cost + ")");
 		}
 
 	}
