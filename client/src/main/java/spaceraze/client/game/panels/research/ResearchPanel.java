@@ -22,18 +22,12 @@ import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
-import spaceraze.util.general.Functions;
+import spaceraze.servlethelper.game.ResearchPureFunctions;
+import spaceraze.servlethelper.game.player.IncomePureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.BuildingType;
-import spaceraze.world.Faction;
-import spaceraze.world.Player;
-import spaceraze.world.ResearchAdvantage;
-import spaceraze.world.SpaceshipType;
-import spaceraze.world.TroopType;
-import spaceraze.world.VIPType;
+import spaceraze.world.*;
 import spaceraze.world.comparator.FactionsComparator;
-import spaceraze.world.comparator.ResearchDevelopedComparator;
 import spaceraze.world.orders.ResearchOrder;
 
 @SuppressWarnings("serial")
@@ -272,15 +266,14 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 		 if (treeChoice.getSelectedIndex() > 0){
     		// get faction root ResearchAdvantages
 			 Faction showOnlyFaction = factions.get(treeChoice.getSelectedIndex() - 1);
-			 tmpAdvantages = showOnlyFaction.getResearch().getAdvantages();
+			 tmpAdvantages = showOnlyFaction.getResearchAdvantages().stream().filter(researchAdvantage -> researchAdvantage.getParents().isEmpty()).collect(Collectors.toList());
 			 
 			 for(int i = 0; i < tmpAdvantages.size(); i++){
 				 dlm.addElement(tmpAdvantages.get(i).getName());
 			 }
 			 
 		 }else{
-			 tmpAdvantages = p.getResearch().getAllAdvantagesThatIsReadyToBeResearchOn();
-			 Collections.sort(tmpAdvantages,new ResearchDevelopedComparator());
+			 tmpAdvantages = ResearchPureFunctions.getAllAdvantagesThatIsReadyToBeResearchOn(p, p.getFaction());
 			 boolean developedFound = false;
 			 dlm.add(0,"-Ready For Research-");
 			 for(int i = 0; i < tmpAdvantages.size(); i++){				 
@@ -294,7 +287,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 					 }
 					 
 				 }else{
-					 if (!developedFound & tmpAdvantages.get(i).isDeveloped()){
+					 if (!developedFound && p.getResearchProgress(tmpAdvantages.get(i).getName()) != null && p.getResearchProgress(tmpAdvantages.get(i).getName()).isDeveloped()){
 						 dlm.addElement("---Finished---");
 						 developedFound = true;
 					 }
@@ -339,11 +332,11 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 		 
 		 Logger.fine("showResearchAdvantage(String researchAdvantagename) " + researchAdvantagename);
 		 if(treeChoice.getSelectedIndex() == 0){
-			 researchAdvantage = p.getResearch().getAdvantage(researchAdvantagename);
+			 researchAdvantage = ResearchPureFunctions.getAdvantage(p.getFaction(), researchAdvantagename);
 			 Logger.fine("p.getResearch().getAdvantage(researchAdvantagename) (own) " + researchAdvantage.getName());
 		 }
 		 else{
-			 researchAdvantage = p.getGalaxy().getFaction(treeChoice.getSelectedItem()).getResearch().getAdvantage(researchAdvantagename);
+			 researchAdvantage = ResearchPureFunctions.getAdvantage(p.getGalaxy().getFaction(treeChoice.getSelectedItem()), researchAdvantagename);
 			 Logger.fine("ReserachPanel Faction " + researchAdvantage.getName());
 		 }
 		 
@@ -507,12 +500,12 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 		 detailsArea.setText(researchAdvantage.getResearchText());
 		 
 		 if(treeChoice.getSelectedIndex() == 0){
-			 if(researchAdvantage.isDeveloped()){
+			 if(p.getResearchProgress(researchAdvantage.getName()) != null && p.getResearchProgress(researchAdvantage.getName()).isDeveloped()){
 				 turnInfo.setText("This advantage is done");
 			 }else{
-				 if(researchAdvantage.isReadyToBeResearchedOn()){
+				 if(researchAdvantage.isReadyToBeResearchedOn(p)){
 					 
-					 turnInfo.setText("Develop time:   " + new Integer(researchAdvantage.getTimeToResearch()).toString() + " turns (" + new Integer(researchAdvantage.getTimeToResearch()-researchAdvantage.getResearchedTurns()).toString() + " turns left)");
+					 turnInfo.setText("Develop time:   " + new Integer(researchAdvantage.getTimeToResearch()).toString() + " turns (" + new Integer(researchAdvantage.getTimeToResearch()-p.getResearchProgress(researchAdvantage.getName()).getResearchedTurns()).toString() + " turns left)");
 					 
 					 Logger.fine(" checking if researchAdvantage.getName() is ongoing " + researchAdvantage.getName());
 					 
@@ -555,7 +548,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 		 tmpY += 5 + scrollPaneDetails.getHeight();
 		 turnInfo.setVisible(true);
 		 
-		 if(researchAdvantage.getCostToResearchOneTurn() > 0 || researchAdvantage.getCostToResearchOneTurnInProcent() > 0){
+		 if(researchAdvantage.getCostToResearchOneTurn() > 0 || researchAdvantage.getCostToResearchOneTurnInPercent() > 0){
 			 
 			 if(researchAdvantage.getCostToResearchOneTurn() > 0){
 				 costLabel.setText("Cost:   " + researchAdvantage.getCostToResearchOneTurn() +" each turn");
@@ -568,10 +561,10 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 					 if(price < 1){
 						 price = 1;
 					 }
-					 costLabel.setText("Cost:   " + researchAdvantage.getCostToResearchOneTurnInProcent() + "% of total incom = " + price + " each turn");
+					 costLabel.setText("Cost:   " + researchAdvantage.getCostToResearchOneTurnInPercent() + "% of total incom = " + price + " each turn");
 			 
 				 }else{
-					 costLabel.setText("Cost:   " + researchAdvantage.getCostToResearchOneTurnInProcent() + "% of income each turn");
+					 costLabel.setText("Cost:   " + researchAdvantage.getCostToResearchOneTurnInPercent() + "% of income each turn");
 				 }
 			//	 costLabel.setText("Cost " + researchAdvantage.getCostToResearchOneTurnInProcent() + "% of total income each turn");
 			 }
@@ -662,7 +655,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 				}*/
 				Logger.fine("(ResearchPanel.java) Cancel the research p.getOrders().getResearchOrders().size()" + p.getOrders().getResearchOrders().size());
 			}else{
-				if(p.getResearch().getNumberOfSimultaneouslyResearchAdvantages() == 1){
+				if(p.getFaction().getNumberOfSimultaneouslyResearchAdvantages() == 1){
 				//	p.getResearch().removeAllOnGoingResearchedAdvantage();
 					if(p.getOrders().getResearchOrders().size() > 0){
 						p.getOrders().getResearchOrders().remove(0);
@@ -673,18 +666,18 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 					//p.getResearch().setOnGoingResearchedAdvantage(p.getResearch().getAdvantage(name2.getText()));
 //					TODO (Tobbe) add Order text in Order Panel
 					
-					int cost = countCost(p.getResearch().getAdvantage(name2.getText()));
+					int cost = countCost(ResearchPureFunctions.getAdvantage(p.getFaction(), name2.getText()));
 					
 					Logger.fine("ResearchPanel cost " + cost);
 					p.getOrders().addResearchOrder(new ResearchOrder(name2.getText(), cost),p);
 					//ResearchOrder researchOrder, Player p, int sum)
 				}
 				else{
-					int tempNumberOfSimultaneouslyResearchAdvantages = p.getResearch().getNumberOfSimultaneouslyResearchAdvantages();
+					int tempNumberOfSimultaneouslyResearchAdvantages = p.getFaction().getNumberOfSimultaneouslyResearchAdvantages();
 					int tempNumbersOfResearchOrders =  p.getOrders().getResearchOrders().size();
 					
 					if(tempNumbersOfResearchOrders < tempNumberOfSimultaneouslyResearchAdvantages){
-						int cost = countCost(p.getResearch().getAdvantage(name2.getText()));
+						int cost = countCost(ResearchPureFunctions.getAdvantage( p.getFaction(), name2.getText()));
 						Logger.fine("ResearchPanel cost " + cost);
 						p.getOrders().addResearchOrder(new ResearchOrder(name2.getText(),cost),p);
 						//p.getOrders().addResearchOrder(new ResearchOrder(name2.getText()));
@@ -763,14 +756,14 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
     }
 	public int countCost(ResearchAdvantage researchAdvantage){
 		
-		if(researchAdvantage.getCostToResearchOneTurn() > 0 || researchAdvantage.getCostToResearchOneTurnInProcent() > 0){
+		if(researchAdvantage.getCostToResearchOneTurn() > 0 || researchAdvantage.getCostToResearchOneTurnInPercent() > 0){
 			 
 			 if(researchAdvantage.getCostToResearchOneTurn() > 0){
 				 return researchAdvantage.getCostToResearchOneTurn();
 			 }else{
 				 
-				 double treasury = p.getGalaxy().getPlayerIncome(p,false);
-				 double procent = researchAdvantage.getCostToResearchOneTurnInProcent();
+				 double treasury = IncomePureFunctions.getPlayerIncome(p,false);
+				 double procent = researchAdvantage.getCostToResearchOneTurnInPercent();
 				 
 				 
 					 int price = (int) Math.round((treasury * procent) /100);

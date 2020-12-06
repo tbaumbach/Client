@@ -13,6 +13,8 @@ import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -122,6 +124,8 @@ public class MapEditorPanel extends SRBasePanel {
 	    }else{ // new map
 	    	// create a new empty map
 	    	theMap = new Map();
+			SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+			theMap.setCreatedDate(sdf.format(new Date()));
 	    	theMap.setAuthorLogin(userLogin);
 	    }
 

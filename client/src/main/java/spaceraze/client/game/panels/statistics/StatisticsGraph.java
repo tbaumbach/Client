@@ -16,7 +16,7 @@ import spaceraze.world.Galaxy;
 import spaceraze.world.Player;
 import spaceraze.world.StatisticType;
 import spaceraze.world.Statistics;
-import spaceraze.world.StatisticsHandler;
+import spaceraze.servlethelper.game.StatisticsHandler;
 
 public class StatisticsGraph extends SRBasePanel{
 	private static final long serialVersionUID = 1L;
@@ -29,20 +29,20 @@ public class StatisticsGraph extends SRBasePanel{
 	private Galaxy galaxy;
 	private List<Integer> winLimitList;
 	
-	public StatisticsGraph(StatisticsHandler statisticsHandler, Galaxy galaxy){
+	public StatisticsGraph(Galaxy galaxy){
 		this.statisticsHandler = statisticsHandler;
 		this.galaxy = galaxy;
 		statisticType = StatisticType.PRODUCTION_PLAYER; 
-		currentStatistics = statisticsHandler.findStatistics(statisticType);
-		winLimitList = currentStatistics.getWinLimit();
+		currentStatistics = StatisticsHandler.findStatistics(statisticType, galaxy);
+		winLimitList = StatisticsHandler.getWinLimit(currentStatistics);
 	}
 	
 	public void drawGraph(StatisticType statisticType, String highlightedPlayerName){
 		this.statisticType = statisticType; 
 		this.highlightedPlayerName = highlightedPlayerName;
-		currentStatistics = statisticsHandler.findStatistics(statisticType);
+		currentStatistics = StatisticsHandler.findStatistics(statisticType, galaxy);
 		if ((statisticType == StatisticType.PRODUCTION_PLAYER) | (statisticType == StatisticType.PRODUCTION_FACTION)){
-			winLimitList = currentStatistics.getWinLimit();
+			winLimitList = StatisticsHandler.getWinLimit(currentStatistics);
 		}else{
 			winLimitList = null;
 		}
@@ -68,12 +68,12 @@ public class StatisticsGraph extends SRBasePanel{
 		if (statisticType != null){
 			Logger.fine("statisticType: " + statisticType.toString());
 			// get last turn
-			int maxTurn = currentStatistics.getLastTurn();
+			int maxTurn = StatisticsHandler.getLastTurn(currentStatistics);
 			Logger.fine("Max turn: " + maxTurn);
 			int turnInterval = (getWidth()-leftBorder-rightBorder)/maxTurn;
 			Logger.fine("turnInterval: " + turnInterval);
 			// get max value
-			int maxValue = currentStatistics.getMaxValue();
+			int maxValue = StatisticsHandler.getMaxValue(currentStatistics);
 			if (winLimitList != null){
 				int maxWinLimit = getMaxWinLimit();
 				if (maxWinLimit > maxValue){
@@ -129,7 +129,7 @@ public class StatisticsGraph extends SRBasePanel{
 				if (statisticType == StatisticType.PRODUCTION_FACTION){
 					for (Faction aFaction : galaxy.getGameWorld().getFactions()) {
 						bg.setColor(ColorConverter.getColorFromHexString(aFaction.getPlanetHexColor()));
-						List<Integer> values = currentStatistics.getStatList(aFaction.getName());
+						List<Integer> values = StatisticsHandler.findPost(aFaction.getName(), currentStatistics).getValues();
 						if (values != null){
 							int value = values.get(0);
 							int valueCoor = getHeight()-bottomBorder-(value*valueInterval);
@@ -139,7 +139,7 @@ public class StatisticsGraph extends SRBasePanel{
 				}else{
 					for (Player aPlayer : galaxy.getPlayers()) {
 						bg.setColor(ColorConverter.getColorFromHexString(aPlayer.getFaction().getPlanetHexColor()));
-						List<Integer> values = currentStatistics.getStatList(aPlayer.getName());
+						List<Integer> values = StatisticsHandler.findPost(aPlayer.getName(), currentStatistics).getValues();
 						int value = values.get(0);
 						int valueCoor = getHeight()-bottomBorder-(value*valueInterval);
 						bg.drawLine(leftBorder,valueCoor,getWidth()-rightBorder,valueCoor);
@@ -163,7 +163,7 @@ public class StatisticsGraph extends SRBasePanel{
 				if (statisticType == StatisticType.PRODUCTION_FACTION){
 					for (Faction aFaction : galaxy.getGameWorld().getFactions()) {
 						bg.setColor(ColorConverter.getColorFromHexString(aFaction.getPlanetHexColor()));
-						List<Integer> values = currentStatistics.getStatList(aFaction.getName());
+						List<Integer> values = StatisticsHandler.findPost(aFaction.getName(), currentStatistics).getValues();
 						if (values != null){
 							int lastValue = values.get(0);
 							int lastValueCoor = getHeight()-bottomBorder-(lastValue*valueInterval);
@@ -181,7 +181,7 @@ public class StatisticsGraph extends SRBasePanel{
 				}else{
 					for (Player aPlayer : galaxy.getPlayers()) {
 						bg.setColor(ColorConverter.getColorFromHexString(aPlayer.getFaction().getPlanetHexColor()));
-						List<Integer> values = currentStatistics.getStatList(aPlayer.getName());
+						List<Integer> values = StatisticsHandler.findPost(aPlayer.getName(), currentStatistics).getValues();
 						int lastValue = values.get(0);
 						int lastValueCoor = getHeight()-bottomBorder-(lastValue*valueInterval);
 						int lastTurnCoor = leftBorder;

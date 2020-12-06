@@ -26,7 +26,6 @@ import spaceraze.world.orders.PlanetNotesChange;
 import spaceraze.world.orders.ResearchOrder;
 import spaceraze.world.orders.ShipMovement;
 import spaceraze.world.orders.ShipToCarrierMovement;
-import spaceraze.world.orders.TaxChange;
 import spaceraze.world.orders.TroopToCarrierMovement;
 import spaceraze.world.orders.TroopToPlanetMovement;
 import spaceraze.world.orders.VIPMovement;
@@ -72,7 +71,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
 	    infoarea.append(sepLine);
 	    for (int i = 0; i < temp.size(); i++){
 	      Expense tempExpense = temp.get(i);
-	      infoarea.append(tempExpense.getText(g, ExpensePureFunction.getCost(tempExpense, g, aPlayer)) + "\n");
+	      infoarea.append(ExpensePureFunction.getText(g, ExpensePureFunction.getCost(tempExpense, g, aPlayer), tempExpense) + "\n");
 	    }
 	    infoarea.append("\n");
     }
@@ -141,19 +140,19 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     }
 
     // add ships do be selfdestroyed
-	List<Integer> shipIds = orders.getShipSelfDestructs();
+	List<String> shipIds = orders.getShipSelfDestructs();
     if (shipIds.size() > 0){
     	infoarea.append("Selfdestruct ships" + "\n");
     	infoarea.append(sepLine);
     	for (int m = 0; m < shipIds.size(); m++){
-    		Spaceship tempss = g.findSpaceship(shipIds.get(m));
+    		Spaceship tempss = g.findSpaceshipByUniqueId(shipIds.get(m));
     		infoarea.append("Spaceship " + tempss.getName() + " is to be destroyed." + "\n");
     	}
     	infoarea.append("\n");
     }
     
     //  add VIPs do be selfdestroyed
-	List<Integer> tempVIPs = orders.getVIPSelfDestructs();
+	List<String> tempVIPs = orders.getVIPSelfDestructs();
     if (tempVIPs.size() > 0){
     	infoarea.append("Selfdestruct VIPs" + "\n");
     	infoarea.append(sepLine);
@@ -182,7 +181,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	infoarea.append("Screen spaceships" + "\n");
     	infoarea.append(sepLine);
     	for (int p = 0; p < shipIds.size(); p++){
-    		Spaceship tempss = g.findSpaceship(shipIds.get(p));
+    		Spaceship tempss = g.findSpaceshipByUniqueId(shipIds.get(p));
     		if (tempss.getLocation() != null){
     			infoarea.append("Your ship " + tempss.getName() + " at " + tempss.getLocation().getName() + "  is to change its screened status to " + !tempss.getScreened() + "\n");
     		}else{
@@ -245,17 +244,6 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     			infoarea.append("Make change for " + aChange.getOtherPlayer(g).getGovernorName() + " to " + aChange.getNewLevel().toString() + "\n");
     		}
     	}
-    	infoarea.append("\n");
-    }
-
-    // Vassal tax changes
-    List<TaxChange> taxChanges = orders.getTaxChanges();
-    if (taxChanges.size() > 0){
-    	infoarea.append("Tax Changes\n");
-    	infoarea.append(sepLine);
-    	for (TaxChange change : taxChanges) {
-        	infoarea.append("Change tax from " + change.getPlayerName() + " to " + change.getAmount() + "\n");
-		}
     	infoarea.append("\n");
     }
 

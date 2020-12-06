@@ -16,8 +16,8 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.MouseInputListener;
 
 import spaceraze.util.general.StyleGuide;
+import spaceraze.world.BasePlanet;
 import spaceraze.world.Map;
-import spaceraze.world.Planet;
 import spaceraze.world.PlanetConnection;
 
 /**
@@ -47,7 +47,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 	private static final int CENTER = 279;
 	private static final int MOVE_STEP = 64;
 	private EditorGUIPanel guiPanel;
-	private Planet chosenPlanet;
+	private BasePlanet chosenPlanet;
 
 	public MapPanel(Map aMap, EditorGUIPanel guiPanel){
 		theMap = aMap;
@@ -99,23 +99,23 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 		// long range
 		for (PlanetConnection aConnection : allConnections) {
 			if (aConnection.isLongRange()){
-				drawPlanetconnection(g, StyleGuide.colorMapLongRange, scale,  aConnection.getPlanet1(),  aConnection.getPlanet2());
+				drawPlanetconnection(g, StyleGuide.colorMapLongRange, scale,  aConnection.getPlanetOne(),  aConnection.getPlanetTwo());
 			}
 		}
 		
 		// short range
 		for (PlanetConnection aConnection : allConnections) {
 			if (!aConnection.isLongRange()){
-				drawPlanetconnection(g, StyleGuide.colorMapShortRange, scale,  aConnection.getPlanet1(),  aConnection.getPlanet2());
+				drawPlanetconnection(g, StyleGuide.colorMapShortRange, scale,  aConnection.getPlanetOne(),  aConnection.getPlanetTwo());
 			}
 		}
 
 		// draw all planets
-		List<Planet> allPlanets = theMap.getPlanets();
-		for (Planet aPlanet : allPlanets) {
-			int tmpX = (int)Math.round(aPlanet.getXcoor());
-			int tmpY = (int)Math.round(aPlanet.getYcoor());
-			int tmpZ = (int)Math.round(aPlanet.getZcoor());
+		List<BasePlanet> allPlanets = theMap.getPlanets();
+		for (BasePlanet aPlanet : allPlanets) {
+			int tmpX = (int)Math.round(aPlanet.getX());
+			int tmpY = (int)Math.round(aPlanet.getY());
+			int tmpZ = (int)Math.round(aPlanet.getZ());
 			tmpX = (xOffset * scale) + CENTER + (tmpX * scale);
 			tmpY = (yOffset * scale) + CENTER + (tmpY * scale);
 	        // planet is chosen?
@@ -135,11 +135,11 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 		
 	}
 
-	private void drawPlanetconnection(Graphics g, Color color, int scale, Planet tmpPlanet1, Planet tmpPlanet2){
-		int tmpX1 = (int)Math.round(tmpPlanet1.getXcoor());
-		int tmpY1 = (int)Math.round(tmpPlanet1.getYcoor());
-		int tmpX2 = (int)Math.round(tmpPlanet2.getXcoor());
-		int tmpY2 = (int)Math.round(tmpPlanet2.getYcoor());
+	private void drawPlanetconnection(Graphics g, Color color, int scale, BasePlanet tmpPlanet1, BasePlanet tmpPlanet2){
+		int tmpX1 = (int)Math.round(tmpPlanet1.getX());
+		int tmpY1 = (int)Math.round(tmpPlanet1.getY());
+		int tmpX2 = (int)Math.round(tmpPlanet2.getX());
+		int tmpY2 = (int)Math.round(tmpPlanet2.getY());
 		tmpX1 = (xOffset * scale) + CENTER + (tmpX1 * scale);
 		tmpY1 = (yOffset * scale) + CENTER + (tmpY1 * scale);
 		tmpX2 = (xOffset * scale) + CENTER + (tmpX2 * scale);
@@ -250,7 +250,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 		return zoom > 1;
 	}
 	
-	public void setChosenPlanet(Planet newChosenPlanet){
+	public void setChosenPlanet(BasePlanet newChosenPlanet){
 		chosenPlanet = newChosenPlanet;
 	}
 	
@@ -300,7 +300,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 			yLY = yLY - (yOffset);
 
 			if (guiPanel.getCreateShortConnection()){
-				Planet closestPlanet = theMap.findClosestPlanet(xLY,yLY);
+				BasePlanet closestPlanet = theMap.findClosestPlanet(xLY,yLY);
 				//  check that map already have a connection or that the chosenplanet is clicked
 				if (closestPlanet == chosenPlanet){
 					// show error dialog
@@ -316,7 +316,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 				}
 			}else
 			if (guiPanel.getCreateLongConnection()){
-				Planet closestPlanet = theMap.findClosestPlanet(xLY,yLY);
+				BasePlanet closestPlanet = theMap.findClosestPlanet(xLY,yLY);
 				//  check that map already have a connection or that the chosenplanet is clicked
 				if (closestPlanet == chosenPlanet){
 					// show error dialog
@@ -338,7 +338,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 				guiPanel.movePlanet(xLY,yLY);
 			}else{ // select planet
 				if (!theMap.getPlanets().isEmpty()){
-					Planet closestPlanet = theMap.findClosestPlanet(xLY,yLY);
+					BasePlanet closestPlanet = theMap.findClosestPlanet(xLY,yLY);
 					guiPanel.selectPlanet(closestPlanet);
 					chosenPlanet = closestPlanet;
 					repaint();

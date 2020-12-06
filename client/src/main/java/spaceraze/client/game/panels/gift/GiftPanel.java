@@ -16,9 +16,6 @@ import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.util.general.Logger;
 import spaceraze.world.Player;
-import spaceraze.world.diplomacy.DiplomacyLevel;
-import spaceraze.world.diplomacy.DiplomacyState;
-import spaceraze.world.orders.TaxChange;
 
 /**
  * @author Paul Bodin
@@ -29,13 +26,12 @@ import spaceraze.world.orders.TaxChange;
 
 public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRUpdateablePanel, ActionListener{
   private static final long serialVersionUID = 1L;
-  private SRButton newButton,editButton,deleteButton,taxButton;
+  private SRButton newButton,editButton,deleteButton;
   private String id;
   private Player p;
   private SpaceRazePanel client;
   private ListPanel allGiftsList;
   private GiftPopupPanel popupGift;
-  private TaxPopupPanel popupTax;
   private List<Player> otherPlayers;
   private String lastButton;
 
@@ -70,16 +66,10 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
     deleteButton.addActionListener(this);
     add(deleteButton);
     deleteButton.setEnabled(false);
-
-    taxButton = new SRButton("Set Tax");
-    taxButton.setBounds(280,100,100,20);
-    taxButton.addActionListener(this);
-    add(taxButton);
-    taxButton.setEnabled(false);
   }
 
   private void addPlayers(List<Player> players){
-	  DefaultListModel dlm = (DefaultListModel)allGiftsList.getModel();
+	  DefaultListModel dlm = allGiftsList.getModel();
 	  for (int i = 0; i < players.size(); i++){
 		  Player tempPlayer = (Player)players.get(i);
 		  if (tempPlayer != p){ // can not give money to himself
@@ -87,18 +77,6 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
 			  String rowText = tempPlayer.getGovernorName() + " (" + tempPlayer.getFaction().getName() + ")";
 			  if (giftSum > 0){
 				  rowText += ", give:" + giftSum;
-			  }
-			  DiplomacyState state = p.getGalaxy().getDiplomacyState(p, tempPlayer);
-			  if (state.getCurrentLevel() == DiplomacyLevel.LORD){
-				  if (state.getLord() == p){
-					  rowText += ", tax: ";
-					  TaxChange foundChange = p.getOrders().checkTaxChange(tempPlayer.getName());
-					  if (foundChange != null){
-						  rowText += foundChange.getAmount();
-					  }else{
-						  rowText += state.getTax();
-					  }
-				  }
 			  }
 			  dlm.addElement(rowText);
 			  otherPlayers.add(tempPlayer);
@@ -126,16 +104,6 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
 		  editButton.setEnabled(false);
 		  deleteButton.setEnabled(false);
 	  }
-	  DiplomacyState state = p.getGalaxy().getDiplomacyState(p, giveToPlayer);
-	  if (state.getCurrentLevel() == DiplomacyLevel.LORD){
-		  if (state.getLord() == p){
-			  taxButton.setEnabled(true);
-		  }else{
-			  taxButton.setEnabled(false);
-		  }
-	  }else{
-		  taxButton.setEnabled(false);
-	  }
   }
 
   public void actionPerformed(ActionEvent ae){
@@ -147,17 +115,9 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
     	// perform action
     	performPopupGiftAction();
   	}else
-    if ((lastButton != null) && (lastButton.equals("tax")) & action.equalsIgnoreCase("ok")){
-    	// perform action
-    	performPopupTaxAction();
-    }else
     if (action.equalsIgnoreCase("delete gift")){
     	deleteGift();
-  	}else
-    if (action.equalsIgnoreCase("Set Tax")){
-    	lastButton = "tax";
-    	openPopupTax();
-    }else{
+  	}else{
     	lastButton = "gift";
     	openPopupGift(action);
   	}
@@ -178,25 +138,6 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
 	  p.getOrders().addNewTransaction(popupGift.getSum(),giveToPlayer);
 	  client.updateTreasuryLabel();
 	  updateGiftPanel();
-  }
-
-  private void performPopupTaxAction(){
-	  Logger.fine("performPopupTaxAction called");
-	  Player vassalPlayer = (Player)otherPlayers.get(allGiftsList.getSelectedIndex());
-	  p.getOrders().addNewTaxChange(vassalPlayer.getName(),popupTax.getSum());
-	  updateGiftPanel();
-  }
-
-  private void openPopupTax(){
-	  Logger.fine("openPopupTax called");
-	  Player giveToPlayer = otherPlayers.get(allGiftsList.getSelectedIndex());
-
-	  int amount = p.getOrders().findGift(giveToPlayer);
-	  popupTax = new TaxPopupPanel("Set Tax",this,giveToPlayer,amount);
-
-	  popupTax.setPopupSize(400,170);
-	  popupTax.open(this);
-	  popupTax.setSumfieldFocus();
   }
 
   private void updateGiftPanel(){

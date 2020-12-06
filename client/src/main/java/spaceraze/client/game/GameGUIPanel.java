@@ -13,6 +13,7 @@ import spaceraze.client.game.panels.turninfo.TurnInfoPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
+import spaceraze.world.Galaxy;
 import spaceraze.world.Planet;
 import spaceraze.world.Player;
 import spaceraze.world.Spaceship;
@@ -41,7 +42,7 @@ public class GameGUIPanel extends JPanel implements SRUpdateablePanel, ShowMapPl
 	private int mapx, mapy, mapw, maph;
 	private SRBasePanel mapHolder;
 
-	public GameGUIPanel(String id, Player p, SpaceRazePanel client, ImageHandler imageHandler) {
+	public GameGUIPanel(String id, Player p, SpaceRazePanel client, ImageHandler imageHandler, Galaxy galaxy) {
 		this.id = id;
 		this.p = p;
 		this.client = client;
@@ -73,7 +74,7 @@ public class GameGUIPanel extends JPanel implements SRUpdateablePanel, ShowMapPl
 		map.setOwnVips(p.getGalaxy().getPlayersVips(p));
 		map.setOwnTroops(p.getGalaxy().getPlayersTroops(p));
 		map.setOthersVips(p.getGalaxy().getAllVIPs());
-		map.setConnections(p.getGalaxy().getPlanetConnections());
+		map.setConnections(p.getGalaxy().getPlanetConnections(), p.getGalaxy());
 		map.computeNewOrigo();
 		mapHolder.add(map);
 
@@ -87,11 +88,11 @@ public class GameGUIPanel extends JPanel implements SRUpdateablePanel, ShowMapPl
 		turnInfoPanel.setBounds(1, 674, 1197, 26);
 		add(turnInfoPanel);
 
-		navBarPanel = new NavBarPanel(p, this, client);
+		navBarPanel = new NavBarPanel(p, this, client, galaxy);
 		navBarPanel.setBounds(0, 0, 1198, 27);
 		add(navBarPanel);
 
-		showPlanetPanel = new ShowPlanet(p.getHomeplanet(), p, client, imageHandler);
+		showPlanetPanel = new ShowPlanet(p.getHomePlanet(), p, client, imageHandler);
 		showPlanetPanel.setBounds(872, 27, 326, 643);
 		add(showPlanetPanel);
 

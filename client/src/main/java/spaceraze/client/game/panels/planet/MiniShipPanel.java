@@ -22,6 +22,10 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.servlethelper.game.VipPureFunctions;
+import spaceraze.servlethelper.game.player.CostPureFunctions;
+import spaceraze.servlethelper.game.troop.TroopPureFunctions;
+import spaceraze.servlethelper.map.MapPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
 import spaceraze.world.Planet;
@@ -723,7 +727,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 				selfDestructCheckBox.setEnabled(false);
 			} else if ((ss.getRange() == SpaceshipRange.NONE) & (!ss.isSquadron())) {
 				destinationchoice.setEnabled(false);
-			} else if (player.isBrokeClient()) {
+			} else if (CostPureFunctions.isBroke(player, player.getGalaxy())) {
 				destinationchoice.setEnabled(false);
 			} else if (player.isRetreatingGovernor()) {
 				destinationchoice.setEnabled(false);
@@ -923,7 +927,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			VIPinfoLabel.setVisible(false);
 			VIPInfoTextArea.setVisible(false);
 			scrollPane2.setVisible(false);
-			if (player.isBrokeClient()) {
+			if (CostPureFunctions.isBroke(player, player.getGalaxy())) {
 				destinationLabel.setText("Destination: ");
 				destinationchoice.setEnabled(false);
 			} else if (player.isRetreatingGovernor()) {
@@ -966,7 +970,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 	}
 
 	private void addVIPs() {
-		List<VIP> allVIPs = player.getGalaxy().findAllVIPsOnShip(currentss);
+		List<VIP> allVIPs = VipPureFunctions.findAllVIPsOnShip(currentss,player.getGalaxy().getAllVIPs());
 		if (allVIPs.size() == 0) {
 			VIPInfoTextArea.setText("None");
 		} else {
@@ -1000,7 +1004,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			dc.addItem("None");
 		}
 		if (range.greaterThan(SpaceshipRange.NONE)) {
-			List<String> alldest = player.getAllDestinations(location, range == SpaceshipRange.LONG);
+			List<String> alldest = MapPureFunctions.getAllDestinationsStrings(location, range == SpaceshipRange.LONG, player, false, player.getGalaxy());
 			Collections.sort(alldest);
 			for (int x = 0; x < alldest.size(); x++) {
 				String temp = alldest.get(x);
@@ -1375,7 +1379,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 
 	private List<Troop> getTroopsOnPlanetWithNoMoveOrder() {
 		List<Troop> troopsUnloaded = new LinkedList<Troop>();
-		for (Troop aTroop : player.getGalaxy().getPlayersTroopsOnPlanet(player, planet)) {
+		for (Troop aTroop : TroopPureFunctions.getPlayersTroopsOnPlanet(player, planet, player.getGalaxy().getTroops())) {
 			if (aTroop.getShipLocation() == null && aTroop.isSpaceshipTravel()) {
 				// check if there exist a move order already for this troop to a carrier
 				String destName = player.getTroopDestinationCarrierName(aTroop);

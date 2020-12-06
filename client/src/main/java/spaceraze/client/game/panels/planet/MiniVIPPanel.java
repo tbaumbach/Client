@@ -19,6 +19,8 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.components.scrollable.TextAreaPanel;
 import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.servlethelper.game.player.CostPureFunctions;
+import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.world.Planet;
 import spaceraze.world.Player;
@@ -310,7 +312,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 			}
 			if (player.isRetreatingGovernor()) {
 				destinationChoice.setEnabled(false);
-			} else if (player.isBrokeClient()) {
+			} else if (CostPureFunctions.isBroke(player, player.getGalaxy())) {
 				destinationChoice.setEnabled(false);
 			} else if (currentVIP.getPlanetLocation() != null) { // om vipen är på en planet...
 				if (currentVIP.getPlanetLocation().isBesieged()) { // och planeten är belägrad...
@@ -403,7 +405,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 			}
 		}
 		// add all troops (except maybe the one vip already is on)
-		List<Troop> troops = player.getGalaxy().getPlayersTroopsOnPlanet(player, planet);
+		List<Troop> troops = TroopPureFunctions.getPlayersTroopsOnPlanet(player, planet, player.getGalaxy().getTroops());
 		for (Troop aTroop : troops) {
 			if (currentVIP.getTroopLocation() != aTroop && currentVIP.isTroopVIP()) {
 				if (addTroopInfoText) {

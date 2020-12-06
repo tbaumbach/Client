@@ -14,16 +14,10 @@ import spaceraze.client.components.HighlightPanel;
 import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.ResearchPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.CanBeLostInSpace;
-import spaceraze.world.Faction;
-import spaceraze.world.Highlight;
-import spaceraze.world.Player;
-import spaceraze.world.Report;
-import spaceraze.world.ResearchAdvantage;
-import spaceraze.world.Spaceship;
-import spaceraze.world.Troop;
+import spaceraze.world.*;
 import spaceraze.world.enums.HighlightType;
 
 /**
@@ -45,9 +39,11 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
   private Player curPlayer;
   private Report lastReport;
   private int lastturn;
-  private List<SRLabel> researchLabels =  new ArrayList<SRLabel>();
+  private List<SRLabel> researchLabels =  new ArrayList<>();
+  private Galaxy galaxy;
 
-  public HighlightsPanel(Player currentPlayer, String id) {
+  public HighlightsPanel(Player currentPlayer, String id, Galaxy galaxy) {
+  	this.galaxy = galaxy;
   	this.curPlayer = currentPlayer;
     this.id = id;
     setLayout(null);
@@ -163,33 +159,29 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
   	if (lastturn > 0){
   		int curY = 70;
   		int intervalY = 20;
-//  		int centerX = 470;
   		int centerX = hlpWidth + 170;
-//  		int maxShipsPerRow = 3;
-  		List<CanBeLostInSpace> allLostInSpace = lastReport.getLostInSpace();
   		boolean lisExist = false;
-  		// print players own losses
-//  		String playerFactionName = curPlayer.getFaction().getName();
-  		List<CanBeLostInSpace> lisList = getLostInSpace(Spaceship.class, allLostInSpace,null,curPlayer);
+
+  		List<CanBeLostInSpace> lisList = getLostInSpace(lastReport.getLostShips(),null,curPlayer);
   		if (lisList.size() > 0){
   			curY = drawFactionLis(centerX,curY,g,intervalY,lisList,"Own ships lost",StyleGuide.colorCurrent,StyleGuide.colorCurrent);
   			lisExist = true;
   		}
   		
-  		lisList = getLostInSpace(Troop.class, allLostInSpace,null,curPlayer);
+  		lisList = getLostInSpace(lastReport.getLostTroops(),null,curPlayer);
   		if (lisList.size() > 0){
   			curY = drawFactionLis(centerX,curY,g,intervalY,lisList,"Own troops lost",StyleGuide.colorCurrent,StyleGuide.colorCurrent);
   			lisExist = true;
   		}
   		
   		// print neutral ships destroyed
-  		lisList = getLostInSpace(Spaceship.class, allLostInSpace,null,null);
+  		lisList = getLostInSpace(lastReport.getLostShips(),null,null);
   		if (lisList.size() > 0){
   			curY = drawFactionLis(centerX,curY,g,intervalY,lisList,"Neutral ships destroyed",StyleGuide.colorCurrent,StyleGuide.colorNeutral);
   			lisExist = true;
   		}
   		
-  		lisList = getLostInSpace(Troop.class, allLostInSpace,null,null);
+  		lisList = getLostInSpace(lastReport.getLostTroops(),null,null);
   		if (lisList.size() > 0){
   			curY = drawFactionLis(centerX,curY,g,intervalY,lisList,"Neutral troops destroyed",StyleGuide.colorCurrent,StyleGuide.colorNeutral);
   			lisExist = true;
@@ -199,7 +191,7 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
   		List<Faction> allFactions = curPlayer.getGalaxy().getFactions();
 
   		for (Faction aFaction : allFactions) {
-  			lisList = getLostInSpace(Spaceship.class, allLostInSpace,aFaction.getName(),curPlayer);
+  			lisList = getLostInSpace(lastReport.getLostShips(),aFaction.getName(),curPlayer);
   	  		if (lisList.size() > 0){
   	  			curY = drawFactionLis(centerX,curY,g,intervalY,lisList,aFaction.getName() + " ships destroyed",StyleGuide.colorCurrent,ColorConverter.getColorFromHexString(aFaction.getPlanetHexColor()));
   	  			lisExist = true;
@@ -207,7 +199,7 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
 		}
   		
   		for (Faction aFaction : allFactions) {
-  			lisList = getLostInSpace(Troop.class, allLostInSpace,aFaction.getName(),curPlayer);
+  			lisList = getLostInSpace(lastReport.getLostTroops(),aFaction.getName(),curPlayer);
   	  		if (lisList.size() > 0){
   	  			curY = drawFactionLis(centerX,curY,g,intervalY,lisList,aFaction.getName() + " troops destroyed",StyleGuide.colorCurrent,ColorConverter.getColorFromHexString(aFaction.getPlanetHexColor()));
   	  			lisExist = true;
@@ -273,27 +265,25 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
    * Same as in MailHandler.
    * @return
    */
-  private List<CanBeLostInSpace> getLostInSpace(Class<?> classToShow, List<CanBeLostInSpace> allLostInSpace, String aFactionName, Player aPlayer){
+  private List<CanBeLostInSpace> getLostInSpace(List<CanBeLostInSpace> allLostInSpace, String aFactionName, Player aPlayer){
 		List<CanBeLostInSpace> lisList = new LinkedList<CanBeLostInSpace>();
 	  	for (Iterator<CanBeLostInSpace> iter = allLostInSpace.iterator(); iter.hasNext();) {
 			CanBeLostInSpace aLis = iter.next();
-			if(aLis.getClass() == classToShow) {
-				if (aLis.getOwner() != null){
-					Logger.finer("aLis.getOwner().getName(): " + aLis.getOwner().getName());
-					Logger.finer("aLis.getOwner().getFaction().getName(): " + aLis.getOwner().getFaction().getName());
-					Logger.finer("aFactionName: " + aFactionName);
-					if ((aFactionName == null) & (aPlayer != null)){ // only the players own LIS
-						if (aLis.getOwner() == aPlayer){
-							lisList.add(aLis);
-						}
-					}else
-					if (aLis.getOwner().getFaction().getName().equalsIgnoreCase(aFactionName) & (aLis.getOwner() != aPlayer)){
+			if (aLis.getOwner() != null){
+				Logger.finer("aLis.getOwner().getName(): " + galaxy.getPlayerByGovenorName(aLis.getOwner()).getName());
+				Logger.finer("aLis.getOwner().getFaction().getName(): " + galaxy.getPlayerByGovenorName(aLis.getOwner()).getFaction().getName());
+				Logger.finer("aFactionName: " + aFactionName);
+				if ((aFactionName == null) & (aPlayer != null)){ // only the players own LIS
+					if (galaxy.getPlayerByGovenorName(aLis.getOwner()) == aPlayer){
 						lisList.add(aLis);
 					}
 				}else
-				if ((aFactionName == null) & (aPlayer == null)){ // endast neutrala LIS
+				if (galaxy.getPlayerByGovenorName(aLis.getOwner()).getFaction().getName().equalsIgnoreCase(aFactionName) & (galaxy.getPlayerByGovenorName(aLis.getOwner()) != aPlayer)){
 					lisList.add(aLis);
 				}
+			}else
+			if ((aFactionName == null) & (aPlayer == null)){ // endast neutrala LIS
+				lisList.add(aLis);
 			}
 		}
 	  	return lisList;
@@ -306,7 +296,7 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
 	  researchLabels.clear();
 	  List<ResearchAdvantage> tmpAdvantages = null;
 	  boolean firstOnGoingResearch=true;
-	  tmpAdvantages = curPlayer.getResearch().getAllAdvantagesThatIsReadyToBeResearchOn();
+	  tmpAdvantages = ResearchPureFunctions.getAllAdvantagesThatIsReadyToBeResearchOn(curPlayer, curPlayer.getFaction());
 	  for(int i = 0; i < tmpAdvantages.size(); i++){
 		  if(curPlayer.getOrders().checkResearchOrder(tmpAdvantages.get(i).getName())){
 			  if(firstOnGoingResearch){

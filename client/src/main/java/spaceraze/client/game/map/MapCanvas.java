@@ -21,17 +21,12 @@ import javax.swing.border.LineBorder;
 import spaceraze.client.ColorConverter;
 import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.game.ShowMapPlanet;
+import spaceraze.servlethelper.game.DiplomacyPureFunctions;
+import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Coors;
-import spaceraze.world.Planet;
-import spaceraze.world.PlanetConnection;
-import spaceraze.world.PlanetInfos;
-import spaceraze.world.Player;
-import spaceraze.world.Spaceship;
-import spaceraze.world.Troop;
-import spaceraze.world.VIP;
+import spaceraze.world.*;
 import spaceraze.world.comparator.SpaceshipSizeAndBuildCostComparator;
 import spaceraze.world.comparator.TroopTypeAndBuildCostComparator;
 import spaceraze.world.orders.PlanetNotesChange;
@@ -308,7 +303,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 		setOwnVips(vips);
 		setOwnTroops(troops);
 		setOthersVips(allVips);
-		setConnections(connections);
+		setConnections(connections, player.getGalaxy());
 		computeNewOrigo();
 		zvalue = 100;
 	}
@@ -371,7 +366,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 			if (initialSetCenter != null) {
 				setCenterName = initialSetCenter;
 			} else { // start on homeplanet
-				setCenterName = player.getHomeplanet().getName();
+				setCenterName = player.getHomePlanet().getName();
 				chosenCoors = setCenterName;
 			}
 			doSetCenter(setCenterName);
@@ -438,7 +433,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 							// bg.fillOval(newx-(size/2)+1, newy-(size/2)+1, size-2, size-2);
 							bg.setColor(cc); // color not faded
 							bg.fillOval(newx - (size / 2), newy - (size / 2), size, size);
-							boolean lastKnownRazed = player.getPlanetInfos().getLastKnownRazed(tempPlanet.getName());
+							boolean lastKnownRazed = PlanetPureFunctions.findPlanetInfo(tempPlanet.getName(), player.getPlanetInformations()).isRazed();
 							boolean razed = tempPlanet.isRazed() & (tempPlanet.getPlayerInControl() == null);
 							if ((razed & (shipInSystem | spy | troopInSystem)) | lastKnownRazed) {
 								bg.setColor(new Color(255, 63, 63));
@@ -573,7 +568,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 								if (aPlanetNotesChange != null) {
 									planetNotes = aPlanetNotesChange.getNotesText();
 								} else {
-									planetNotes = player.getPlanetInfos().getNotes(c.getName());
+									planetNotes = PlanetPureFunctions.findPlanetInfo(tempPlanet.getName(), player.getPlanetInformations()).getNotes();
 								}
 								if ((planetNotes != null) & !("".equals(planetNotes))) {
 									bg.setColor(new Color(150, 150, 150));
@@ -1140,7 +1135,6 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 	public void setPlanets(List<Planet> planets, Player aPlayer) {
 		this.planets = planets;
 		Coors c;
-		PlanetInfos pi = aPlayer.getPlanetInfos();
 		for (int i = 0; i < planets.size(); i++) {
 			Planet p = (Planet) planets.get(i);
 			boolean spy = (aPlayer.getGalaxy().findVIPSpy(p, aPlayer) != null);
@@ -1152,7 +1146,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 			boolean surveyShip = (aPlayer.getGalaxy().findSurveyShip(p, aPlayer) != null);
 			boolean surveyVIP = (aPlayer.getGalaxy().findSurveyVIPonShip(p, aPlayer) != null);
 			// c = new Coors(p.getXcoor()-50, p.getYcoor()-50, p.getZcoor()-50); varf�r -50?
-			c = new Coors(p.getXcoor(), p.getYcoor(), p.getZcoor());
+			c = new Coors(p.getX(), p.getY(), p.getZ());
 			c.setName(p.getName());
 			c.setOpen(p.isOpen());
 			// set prod / res
@@ -1163,16 +1157,16 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 				c.setNrTroops(nrTroops);
 			} else {
 				// set last known prod & res
-				int tmpProd = pi.getLastKnownProd(p.getName());
-				int tmpRes = pi.getLastKnownRes(p.getName());
+				int tmpProd = PlanetPureFunctions.findPlanetInfo(p.getName(), aPlayer.getPlanetInformations()).getProd();
+				int tmpRes = PlanetPureFunctions.findPlanetInfo(p.getName(), aPlayer.getPlanetInformations()).getRes();
 				c.setLastKnownProd(tmpProd);
 				c.setLastKnownRes(tmpRes);
-				c.setLastKnownTroopsNr(pi.getLastKnownTroopsNr(p.getName()));
+				c.setLastKnownTroopsNr(PlanetPureFunctions.findPlanetInfo(p.getName(), aPlayer.getPlanetInformations()).getLastKnownTroopsNr());
 			}
 			// maybe set last known max ship size
 			if ((p.getPlayerInControl() != aPlayer) & !aPlayer.getGalaxy().playerHasShipsInSystem(aPlayer, p)
 					& !p.isOpen() & !spy & !troopInSystem) {
-				c.setLastKnownMaxShipSize(pi.getLastKnownMaxShipSize(p.getName()));
+				c.setLastKnownMaxShipSize(PlanetPureFunctions.findPlanetInfo(p.getName(), aPlayer.getPlanetInformations()).getLastKnownMaxShipSize());
 			}
 			// set building info
 			if ((p.isOpen()) | (p.getPlayerInControl() == aPlayer) | (spy) | troopInSystem) {
@@ -1182,10 +1176,10 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 			} else if (aPlayer.getGalaxy().playerHasShipsInSystem(aPlayer, p)) {
 				c.setBuilding(p.getBuildingsInOrbit());
 				// handle that one maybe have info on old planetbased buildings
-				c.setLastKnownBuildingsString(pi.getLastKnownBuildingsOnSurface(p.getName()));
+				c.setLastKnownBuildingsString(PlanetPureFunctions.findPlanetInfo(p.getName(), aPlayer.getPlanetInformations()).getLastKnownBuildingsOnSurface());
 
 			} else {
-				c.setLastKnownBuildingsString(pi.getLastKnownBuildings(p.getName()));
+				c.setLastKnownBuildingsString(PlanetPureFunctions.getLastKnownBuildings(p.getName(), player.getPlanetInformations()));
 			}
 			if (p.isBesieged() & ((aPlayer == p.getPlayerInControl())
 					| (aPlayer.getGalaxy().playerHasShipsInSystem(aPlayer, p) | spy | troopInSystem))) {
@@ -1206,12 +1200,11 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 					c.setColor(StyleGuide.colorNeutralWhite);
 				}
 			} else { // annans eller neutral planet, visa senaste k�nda info/f�rg
-				// PlanetInfos pi = aPlayer.getPlanetInfos();
-				if (pi.getLastKnownOwner(p.getName()).equalsIgnoreCase("Neutral")) { // neutral planet
+				if (PlanetPureFunctions.findPlanetInfo(p.getName(), aPlayer.getPlanetInformations()).getLastKnownOwner().equalsIgnoreCase("Neutral")) { // neutral planet
 					c.setColor(StyleGuide.colorNeutralWhite);
 				} else {
 					c.setColor(ColorConverter.getColorFromHexString(aPlayer.getGalaxy()
-							.getPlayer(pi.getLastKnownOwner(p.getName())).getFaction().getPlanetHexColor()));
+							.getPlayer(PlanetPureFunctions.findPlanetInfo(p.getName(), aPlayer.getPlanetInformations()).getLastKnownOwner()).getFaction().getPlanetHexColor()));
 				}
 			}
 			insertCoorSorted(c, pcoors);
@@ -1262,9 +1255,6 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 	/**
 	 * Add all vips that are on planets (or in ship at planet) of corresponding
 	 * coors
-	 * 
-	 * @param troops
-	 *            all troops belonging to current player
 	 */
 	public void setOwnTroops(List<Troop> ownTroops) {
 		this.troops = ownTroops;
@@ -1317,29 +1307,29 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 		}
 	}
 
-	public void setConnections(List<PlanetConnection> connections) {
+	public void setConnections(List<PlanetConnection> connections, Galaxy galaxy) {
 		this.connections = connections;
 		Coors c;
 		for (int i = 0; i < connections.size(); i++) {
-			PlanetConnection pc = (PlanetConnection) connections.get(i);
-			Planet p1 = pc.getPlanet1();
-			Planet p2 = pc.getPlanet2();
-			c = new Coors(p1.getXcoor(), p1.getYcoor(), p1.getZcoor(), p2.getXcoor(), p2.getYcoor(), p2.getZcoor(),
+			PlanetConnection pc = connections.get(i);
+			Planet p1 = galaxy.getPlanet(pc.getPlanetOne().getName());
+			Planet p2 =galaxy.getPlanet(pc.getPlanetTwo().getName());
+			c = new Coors(p1.getX(), p1.getY(), p1.getZ(), p2.getX(), p2.getY(), p2.getZ(),
 					pc.isLongRange());
 			c.setName("");
 			if (!pc.isLongRange()) {
-				c.setColor(StyleGuide.colorMapShortRange); // m�rkr�d
+				c.setColor(StyleGuide.colorMapShortRange); // mörkröd
 			} else {
 				// check if spacestations make this connection short range anyway
 				boolean isSpaceStation = false;
 				if ((p1.getPlayerInControl() != null) & (p2.getPlayerInControl() != null)) { // none of the planets are
 																								// neutral
 					if ((p1.hasSpacePort()) & (p2.hasSpacePort())) { // both have a spacestation
-						if (player.getGalaxy().getDiplomacy().friendlySpaceports(p1.getPlayerInControl(),
-								p2.getPlayerInControl())) {
-							if (player.getGalaxy().getDiplomacy().friendlySpaceports(player, p1.getPlayerInControl())) {
-								if (player.getGalaxy().getDiplomacy().friendlySpaceports(player,
-										p2.getPlayerInControl())) {
+						if (DiplomacyPureFunctions.friendlySpaceports(p1.getPlayerInControl(),
+								p2.getPlayerInControl(), player.getGalaxy().getDiplomacyStates())) {
+							if (DiplomacyPureFunctions.friendlySpaceports(player, p1.getPlayerInControl(), player.getGalaxy().getDiplomacyStates())) {
+								if (DiplomacyPureFunctions.friendlySpaceports(player,
+										p2.getPlayerInControl(), player.getGalaxy().getDiplomacyStates())) {
 									isSpaceStation = true;
 								}
 							}
@@ -1348,9 +1338,9 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 				}
 				// set coor values
 				if (isSpaceStation) {
-					c.setColor(StyleGuide.colorMapSpacePortsRange); // ljusr�d
+					c.setColor(StyleGuide.colorMapSpacePortsRange); // ljusröd
 				} else {
-					c.setColor(StyleGuide.colorMapLongRange); // m�rkbl�
+					c.setColor(StyleGuide.colorMapLongRange); // mörkblå
 				}
 			}
 			insertCoorSorted(c, pcoors);

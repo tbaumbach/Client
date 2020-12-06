@@ -13,6 +13,8 @@ import spaceraze.client.components.SRTable;
 import spaceraze.client.components.SRTableHeader;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.expenses.ExpensePureFunction;
+import spaceraze.servlethelper.game.player.CostPureFunctions;
+import spaceraze.servlethelper.game.player.IncomePureFunctions;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
@@ -30,7 +32,6 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
 	private SRLabel totalUpkeepShipsLabel,totalUpkeepShipsValueLabel;
 	private SRLabel totalUpkeepTroopsLabel,totalUpkeepTroopsValueLabel;
 	private SRLabel totalUpkeepVIPsLabel,totalUpkeepVIPsValueLabel;
-	private SRLabel taxLabel,taxValueLabel;
 	private String id;
 	private Player p;
 	// income specification list
@@ -59,7 +60,7 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
     add(supportTitleLabel);
     
     
-    int freeUpkeep = p.getGalaxy().getPlayerFreeUpkeepWithoutCorruption(p);
+    int freeUpkeep = CostPureFunctions.getPlayerFreeUpkeepWithoutCorruption(p, p.getGalaxy().getPlanets());
     freeUpkeepLabel = new SRLabel("Free upkeep:");
     freeUpkeepLabel.setBounds(10,40,col1width,20);
     add(freeUpkeepLabel);
@@ -71,21 +72,21 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
     upkeepCorrLabel = new SRLabel("Lost to corruption:");
     upkeepCorrLabel.setBounds(10,70,col1width,20);
     add(upkeepCorrLabel);
-    upkeepCorrValueLabel = new SRLabel("-" + String.valueOf(p.getLostToCorruption(freeUpkeep)));
+    upkeepCorrValueLabel = new SRLabel("-" + IncomePureFunctions.getLostToCorruption(freeUpkeep, p.getCorruptionPoint()));
     upkeepCorrValueLabel.setBounds(col1width+10,70,250,20);
     add(upkeepCorrValueLabel);
 
     curUpkeepLabel = new SRLabel("Current upkeep:");
     curUpkeepLabel.setBounds(10,100,col1width,20);
     add(curUpkeepLabel);
-    curUpkeepValueLabel = new SRLabel("-" + String.valueOf(p.getGalaxy().getPlayerUpkeepCost(p)));
+    curUpkeepValueLabel = new SRLabel("-" + CostPureFunctions.getPlayerUpkeepCost(p, p.getGalaxy().getSpaceships()));
     curUpkeepValueLabel.setBounds(col1width+10,100,250,20);
     add(curUpkeepValueLabel);
 
     totalUpkeepShipsLabel = new SRLabel("Total upkeep cost:");
     totalUpkeepShipsLabel.setBounds(10,130,col1width,20);
     add(totalUpkeepShipsLabel);
-    totalUpkeepShipsValueLabel = new SRLabel("-" + p.upkeepShips());
+    totalUpkeepShipsValueLabel = new SRLabel("-" + CostPureFunctions.getPlayerUpkeepShips(p, p.getGalaxy().getPlanets(), p.getGalaxy().getSpaceships()));
     totalUpkeepShipsValueLabel.setBounds(col1width+10,130,250,20);
     add(totalUpkeepShipsValueLabel);
 
@@ -106,63 +107,53 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
     incomeLabel = new SRLabel("Planet incomes total:");
     incomeLabel.setBounds(x,70,col1width,20);
     add(incomeLabel);
-    incomeValueLabel = new SRLabel("+" + p.getGalaxy().getPlayerIncomeWithoutCorruption(p,false));
+    incomeValueLabel = new SRLabel("+" + IncomePureFunctions.getPlayerIncomeWithoutCorruption(p,false, p.getGalaxy()));
     incomeValueLabel.setBounds(col1width+x,70,250,20);
     add(incomeValueLabel);
 
-    int incomeCorr = p.getGalaxy().getPlayerIncomeWithoutCorruption(p,false);
+    int incomeCorr = IncomePureFunctions.getPlayerIncomeWithoutCorruption(p,false, p.getGalaxy());
     incomeCorrLabel = new SRLabel("Lost to corruption:");
     incomeCorrLabel.setBounds(x,100,col1width,20);
     add(incomeCorrLabel);
-    incomeCorrValueLabel = new SRLabel("-" + String.valueOf(p.getLostToCorruption(incomeCorr)));
+    incomeCorrValueLabel = new SRLabel("-" + IncomePureFunctions.getLostToCorruption(incomeCorr, p.getCorruptionPoint()));
     incomeCorrValueLabel.setBounds(col1width+x,100,250,20);
     add(incomeCorrValueLabel);
 
     totalUpkeepShipsLabel = new SRLabel("Spaceships upkeep cost:");
     totalUpkeepShipsLabel.setBounds(x,130,col1width,20);
     add(totalUpkeepShipsLabel);
-    totalUpkeepShipsValueLabel = new SRLabel("-" + p.upkeepShips());
+    totalUpkeepShipsValueLabel = new SRLabel("-" +CostPureFunctions.getPlayerUpkeepShips(p, p.getGalaxy().getPlanets(), p.getGalaxy().getSpaceships()));
     totalUpkeepShipsValueLabel.setBounds(col1width+x,130,250,20);
     add(totalUpkeepShipsValueLabel);
 
     totalUpkeepTroopsLabel = new SRLabel("Troops upkeep cost:");
     totalUpkeepTroopsLabel.setBounds(x,160,col1width,20);
     add(totalUpkeepTroopsLabel);
-    totalUpkeepTroopsValueLabel = new SRLabel("-" + p.upkeepTroops());
+    totalUpkeepTroopsValueLabel = new SRLabel("-" + CostPureFunctions.getPlayerUpkeepTroops(p, p.getGalaxy().getPlanets(), p.getGalaxy().getTroops()));
     totalUpkeepTroopsValueLabel.setBounds(col1width+x,160,250,20);
     add(totalUpkeepTroopsValueLabel);
     
     totalUpkeepVIPsLabel = new SRLabel("VIPs upkeep cost:");
     totalUpkeepVIPsLabel.setBounds(x,190,col1width,20);
     add(totalUpkeepVIPsLabel);
-    totalUpkeepVIPsValueLabel = new SRLabel("-" + p.upkeepVIPs());
+    totalUpkeepVIPsValueLabel = new SRLabel("-" + CostPureFunctions.getPlayerUpkeepVIPs(p, p.getGalaxy().getAllVIPs()));
     totalUpkeepVIPsValueLabel.setBounds(col1width+x,190,250,20);
     add(totalUpkeepVIPsValueLabel);
 
-    taxLabel = new SRLabel("Tax:");
-    taxLabel.setBounds(x,220,col1width,20);
-    add(taxLabel);
-	int income = p.getGalaxy().getPlayerIncomeWithoutCorruption(p,false);
-	income = p.getIncomeAfterCorruption(income);
-	int tax = p.getGalaxy().getPlayerTaxes(p,income);
-    taxValueLabel = new SRLabel((tax > 0) ? "+" + tax : String.valueOf(tax));
-    taxValueLabel.setBounds(col1width+x,220,250,20);
-    add(taxValueLabel);
-
     expencesLabel = new SRLabel("Expences this turn total:");
-    expencesLabel.setBounds(x,250,col1width,20);
+    expencesLabel.setBounds(x,220,col1width,20);
     add(expencesLabel);
     expencesValueLabel = new SRLabel("-" + ExpensePureFunction.getExpensesCost(p.getGalaxy(), p));
-    expencesValueLabel.setBounds(col1width+x,250,250,20);
+    expencesValueLabel.setBounds(col1width+x,220,250,20);
     expencesValueLabel.setOpaque(true);
     expencesValueLabel.setBackground(StyleGuide.colorBackground);
     add(expencesValueLabel);
 
     newTreasuryLabel = new SRLabel("Total left to spend:");
-    newTreasuryLabel.setBounds(x,290,col1width,20);
+    newTreasuryLabel.setBounds(x,250,col1width,20);
     add(newTreasuryLabel);
     newTreasuryValueLabel = new SRLabel(String.valueOf(PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy())));
-    newTreasuryValueLabel.setBounds(col1width+x,290,250,20);
+    newTreasuryValueLabel.setBounds(col1width+x,250,250,20);
     newTreasuryValueLabel.setOpaque(true);
     newTreasuryValueLabel.setBackground(StyleGuide.colorBackground);
     add(newTreasuryValueLabel);

@@ -16,6 +16,7 @@ import spaceraze.client.game.GameGUIPanel;
 import spaceraze.client.game.ImageHandler;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.servlethelper.game.expenses.ExpensePureFunction;
+import spaceraze.servlethelper.game.player.CostPureFunctions;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Player;
@@ -133,7 +134,7 @@ public class TurnInfoPanel extends SRBasePanel implements ActionListener {
 		if (p.isDefeated()) {
 			treasuryLabel.setText("Left to spend: -");
 		} else {
-			if (p.isBrokeClient()) {
+			if (CostPureFunctions.isBroke(p, p.getGalaxy())) {
 				treasuryLabel.setText("Broke!");
 			} else {
 				treasuryLabel.setText("Left to spend: " + PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy()));
@@ -141,8 +142,8 @@ public class TurnInfoPanel extends SRBasePanel implements ActionListener {
 		}
 		// om spelaren är pank och har utgifter eller om han inte är pank men har för
 		// höga utgifter
-		if (((p.isBrokeClient()) & (ExpensePureFunction.getExpensesCost(p.getGalaxy(), p) > 0))
-				| ((!p.isBrokeClient()) & (PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy()) < 0))) {
+		if ((CostPureFunctions.isBroke(p, p.getGalaxy()) & (ExpensePureFunction.getExpensesCost(p.getGalaxy(), p) > 0))
+				| ((!CostPureFunctions.isBroke(p, p.getGalaxy())) & (PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy()) < 0))) {
 			sendbtn.setEnabled(false);
 		} else {
 			if (!client.getFinished()) {

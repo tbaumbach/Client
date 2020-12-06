@@ -228,8 +228,8 @@ public class LoginPanelFull extends SRBasePanel implements ItemListener, ActionL
   @SuppressWarnings("deprecation")
 public void actionPerformed(ActionEvent e){
   	Logger.fine("actionPerformed called: " + e.getSource());
-  	if ((e.getSource() == okbtn) | (e.getSource() == govenorfield)){
-  		if (checkGovName() | !firsttime.isSelected()){
+  	if ((e.getSource() == okbtn) || (e.getSource() == govenorfield)){
+  		if (checkGovName() || !firsttime.isSelected()){
   			String message;
   			if (firsttime.isSelected()){
   				message = "newplayer ";

@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import spaceraze.servlethelper.game.DiplomacyPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.world.Galaxy;
 import spaceraze.world.Player;
@@ -28,7 +29,7 @@ public class DiplomacyRowsPanel extends JPanel {
 		setOpaque(true);
 		rows = new LinkedList<DiplomacyRow>();
 		Galaxy g = aPlayer.getGalaxy();
-		List<DiplomacyState> states = g.getDiplomacy().getDiplomacyStates(aPlayer);
+		List<DiplomacyState> states = DiplomacyPureFunctions.getDiplomacyStates(aPlayer, g.getDiplomacyStates());
 		for (DiplomacyState state : states) {
 			Logger.finest("state: " + state.toString());
 			Player otherPlayer = state.getOtherPlayer(aPlayer);

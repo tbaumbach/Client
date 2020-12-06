@@ -344,7 +344,6 @@ public class SpaceRazePanel extends SRBasePanel {
 				receivedMessage = getPlayerMessages();
 				sentMessage = getPlayerSentMessages();
 				showGUI();
-				p.getGalaxy().getDiplomacy().logDiplomacyStates();
 			}
 		}
 	}
@@ -371,7 +370,7 @@ public class SpaceRazePanel extends SRBasePanel {
 	public void showGUI() {
 		Logger.info("showGUI anropad");
 
-		gameGuiPanel = new GameGUIPanel("används ej?", p, this, imageHandler);
+		gameGuiPanel = new GameGUIPanel("används ej?", p, this, imageHandler, p.getGalaxy());
 		gameGuiPanel.setBounds(0, 0, getSize().width, getSize().height);
 
 		// TODO 2019-11-22 Removing Applet

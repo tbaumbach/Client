@@ -19,6 +19,7 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.VipPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.world.Player;
 import spaceraze.world.Spaceship;
@@ -151,7 +152,7 @@ public class RetreatsPanel extends SRBasePanel implements SRUpdateablePanel, Act
       }
 
     private void addVIPs(){
-    	List<VIP> allVIPs = player.getGalaxy().findAllVIPsOnShip(currentss);
+    	List<VIP> allVIPs = VipPureFunctions.findAllVIPsOnShip(currentss, player.getGalaxy().getAllVIPs());
     	if (allVIPs.size() == 0){
     		VIPInfoTextArea.setText("None");
     	}else{

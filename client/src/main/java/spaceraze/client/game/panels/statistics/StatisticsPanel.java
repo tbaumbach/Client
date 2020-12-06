@@ -120,7 +120,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     	graphLbl.setBounds(10,220,550,20);
     	add(graphLbl);
 
-    	graph = new StatisticsGraph(g.getStatisticsHandler(),g);
+    	graph = new StatisticsGraph(g);
     	graph.setBounds(10, 240, 600, 370);
     	add(graph);
 
@@ -152,7 +152,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     	highlightPlayerChoice.addActionListener(this);
     	add(highlightPlayerChoice);
     	
-        if (!g.isGameOver() & g.getStatisticsHandler().getStatisticGameType() == StatisticGameType.NONE){
+        if (!g.isGameOver() && g.getStatisticGameType() == StatisticGameType.NONE){
         	graphLbl.setVisible(false);
         	statisticsTypeLbl.setVisible(false);
         	highlightPlayerLbl.setVisible(false);
@@ -165,7 +165,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     private void fillTypesList(){
     	DefaultListModel dlm = (DefaultListModel)statisticTypesList.getModel();
 		boolean includeFactionProduction = g.getFactionGame() & (g.getDiplomacyGameType() == DiplomacyGameType.FACTION);
-    	if (!g.isGameOver() & g.getStatisticsHandler().getStatisticGameType() == StatisticGameType.PRODUCTION_ONLY){
+    	if (!g.isGameOver() && g.getStatisticGameType() == StatisticGameType.PRODUCTION_ONLY){
 			dlm.addElement(StatisticType.PRODUCTION_PLAYER.getText());
 			if (includeFactionProduction){
 				dlm.addElement(StatisticType.PRODUCTION_FACTION.getText());

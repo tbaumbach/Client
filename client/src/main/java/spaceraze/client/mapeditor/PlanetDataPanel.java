@@ -22,8 +22,8 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRTextField;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.util.general.StyleGuide;
+import spaceraze.world.BasePlanet;
 import spaceraze.world.Map;
-import spaceraze.world.Planet;
 import spaceraze.world.PlanetConnection;
 
 /**
@@ -37,7 +37,7 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 	private SRButton updateBtn,addLongBtn,addShortBtn,removeConnBtn,removePlanetBtn,moveBtn;
 	private SRTextField planetNameTf,xTf,yTf,zTf;
 	private ListPanel connectionsList;
-	private Planet selectedPlanet;
+	private BasePlanet selectedPlanet;
 	private EditorGUIPanel guiPanel;
 	private Map theMap;
 	private boolean removeConnState;
@@ -149,7 +149,7 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 		planetNameTf.requestFocus();
 	}
 	
-	public void showPlanet(Planet aPlanet){
+	public void showPlanet(BasePlanet aPlanet){
 		selectedPlanet = aPlanet;
 		if (aPlanet == null){
 			ToggleShowPlanet(false);
@@ -160,9 +160,9 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 			// set data
 			planetNameTf.setText(selectedPlanet.getName());
 			startPlanet.setSelected(selectedPlanet.isPossibleStartPlanet());
-			String tmpX = String.valueOf(Math.round(selectedPlanet.getXcoor()));
-			String tmpY = String.valueOf(Math.round(selectedPlanet.getYcoor()));
-			String tmpZ = String.valueOf(Math.round(selectedPlanet.getZcoor()));
+			String tmpX = String.valueOf(Math.round(selectedPlanet.getX()));
+			String tmpY = String.valueOf(Math.round(selectedPlanet.getY()));
+			String tmpZ = String.valueOf(Math.round(selectedPlanet.getZ()));
 			xTf.setText(tmpX);
 			yTf.setText(tmpY);
 			zTf.setText(tmpZ);
@@ -177,8 +177,8 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 		    dlm.clear();
 		    List<PlanetConnection> allConnections = theMap.getConnections();
 			for (PlanetConnection aConnection : allConnections) {
-				Planet p1 = aConnection.getPlanet1();
-				Planet p2 = aConnection.getPlanet2();
+				BasePlanet p1 = aConnection.getPlanetOne();
+				BasePlanet p2 = aConnection.getPlanetTwo();
 				String rangeStr = "short";
 				if (aConnection.isLongRange()){
 					rangeStr = "long";
@@ -267,7 +267,7 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 			int index = selStr.indexOf(" (");
 			selStr = selStr.substring(0,index);
 			System.out.println("selStr: " + selStr);
-			Planet aPlanet = theMap.findPlanet(selStr);
+			BasePlanet aPlanet = theMap.findPlanet(selStr);
 			theMap.deleteConnection(selectedPlanet,aPlanet);
 			guiPanel.updateMap();
 			showPlanet(selectedPlanet);

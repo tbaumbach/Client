@@ -109,7 +109,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		// TODO (Tobbe) hur löser vi detta? sortering av ArrayList
 		// Collections.sort(allBuildings);
 		for (int i = 0; i < allBuildings.size(); i++) {
-			dlm.addElement((allBuildings.get(i)).getUniqueName());
+			dlm.addElement(allBuildings.get(i).getName());
 			// dlm.addElement(((Building)allBuildings.get(i)).getBuildingType().getShortName());
 		}
 		buildingList.updateScrollList();

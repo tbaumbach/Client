@@ -11,21 +11,18 @@ import spaceraze.client.components.scrollable.TextAreaPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.util.general.Logger;
 import spaceraze.world.Player;
-import spaceraze.world.PublicInfo;
 import spaceraze.world.spacebattle.ReportLevel;
 
 public class InfoPanel extends SRBasePanel implements SRUpdateablePanel, ItemListener{
 	private static final long serialVersionUID = 1L;
 	private SRLabel turnlbl,reportLevelLbl;
 	private String id;
-//	private PublicInfo pi;
 	private TextAreaPanel infoarea;
 	private Player p;
 	private ComboBoxPanel turnChoice,reportLevelChoice;
 //	private JScrollPane scrollPane;
 
-    public InfoPanel(PublicInfo pi, Player p ,String id){
-//      this.pi = pi;
+    public InfoPanel(Player p ,String id){
       this.id = id;
       this.p = p;
       this.setLayout(null);

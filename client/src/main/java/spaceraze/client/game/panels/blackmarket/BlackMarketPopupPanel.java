@@ -90,11 +90,11 @@ public class BlackMarketPopupPanel extends BasicPopupPanel implements ActionList
 	        mapCanvas.setOwnVips(p.getGalaxy().getPlayersVips(p));
 	        mapCanvas.setOwnTroops(p.getGalaxy().getPlayersTroops(p));
 	        mapCanvas.setOthersVips(p.getGalaxy().getAllVIPs());
-	        mapCanvas.setConnections(p.getGalaxy().getPlanetConnections());
+	        mapCanvas.setConnections(p.getGalaxy().getPlanetConnections(), p.getGalaxy());
 	        mapCanvas.computeNewOrigo();
 		    mapCanvas.setBounds(10, 155, 380, 300);
 		    mapCanvas.setInitialZoom(-20);
-		    mapCanvas.setInitialSetCenter(player.getHomeplanet().getName());
+		    mapCanvas.setInitialSetCenter(player.getHomePlanet().getName());
 			mapCanvas.setChosenCoors("");
 		    add(mapCanvas);
 

@@ -184,8 +184,8 @@ public class GameListRowPanel extends SRBasePanel implements ActionListener{
 				notifierFrame.checkWithServer();
 			}
 		}else
-		if (ae.getActionCommand().equals("Join") | (ae.getSource() == passwordTF)){
-			if (notifierFrame.getReturnGames() == ReturnGames.ALL | notifierFrame.getReturnGames() == ReturnGames.OWN_AND_OPEN | ((passwordTF != null) && passwordTF.getText().equals(gameData.getPassword()))){
+		if (ae.getActionCommand().equals("Join") || (ae.getSource() == passwordTF)){
+			if (notifierFrame.getReturnGames() == ReturnGames.ALL || notifierFrame.getReturnGames() == ReturnGames.OWN_AND_OPEN || ((passwordTF != null) && passwordTF.getText().equals(gameData.getPassword()))){
 				if (notifierFrame.getReturnGames() == ReturnGames.OWN_AND_OPEN){
 					notifierFrame.showSpaceRazePanel(gameData.getGameId(),notifierFrame.getUser(),notifierFrame.getPassword());
 				}else{

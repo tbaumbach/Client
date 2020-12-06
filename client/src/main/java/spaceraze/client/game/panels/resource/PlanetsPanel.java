@@ -16,6 +16,7 @@ import spaceraze.client.components.SRTableHeader;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.game.GameGUIPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.VipPureFunctions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Galaxy;
 import spaceraze.world.Planet;
@@ -195,7 +196,7 @@ public class PlanetsPanel extends SRBasePanel implements SRUpdateablePanel, List
 	// TODO (Paul) ej använd, ska vi visa VIP:ar i planetlistan?
     @SuppressWarnings("unused")
 	private void addVIPs(){
-    	List<VIP> allVIPs = player.getGalaxy().findAllVIPsOnShip(currentss);
+    	List<VIP> allVIPs = VipPureFunctions.findAllVIPsOnShip(currentss, player.getGalaxy().getAllVIPs());
     	if (allVIPs.size() == 0){
     		VIPInfoTextArea.setText("None");
     	}else{

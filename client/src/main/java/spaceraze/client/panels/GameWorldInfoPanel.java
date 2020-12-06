@@ -74,7 +74,7 @@ public class GameWorldInfoPanel extends SRBasePanel implements ActionListener {
 		if (aGameWorld.getTroopTypes().size() > 0){
 			advFeaturesStr = "Troop units";
 		}
-		if (aGameWorld.getFactions().get(0).getResearch().getAdvantages().size() > 0){
+		if (aGameWorld.getFactions().get(0).getResearchAdvantages().size() > 0){
 			if (!advFeaturesStr.equals("")){
 				advFeaturesStr += ", ";
 			}

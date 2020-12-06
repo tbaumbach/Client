@@ -153,7 +153,7 @@ public class FactionDetailInfoPanel extends SRBasePanel {
 			closedPlanetBonusLbl2.setText(String.valueOf(f.getClosedPlanetBonus()));
 			resistanceBonusLbl2.setText(String.valueOf(f.getResistanceBonus()));
 			alignmentLbl2.setText(f.getAlignment().toString());
-			corrLbl2.setText(f.getCorruptionDescription());
+			corrLbl2.setText(f.getCorruptionPoint() != null ? f.getCorruptionPoint().getDescription() : "None");
 			governorVIPTypeLbl2.setText(f.getGovernorVIPType().getName());
 			nrStartingRandomVIPsLbl2.setText(String.valueOf(f.getNrStartingRandomVIPs()));
 			techBonusLbl2.setText(String.valueOf(f.getTechBonus()));
@@ -177,7 +177,7 @@ public class FactionDetailInfoPanel extends SRBasePanel {
 			closedPlanetBonusLbl2.setText(String.valueOf(p.getClosedPlanetBonus()));
 			resistanceBonusLbl2.setText(String.valueOf(p.getResistanceBonus()));
 			alignmentLbl2.setText(f.getAlignment().toString());
-			corrLbl2.setText(p.getCorruptionDescription());
+			corrLbl2.setText(p.getCorruptionPoint() != null ? p.getCorruptionPoint().getDescription() : "None");
 			governorVIPTypeLbl2.setText(f.getGovernorVIPType().getName());
 			nrStartingRandomVIPsLbl2.setText(String.valueOf(f.getNrStartingRandomVIPs()));
 			techBonusLbl2.setText(String.valueOf(p.getTechBonus()));

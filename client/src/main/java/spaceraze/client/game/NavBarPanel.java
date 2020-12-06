@@ -29,6 +29,7 @@ import spaceraze.client.game.panels.statistics.StatisticsPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
+import spaceraze.world.Galaxy;
 import spaceraze.world.Player;
 
 @SuppressWarnings("serial")
@@ -55,66 +56,66 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 	GameGUIPanel aGameGUIPanel;
 	private SRTabbedPane tabbedPanel;
 
-	public NavBarPanel(Player p, GameGUIPanel gameGuiPanel, SpaceRazePanel client) {
+	public NavBarPanel(Player player, GameGUIPanel gameGuiPanel, SpaceRazePanel client, Galaxy galaxy) {
 		this.gameGuiPanel = gameGuiPanel;
 		setLayout(null);
 		setBackground(StyleGuide.colorBackground);
 
 		// create all panels
 
-		dbp = new DataBankPanel(p, gameGuiPanel, "Databank", client);
+		dbp = new DataBankPanel(player, gameGuiPanel, "Databank", client);
 		dbp.setName("Databank");
 		panels.add(dbp);
 
-		op = new OrdersPanel(p.getOrders(), "Orders", p);
+		op = new OrdersPanel(player.getOrders(), "Orders", player);
 		op.setName("Orders");
 		panels.add(op);
 
-		np = new NotesPanel(p, "Notes");
+		np = new NotesPanel(player, "Notes");
 		np.setName("Notes");
 		panels.add(np);
 
-		iep = new IncomeExpensesPanel(p, "Inc & exp");
+		iep = new IncomeExpensesPanel(player, "Inc & exp");
 		iep.setName("Inc & exp");
 		panels.add(iep);
 
-		gp = new GiftPanel(p, client, "Gifts & Taxes");
+		gp = new GiftPanel(player, client, "Gifts & Taxes");
 		gp.setName("Gifts & Taxes");
 		panels.add(gp);
 
-		ip = new InfoPanel(p.getLastPublicInfo(), p, "Turn info");
+		ip = new InfoPanel(player, "Turn info");
 		ip.setName("Turn info");
 		panels.add(ip);
 
-		bmp = new BlackMarketPanel(p, client, "Black Market", p.getGalaxy().getBlackMarket());
+		bmp = new BlackMarketPanel(player, client, "Black Market", player.getGalaxy().getCurrentOffers());
 		bmp.setName("Black Market");
 		panels.add(bmp);
 
-		mep = new MessagePanel(p, client, "Messages");
+		mep = new MessagePanel(player, client, "Messages");
 		mep.setName("Messages");
 		panels.add(mep);
 
-		sp = new StatisticsPanel(p, p.getGalaxy(), "Statistics");
+		sp = new StatisticsPanel(player, player.getGalaxy(), "Statistics");
 		sp.setName("Statistics");
 		panels.add(sp);
 
-		rp = new ResourcesPanel(p, gameGuiPanel, "Resources");
+		rp = new ResourcesPanel(player, gameGuiPanel, "Resources");
 		rp.setName("Resources");
 		panels.add(rp);
 
-		hp = new HighlightsPanel(p, "Highlights");
+		hp = new HighlightsPanel(player, "Highlights", galaxy);
 		hp.setName("Highlights");
 		panels.add(hp);
 
-		bsp = new BattleSimsPanel(p, gameGuiPanel, "Battle Sim");
+		bsp = new BattleSimsPanel(player, gameGuiPanel, "Battle Sim");
 		bsp.setName("Battle Sim");
 		panels.add(bsp);
 
-		researchPanel = new ResearchPanel(p, "Research", client);
+		researchPanel = new ResearchPanel(player, "Research", client);
 		researchPanel.setName("Research");
 		panels.add(researchPanel);
 		/*
-		 * Removed. Add if tested and reconstucted. dp = new DiplomacyPanel(p,
+		 * Removed. Add if tested and reconstucted. dp = new DiplomacyPanel(player,
 		 * "Diplomacy"); dp.setName("Diplomacy"); panels.add(dp);
 		 */
 
@@ -138,7 +139,7 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		tabbedPanel.setToolTipTextAt(panelIndex, "Current turns highlights");
 		panelIndex++;
 
-		if (!(p.isDefeated() | p.getGalaxy().isGameOver())) {
+		if (!(player.isDefeated() | player.getGalaxy().isGameOver())) {
 			tabbedPanel.addTab("Turn info", tempPanel("turn info"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "Current and old turns information");
 			panelIndex++;
@@ -148,7 +149,7 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		tabbedPanel.setToolTipTextAt(panelIndex, "Information about yours units and plantes");
 		panelIndex++;
 
-		if (!(p.isDefeated() | p.getGalaxy().isGameOver())) {
+		if (!(player.isDefeated() | player.getGalaxy().isGameOver())) {
 			tabbedPanel.addTab("Inc & exp", tempPanel("Inc & exp"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "Incom & expences");
 			panelIndex++;
@@ -162,7 +163,7 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		tabbedPanel.setToolTipTextAt(panelIndex, "Game world details and yours units data");
 		panelIndex++;
 
-		if (!(p.isDefeated() | p.getGalaxy().isGameOver())) {
+		if (!(player.isDefeated() | player.getGalaxy().isGameOver())) {
 			tabbedPanel.addTab("Black Market", tempPanel("Black Market"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "Bay stuff one the black market");
 			panelIndex++;
@@ -172,7 +173,7 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		tabbedPanel.setToolTipTextAt(panelIndex, "Send and recieve message to players in this game");
 		panelIndex++;
 
-		if (!(p.isDefeated() | p.getGalaxy().isGameOver())) {
+		if (!(player.isDefeated() | player.getGalaxy().isGameOver())) {
 			tabbedPanel.addTab("Gifts & Taxes", tempPanel("Gifts & Taxes"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "Give money to your friends in the game");
 			panelIndex++;
@@ -187,7 +188,7 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		panelIndex++;
 		/*
 		 * if
-		 * (!p.getGalaxy().getDiplomacyGameType().equals(DiplomacyGameType.DEATHMATCH)){
+		 * (!player.getGalaxy().getDiplomacyGameType().equals(DiplomacyGameType.DEATHMATCH)){
 		 * tabbedPanel.addTab("Diplomacy", tempPanel("diplomacy"));
 		 * tabbedPanel.setToolTipTextAt(panelIndex,
 		 * "Ses and change current diplomecy level"); panelIndex++; }
@@ -196,7 +197,7 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		tabbedPanel.setToolTipTextAt(panelIndex, "Ses yours current turn orders");
 		panelIndex++;
 
-		if (p.getGalaxy().getGameWorld().isResearchWorld() && !(p.isDefeated() | p.getGalaxy().isGameOver())) {
+		if (player.getGalaxy().getGameWorld().isResearchWorld() && !(player.isDefeated() | player.getGalaxy().isGameOver())) {
 			tabbedPanel.addTab("Research", tempPanel("Research"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "Develop your faction");
 		}

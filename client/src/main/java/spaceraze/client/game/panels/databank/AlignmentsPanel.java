@@ -47,7 +47,7 @@ public class AlignmentsPanel extends SRBasePanel implements ListSelectionListene
     private final int yInterval = 20;
     
     public AlignmentsPanel(Player p, String id){
-      alignments = p.getGalaxy().getGameWorld().getAlignments().getAllAlignments().stream().collect(Collectors.toList());
+      alignments = p.getGalaxy().getGameWorld().getAlignments().stream().collect(Collectors.toList());
 	  Collections.sort(alignments,new AlignmentNameComparator<Alignment>());
       this.id = id;
 
@@ -172,18 +172,18 @@ public class AlignmentsPanel extends SRBasePanel implements ListSelectionListene
           descScrollPane.setVisible(true);
           // can have vip textarea
           canHaveVIPTextArea.setText("");
-          List<String> canHaveVipList = anAlignment.getCanHaveVipList();
+          List<Alignment> canHaveVipList = anAlignment.getCanHaveVipList();
 //    	  canHaveVIPTextArea.append(anAlignment.getName() + "\n");
-          for (String tmpAlignment : canHaveVipList) {
-        	  canHaveVIPTextArea.append(tmpAlignment + "\n");
+          for (Alignment tmpAlignment : canHaveVipList) {
+        	  canHaveVIPTextArea.append(tmpAlignment.getName() + "\n");
           }
           canHaveVIPTextArea.setVisible(true);
           canHaveVIPScrollPane.setVisible(true);
           // hate duellist textarea
           hatesDuellistTextArea.setText("");
-          List<String> hatesDuellistList = anAlignment.getHateDuellistList();
-          for (String tmpAlignment : hatesDuellistList) {
-        	  hatesDuellistTextArea.append(tmpAlignment + "\n");
+          List<Alignment> hatesDuellistList = anAlignment.getHateDuellistList();
+          for (Alignment tmpAlignment : hatesDuellistList) {
+        	  hatesDuellistTextArea.append(tmpAlignment.getName() + "\n");
           }
           hatesDuellistTextArea.setVisible(true);
           hatesDuellistScrollPane.setVisible(true);

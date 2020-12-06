@@ -15,7 +15,6 @@ import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.util.general.Logger;
-import spaceraze.world.BlackMarket;
 import spaceraze.world.BlackMarketBid;
 import spaceraze.world.BlackMarketOffer;
 import spaceraze.world.Player;
@@ -35,15 +34,15 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
   private ListPanel allOffersList;
   private BlackMarketPopupPanel popup;
   private List<BlackMarketOffer> offersInList;
-  private BlackMarket blackMarket;
+    List<BlackMarketOffer> currentOffers;
 
-  public BlackMarketPanel(Player p,SpaceRazePanel client, String id, BlackMarket blackMarket) {
+  public BlackMarketPanel(Player p,SpaceRazePanel client, String id, List<BlackMarketOffer> currentOffers) {
     this.p = p;
     this.client = client;
     this.id = id;
-    this.blackMarket = blackMarket;
+    this.currentOffers = currentOffers;
 
-    offersInList = new ArrayList<BlackMarketOffer>();
+    offersInList = new ArrayList<>();
 
     allOffersList = new ListPanel();
     allOffersList.setBounds(10, 10, 350, 350);
@@ -78,10 +77,9 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
   }
 
   private void addOffers(){
-    List<BlackMarketOffer> allOffers = blackMarket.getCurrentOffers();
-    DefaultListModel dlm = (DefaultListModel)allOffersList.getModel();
-    for (int i = 0; i < allOffers.size(); i++){
-      BlackMarketOffer anOffer = (BlackMarketOffer)allOffers.get(i);
+    DefaultListModel dlm = allOffersList.getModel();
+    for (int i = 0; i < currentOffers.size(); i++){
+      BlackMarketOffer anOffer = currentOffers.get(i);
       BlackMarketBid tempBid = p.getBidToOffer(anOffer);
       offersInList.add(anOffer);
       if (tempBid != null){
@@ -102,7 +100,7 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
   
   private void showButtons(int index){
   	Logger.fine("showButtons: " + index);
-  	BlackMarketOffer tempOffer = (BlackMarketOffer)offersInList.get(index);
+  	BlackMarketOffer tempOffer = offersInList.get(index);
     BlackMarketBid tempBid = p.getBidToOffer(tempOffer);
 	int amount = 0;
 	if (tempBid != null){
@@ -139,7 +137,7 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
   	Logger.fine("actionPerformed: " + ae.getActionCommand() + " " + ae.getSource().getClass().getName());
   	String action = ae.getActionCommand();
   	if (action.equalsIgnoreCase("View Details")){
-  		BlackMarketOffer currentOffer = (BlackMarketOffer)offersInList.get(allOffersList.getSelectedIndex());
+  		BlackMarketOffer currentOffer = offersInList.get(allOffersList.getSelectedIndex());
   		if(currentOffer != null && (currentOffer.isShip() | currentOffer.isShipBlueprint())){
   			client.showShiptypeDetails(currentOffer.getShipType().getName(), "All (sort by name)");
   		}else if(currentOffer != null && currentOffer.isVIP()){
@@ -163,7 +161,7 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
   
   private void deleteBid(){
   	Logger.fine("deleteBid called");
-  	BlackMarketOffer currentOffer = (BlackMarketOffer)offersInList.get(allOffersList.getSelectedIndex());
+  	BlackMarketOffer currentOffer = offersInList.get(allOffersList.getSelectedIndex());
   	// set bid to zero to remove it...
     p.getOrders().addNewBlackMarketBid(0,currentOffer,null,p);
     client.updateTreasuryLabel();
@@ -172,7 +170,7 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
 
   private void performPopupAction(){
   	Logger.fine("performPopupAction called");
-  	BlackMarketOffer currentOffer = (BlackMarketOffer)offersInList.get(allOffersList.getSelectedIndex());
+  	BlackMarketOffer currentOffer = offersInList.get(allOffersList.getSelectedIndex());
   	int tempSum = popup.getSum();
   	String tmpDestination = "";
     if (currentOffer.isHotStuff() | currentOffer.isShipBlueprint()){
@@ -196,7 +194,7 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
   
   private void openPopup(String actionCommand){
   	Logger.fine("openPopup called: " + actionCommand);
-  	BlackMarketOffer tempOffer = (BlackMarketOffer)offersInList.get(allOffersList.getSelectedIndex());
+  	BlackMarketOffer tempOffer = offersInList.get(allOffersList.getSelectedIndex());
     BlackMarketBid tempBid = p.getBidToOffer(tempOffer);
 
     if (actionCommand.equalsIgnoreCase("edit bid")){
@@ -210,9 +208,9 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
   }
 
   private void emptyList(){
-    DefaultListModel dlm = (DefaultListModel)allOffersList.getModel();
+    DefaultListModel dlm = allOffersList.getModel();
     dlm.removeAllElements();
-    offersInList = new ArrayList<BlackMarketOffer>();
+    offersInList = new ArrayList<>();
   }
 
   public String getId(){

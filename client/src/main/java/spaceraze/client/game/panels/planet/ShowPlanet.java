@@ -17,11 +17,14 @@ import spaceraze.client.components.SRTabbedPane;
 import spaceraze.client.components.SRTabbedPaneUI;
 import spaceraze.client.game.ImageHandler;
 import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.servlethelper.game.VipPureFunctions;
+import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
+import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
+import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Faction;
 import spaceraze.world.Planet;
-import spaceraze.world.PlanetInfos;
 import spaceraze.world.Player;
 import spaceraze.world.Spaceship;
 
@@ -65,7 +68,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 	public void showShip(Planet aPlanet, Spaceship aShip) {
 		removOldMiniPanel();
 		if (aPlayer.getGalaxy().isPlayerShipAtPlanet(aPlayer, aPlanet)) {
-			miniShipPanel = new MiniShipPanel(aPlayer.getGalaxy().getPlayersSpaceshipsOnPlanet(aPlayer, aPlanet),
+			miniShipPanel = new MiniShipPanel(SpaceshipPureFunctions.getPlayersSpaceshipsOnPlanet(aPlayer, aPlanet, aPlayer.getGalaxy().getSpaceships()),
 					aPlayer, client, aPlanet);
 			miniShipPanel.setBounds(1, 89, MINI_PANEL_WIDTH, MINI_PANEL_HEIGHT);
 			if (aShip != null) {
@@ -160,7 +163,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		boolean spy = aPlayer.getGalaxy().findVIPSpy(aPlanet, aPlayer) != null;
 		;
 		boolean shipInSystem = aPlayer.getGalaxy().playerHasShipsInSystem(aPlayer, aPlanet);
-		boolean lastKnownRazed = aPlayer.getPlanetInfos().getLastKnownRazed(aPlanet.getName());
+		boolean lastKnownRazed = PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).isRazed();
 		boolean surveyShip = (aPlayer.getGalaxy().findSurveyShip(aPlanet, aPlayer) != null);
 		boolean surveyVIP = (aPlayer.getGalaxy().findSurveyVIPonShip(aPlanet, aPlayer) != null);
 		boolean razed = aPlanet.isRazed() & (aPlanet.getPlayerInControl() == null);
@@ -192,9 +195,8 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		}
 		bg.setFont(new Font("Helvetica", 0, 12));
 		bg.setColor(new Color(41, 198, 255));
-		PlanetInfos pi = aPlayer.getPlanetInfos();
-		int prod = pi.getLastKnownProd(aPlanet.getName());
-		int res = pi.getLastKnownRes(aPlanet.getName());
+		int prod = PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getProd();
+		int res = PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getRes();
 		if ((aPlanet.isOpen()) | (aPlanet.getPlayerInControl() == aPlayer) | spy | surveyShip | surveyVIP) {
 			// always show correct values
 			if (razed) {
@@ -267,16 +269,16 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 			bg.setColor(StyleGuide.colorNeutralWhite);
 			bg.drawString("Planet is Razed?", textX, 54);
 		} else {
-			String lastKnownOwner = pi.getLastKnownOwner(aPlanet.getName());
+			String lastKnownOwner = PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getLastKnownOwner();
 			if (lastKnownOwner.equalsIgnoreCase("Neutral")) {
 				bg.setColor(StyleGuide.colorNeutralWhite);
-				bg.drawString("Neutral? (info from turn " + pi.getLastInfoTurn(aPlanet.getName()) + ")", textX, 54);
+				bg.drawString("Neutral? (info from turn " + PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getLastInfoTurn() + ")", textX, 54);
 			} else {
 				Faction lastKnownFaction = aPlayer.getGalaxy().findPlayerFaction(lastKnownOwner);
 				// bg.setColor(aPlanet.getPlayerInControl().getFaction().getPlanetColor());
 				bg.setColor(ColorConverter.getColorFromHexString(lastKnownFaction.getPlanetHexColor()));
-				bg.drawString(aPlayer.getGalaxy().findPlayerFaction(pi.getLastKnownOwner(aPlanet.getName())).getName()
-						+ "? (info from turn " + pi.getLastInfoTurn(aPlanet.getName()) + ")", textX, 54);
+				bg.drawString(aPlayer.getGalaxy().findPlayerFaction(PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getLastKnownOwner()).getName()
+						+ "? (info from turn " + PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getLastInfoTurn() + ")", textX, 54);
 			}
 		}
 		// draw buffer
@@ -320,18 +322,18 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 				miniPlanetPanel.setBounds(1, 89, MINI_PANEL_WIDTH, MINI_PANEL_HEIGHT);
 				add(miniPlanetPanel);
 			} else if (tabbedPanel.getSelectedComponent().getName().equalsIgnoreCase("ships")) {
-				miniShipPanel = new MiniShipPanel(aPlayer.getGalaxy().getPlayersSpaceshipsOnPlanet(aPlayer, aPlanet),
+				miniShipPanel = new MiniShipPanel(SpaceshipPureFunctions.getPlayersSpaceshipsOnPlanet(aPlayer, aPlanet, aPlayer.getGalaxy().getSpaceships()),
 						aPlayer, client, aPlanet);
 				miniShipPanel.setBounds(1, 89, MINI_PANEL_WIDTH, MINI_PANEL_HEIGHT);
 				add(miniShipPanel);
 			} else if (tabbedPanel.getSelectedComponent().getName().equalsIgnoreCase("troops")) {
-				miniTroopPanel = new MiniTroopPanel(aPlayer.getGalaxy().getPlayersTroopsOnPlanet(aPlayer, aPlanet),
+				miniTroopPanel = new MiniTroopPanel(TroopPureFunctions.getPlayersTroopsOnPlanet(aPlayer, aPlanet, aPlayer.getGalaxy().getTroops()),
 						aPlayer, client, aPlanet);
 				miniTroopPanel.setBounds(1, 89, MINI_PANEL_WIDTH, MINI_PANEL_HEIGHT);
 				add(miniTroopPanel);
 			} else if (tabbedPanel.getSelectedComponent().getName().equalsIgnoreCase("vips")) {
 				miniVIPPanel = new MiniVIPPanel(
-						aPlayer.getGalaxy().findPlayersVIPsOnPlanetOrShipsOrTroops(aPlanet, aPlayer), aPlayer, client,
+						VipPureFunctions.findPlayersVIPsOnPlanetOrShipsOrTroops(aPlanet, aPlayer, aPlayer.getGalaxy()), aPlayer, client,
 						aPlanet);
 				miniVIPPanel.setBounds(1, 89, MINI_PANEL_WIDTH, MINI_PANEL_HEIGHT);
 				add(miniVIPPanel);
@@ -363,7 +365,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		if (miniPlanetPanel != null) {
 			retVal = miniPlanetPanel.getNotes();
 		} else {
-			retVal = aPlayer.getPlanetInfos().getNotes(planetName);
+			retVal =PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getNotes();
 		}
 		return retVal;
 	}

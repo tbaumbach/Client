@@ -14,6 +14,7 @@ import spaceraze.client.GeneralConfirmPopupPanel;
 import spaceraze.client.GeneralMessagePopupPanel;
 import spaceraze.client.components.SRButton;
 import spaceraze.client.components.SRLabel;
+import spaceraze.servlethelper.game.DiplomacyPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.world.Player;
 import spaceraze.world.diplomacy.Diplomacy;
@@ -109,14 +110,14 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 	}
 
 	private void setIconStates() {
-		eternalWarIcon.setState(diplomacyState.getIconState(DiplomacyLevel.ETERNAL_WAR, thePlayer));
-		warIcon.setState(diplomacyState.getIconState(DiplomacyLevel.WAR, thePlayer));
-		ceaseFireIcon.setState(diplomacyState.getIconState(DiplomacyLevel.CEASE_FIRE, thePlayer));
-		peaceIcon.setState(diplomacyState.getIconState(DiplomacyLevel.PEACE, thePlayer));
-		allianceIcon.setState(diplomacyState.getIconState(DiplomacyLevel.ALLIANCE, thePlayer));
-		confederacyIcon.setState(diplomacyState.getIconState(DiplomacyLevel.CONFEDERACY, thePlayer));
-		lordIcon.setState(diplomacyState.getIconState(DiplomacyLevel.LORD, thePlayer));
-		vasallIcon.setState(diplomacyState.getIconState(DiplomacyLevel.VASSAL, thePlayer));
+		eternalWarIcon.setState(DiplomacyPureFunctions.getIconState(diplomacyState, DiplomacyLevel.ETERNAL_WAR, thePlayer));
+		warIcon.setState(DiplomacyPureFunctions.getIconState(diplomacyState,DiplomacyLevel.WAR, thePlayer));
+		ceaseFireIcon.setState(DiplomacyPureFunctions.getIconState(diplomacyState,DiplomacyLevel.CEASE_FIRE, thePlayer));
+		peaceIcon.setState(DiplomacyPureFunctions.getIconState(diplomacyState,DiplomacyLevel.PEACE, thePlayer));
+		allianceIcon.setState(DiplomacyPureFunctions.getIconState(diplomacyState,DiplomacyLevel.ALLIANCE, thePlayer));
+		confederacyIcon.setState(DiplomacyPureFunctions.getIconState(diplomacyState,DiplomacyLevel.CONFEDERACY, thePlayer));
+		lordIcon.setState(DiplomacyPureFunctions.getIconState(diplomacyState,DiplomacyLevel.LORD, thePlayer));
+		vasallIcon.setState(DiplomacyPureFunctions.getIconState(diplomacyState,DiplomacyLevel.VASSAL, thePlayer));
 	}
 
 	public void orderChange() {
@@ -126,17 +127,17 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 		if (clickedIcon.getState() == DiplomacyIconState.ACTIVE) {
 			Logger.fine("Ta bort gammal order");
 			// ta bort gammal order
-			orders.removeDiplomacyOrder(otherPlayer);
+			removeDiplomacyOrder(otherPlayer, orders);
 			diplomacyPanel.showDiplomacy();
 		} else if (clickedIcon.getState() == DiplomacyIconState.PASSIVE_AND_SELECTED) {
 			Logger.fine("Ta bort offer");
 			// �ngra sitt f�rslag
-			orders.removeDiplomacyOrder(otherPlayer);
+			removeDiplomacyOrder(otherPlayer, orders);
 			diplomacyPanel.showDiplomacy();
 		} else if (clickedIcon.getState() == DiplomacyIconState.PASSIVE_AND_SELECTED_AND_SUGGESTED) {
 			Logger.fine("�ngra accept p� offer");
 			// �ngra accepterande av offer fr�n den andra spelaren
-			orders.removeDiplomacyOrder(otherPlayer);
+			removeDiplomacyOrder(otherPlayer, orders);
 			diplomacyPanel.showDiplomacy();
 		} else if (clickedIcon.getState() == DiplomacyIconState.PASSIVE_AND_SUGGESTED) {
 			if (level == DiplomacyLevel.LORD) {
@@ -152,8 +153,7 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 						true);
 				orders.addDiplomacyChange(newDiplomacyChange);
 			} else if (clickedIcon.getLevel() == DiplomacyLevel.CONFEDERACY) {
-				Diplomacy d = thePlayer.getGalaxy().getDiplomacy();
-				List<Player> confPlayers = d.getConfederacyPlayers(otherPlayer);
+				List<Player> confPlayers = DiplomacyPureFunctions.getConfederacyPlayers(otherPlayer, thePlayer.getGalaxy());
 				if (confPlayers.size() == 0) { // make offer to a single player
 					Logger.fine("Acceptera ett offer: " + level.getName());
 					// acceptera ett offer
@@ -179,14 +179,14 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 			if (level == DiplomacyLevel.LORD) {
 				Logger.fine("F�resl� att du blir lord");
 				// ta bort ev. gammal order
-				orders.removeDiplomacyOrder(otherPlayer);
+				removeDiplomacyOrder(otherPlayer, orders);
 				// f�resl� att du blir Lord
 				DiplomacyOffer newDiplomacyOffer = new DiplomacyOffer(thePlayer, otherPlayer, DiplomacyLevel.VASSAL);
 				orders.addDiplomacyOffer(newDiplomacyOffer);
 			} else if (level == DiplomacyLevel.VASSAL) {
 				Logger.fine("F�resl� att du blir vasall");
 				// ta bort ev. gammal order
-				orders.removeDiplomacyOrder(otherPlayer);
+				removeDiplomacyOrder(otherPlayer, orders);
 				// f�resl� att du blir vasall
 				DiplomacyOffer newDiplomacyOffer = new DiplomacyOffer(thePlayer, otherPlayer, DiplomacyLevel.LORD);
 				orders.addDiplomacyOffer(newDiplomacyOffer);
@@ -194,12 +194,11 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 					& level.isHigher(diplomacyState.getCurrentLevel())) {
 				Logger.fine("F�resl� en change");
 				// ta bort ev. gammal order
-				orders.removeDiplomacyOrder(otherPlayer);
+				removeDiplomacyOrder(otherPlayer, orders);
 				// if confederacy, check if more than 1 player i confederacy
 				if (level == DiplomacyLevel.CONFEDERACY) {
-					Diplomacy d = thePlayer.getGalaxy().getDiplomacy();
-					if (d.checkAllianceWithAllInConfederacy(thePlayer, otherPlayer)) {
-						List<Player> confPlayers = d.getConfederacyPlayers(otherPlayer);
+					if (DiplomacyPureFunctions.checkAllianceWithAllInConfederacy(thePlayer, otherPlayer, thePlayer.getGalaxy())) {
+						List<Player> confPlayers = DiplomacyPureFunctions.getConfederacyPlayers(otherPlayer, thePlayer.getGalaxy());
 						if (confPlayers.size() == 0) { // make offer to a single player
 							// F�resl� en change
 							DiplomacyOffer newDiplomacyOffer = new DiplomacyOffer(thePlayer, otherPlayer, level);
@@ -222,7 +221,7 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 					& !level.isHigher(diplomacyState.getCurrentLevel())) {
 				Logger.fine("skapa ett nytt change (ned�t)");
 				// ta bort ev. gammal order
-				orders.removeDiplomacyOrder(otherPlayer);
+				removeDiplomacyOrder(otherPlayer, orders);
 				// skapa ett nytt change (ned�t)
 				DiplomacyChange newDiplomacyChange = new DiplomacyChange(thePlayer, otherPlayer, level, false);
 				orders.addDiplomacyChange(newDiplomacyChange);
@@ -323,8 +322,7 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 							popup.setPopupSize(650, 110);
 							popup.open(this);
 						} else {
-							Diplomacy d = thePlayer.getGalaxy().getDiplomacy();
-							List<Player> confPlayers = d.getConfederacyPlayers(otherPlayer);
+							List<Player> confPlayers = DiplomacyPureFunctions.getConfederacyPlayers(otherPlayer, thePlayer.getGalaxy());
 							if (confPlayers.size() == 0) { // make offer to a single player
 								// �ppna reply to offer dialogen
 								GeneralConfirmPopupPanel popup = new GeneralConfirmPopupPanel(
@@ -368,9 +366,8 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 								popup.setPopupSize(650, 110);
 								popup.open(this);
 							} else {
-								Diplomacy d = thePlayer.getGalaxy().getDiplomacy();
-								if (d.checkAllianceWithAllInConfederacy(thePlayer, otherPlayer)) {
-									List<Player> confPlayers = d.getConfederacyPlayers(otherPlayer);
+								if (DiplomacyPureFunctions.checkAllianceWithAllInConfederacy(thePlayer, otherPlayer, thePlayer.getGalaxy())) {
+									List<Player> confPlayers = DiplomacyPureFunctions.getConfederacyPlayers(otherPlayer, thePlayer.getGalaxy());
 									if (confPlayers.size() == 0) { // make offer to a single player
 										// skapa ett nytt offer
 										GeneralConfirmPopupPanel popup = new GeneralConfirmPopupPanel(
@@ -472,6 +469,42 @@ public class DiplomacyRow extends JPanel implements ActionListener, MouseListene
 	}
 
 	public void mouseReleased(MouseEvent arg0) {
+	}
+
+	private static void removeDiplomacyOrder(Player otherPlayer, Orders orders) {
+		DiplomacyOffer tmpOffer = orders.findDiplomacyOffer(otherPlayer);
+		if (tmpOffer != null) {
+			if (tmpOffer.getSuggestedLevel() == DiplomacyLevel.CONFEDERACY) {
+				// check if otherPlayer is in a confederacy
+				List<Player> confPlayers = DiplomacyPureFunctions.getConfederacyPlayers(otherPlayer, otherPlayer.getGalaxy());
+				if (confPlayers.size() > 0) {
+					for (Player confPlayer : confPlayers) {
+						DiplomacyOffer confOffer = orders.findDiplomacyOffer(confPlayer);
+						Logger.fine("confOffer: " + confOffer.toString());
+						orders.getDiplomacyOffers().remove(confOffer);
+					}
+				}
+			}
+			Logger.finest("tmpOffer: " + tmpOffer.toString());
+			orders.getDiplomacyOffers().remove(tmpOffer);
+		} else {
+			DiplomacyChange tmpChange = orders.findDiplomacyChange(otherPlayer);
+			if (tmpChange != null) {
+				if (tmpChange.getNewLevel() == DiplomacyLevel.CONFEDERACY) {
+					// check if otherPlayer is in a confederacy
+					List<Player> confPlayers = DiplomacyPureFunctions.getConfederacyPlayers(otherPlayer, otherPlayer.getGalaxy());
+					if (confPlayers.size() > 0) {
+						for (Player confPlayer : confPlayers) {
+							DiplomacyChange confChange = orders.findDiplomacyChange(confPlayer);
+							Logger.finest("confChange: " + confChange.toString());
+							orders.getDiplomacyChanges().remove(confChange);
+						}
+					}
+				}
+				Logger.finest("tmpChange: " + tmpChange.toString());
+				orders.getDiplomacyChanges().remove(tmpChange);
+			}
+		}
 	}
 
 }

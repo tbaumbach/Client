@@ -154,7 +154,7 @@ public class MapControls extends SRBasePanel implements ItemListener, MouseListe
 		highlightChoice.addItemListener(this);
 		add(highlightChoice);
 
-		centerchoice.setSelectedItem(p.getHomeplanet().getName());
+		centerchoice.setSelectedItem(p.getHomePlanet().getName());
 	}
 
 	public void itemStateChanged(ItemEvent ie) {
@@ -199,7 +199,7 @@ public class MapControls extends SRBasePanel implements ItemListener, MouseListe
 		} else if (aButton.getText().equalsIgnoreCase("homeplanet")) {
 			doChange = false;
 			map.doReset();
-			map.doSetCenter(p.getHomeplanet().getName());
+			map.doSetCenter(p.getHomePlanet().getName());
 			map.doChange(0, 0, initialZoom, 0, 0, 0);
 		} else if (aButton.getText().equalsIgnoreCase("sector")) {
 			doChange = false;
@@ -258,7 +258,7 @@ public class MapControls extends SRBasePanel implements ItemListener, MouseListe
 	}
 
 	public void updateData() {
-		map.doSetCenter(p.getHomeplanet().getName());
+		map.doSetCenter(p.getHomePlanet().getName());
 		/*
 		 * if (once){ map.doSetCenter(p.getHomeplanet().getName());
 		 * map.doChange(0,0,initialZoom,0,0,0); once = false; }

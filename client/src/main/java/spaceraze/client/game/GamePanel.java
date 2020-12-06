@@ -108,7 +108,7 @@ public class GamePanel extends SRBasePanel implements SRUpdateablePanel{
     	factionWinLbl2.setText(p.getGalaxy().getFactionVictory() + "%");
     	soloWinLbl2.setText(p.getGalaxy().getSingleVictory() + "%");
         diplomacyTypeLbl2.setText(p.getGalaxy().getDiplomacyGameType().getLongText());
-        statisticsTypeLbl2.setText(p.getGalaxy().getStatisticsHandler().getStatisticGameType().getText());
+        statisticsTypeLbl2.setText(p.getGalaxy().getStatisticGameType().getText());
     }
 
     public String getId(){

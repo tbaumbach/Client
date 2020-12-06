@@ -23,6 +23,11 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.servlethelper.game.DiplomacyPureFunctions;
+import spaceraze.servlethelper.game.planet.PlanetOrderStatusPureFunctions;
+import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
+import spaceraze.servlethelper.game.player.CostPureFunctions;
+import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
 import spaceraze.world.Planet;
@@ -387,7 +392,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 	private Spaceship findSpaceship(String findName) {
 		Spaceship ss = null;
 		int i = 0;
-		List<Spaceship> spaceships = player.getGalaxy().getPlayersSpaceshipsOnPlanet(player, planet);
+		List<Spaceship> spaceships = SpaceshipPureFunctions.getPlayersSpaceshipsOnPlanet(player, planet, player.getGalaxy().getSpaceships());
 		while ((ss == null) & (i < spaceships.size())) {
 			Spaceship temp = spaceships.get(i);
 			if (temp.getName().equalsIgnoreCase(findName)) {
@@ -451,7 +456,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			destinationchoice.setVisible(true);
 
 			// set properties and initial value
-			if (player.isBrokeClient() | player.isRetreatingGovernor() | !aTroop.isSpaceshipTravel()
+			if (CostPureFunctions.isBroke(player, player.getGalaxy()) | player.isRetreatingGovernor() | !aTroop.isSpaceshipTravel()
 					| player.getTroopSelfDestruct(aTroop)) {
 				destinationchoice.setEnabled(false);
 			} else {
@@ -529,7 +534,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 					noSelfdestruct = false;
 				}
 			}
-			if (player.isBrokeClient() | player.isRetreatingGovernor() | allCanMove | noSelfdestruct) {
+			if (CostPureFunctions.isBroke(player, player.getGalaxy()) | player.isRetreatingGovernor() | allCanMove | noSelfdestruct) {
 				destinationchoice.setEnabled(false);
 			} else {
 				destinationchoice.setVisible(true);
@@ -585,16 +590,16 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 		} else
 		// else if planet is friendly (and non-neutral), planet move is not ok
 		if ((planet.getPlayerInControl() != null) && (planet.getPlayerInControl() != player)
-				&& player.getGalaxy().getDiplomacy().getDiplomacyState(player, planet.getPlayerInControl())
+				&& DiplomacyPureFunctions.getDiplomacyState(player, planet.getPlayerInControl(), player.getGalaxy().getDiplomacyStates())
 						.getCurrentLevel().isHigher(DiplomacyLevel.WAR)) {
 			Logger.fine("Planet friendly (or at least not war/ewar).");
 			planetMoveOk = false;
 		} else
 		// else if planet is neutral or enemy...
-		// TODO Denna borde nte fungera d� man inte kan lita p� att det �r en annan
+		// TODO Denna borde nte fungera då man inte kan lita på att det är en annan
 		// faction som �r fienden.
-		if (planet.isEnemyOrNeutralPlanet(player)) {
-			Logger.fine("planet.isEnemyOrNeutralPlanet(player.getFaction()): " + planet.isEnemyOrNeutralPlanet(player));
+		if (PlanetPureFunctions.isEnemyOrNeutralPlanet(player, planet, player.getGalaxy())) {
+			Logger.fine("planet.isEnemyOrNeutralPlanet(player.getFaction()): " + PlanetPureFunctions.isEnemyOrNeutralPlanet(player, planet, player.getGalaxy()));
 			// ...check if there are any defenders
 			if (player.getGalaxy().getShips(planet).size() > 0) {
 				Logger.fine(
@@ -613,24 +618,24 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 				 */
 		}
 		// check if planet is neutral and "attack if neutral" is checked
-		if ((!player.getPlanetOrderStatuses().isAttackIfNeutral(planet.getName())
+		if ((!PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getName(), player.getPlanetOrderStatuses())
 				&& planet.getPlayerInControl() == null)) {
 			Logger.fine(
 					"player.getPlanetInfos().getAttackIfNeutral(planet.getName()) && planet.getPlayerInControl() == null): "
-							+ !(player.getPlanetOrderStatuses().isAttackIfNeutral(planet.getName())
+							+ !(PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getName(), player.getPlanetOrderStatuses())
 									&& planet.getPlayerInControl() == null));
 
 			Logger.fine("player.getPlanetInfos().getAttackIfNeutral(planet.getName()): "
-					+ player.getPlanetOrderStatuses().isAttackIfNeutral(planet.getName()));
+					+ PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getName(), player.getPlanetOrderStatuses()));
 			Logger.fine("planet.getPlayerInControl() == null: " + (planet.getPlayerInControl() == null));
 
 			planetMoveOk = false;
 		} // check if planet in a fi player control and "DoNotBesiege" is unchecked.
-		if ((planet.getPlayerInControl() != null && player.getPlanetOrderStatuses().isDoNotBesiege(planet.getName()))) {
+		if ((planet.getPlayerInControl() != null && PlanetOrderStatusPureFunctions.isDoNotBesiege(planet.getName(), player.getPlanetOrderStatuses()))) {
 			Logger.fine(
 					"!(planet.getPlayerInControl() != null && player.getPlanetInfos().getDoNotBesiege(planet.getName())): "
 							+ (planet.getPlayerInControl() != null
-									&& player.getPlanetOrderStatuses().isDoNotBesiege(planet.getName())));
+									&& PlanetOrderStatusPureFunctions.isDoNotBesiege(planet.getName(), player.getPlanetOrderStatuses())));
 
 			planetMoveOk = false;
 		}

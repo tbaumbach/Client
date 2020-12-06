@@ -212,7 +212,7 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 		 if (filterChoice.getSelectedIndex() > 0){
    		// get faction root ResearchAdvantages
 			 Faction showOnlyFaction = factions.get(filterChoice.getSelectedIndex() - 1);
-			 tmpRootBuildings = BuildingPureFunctions.getRootBuildings(showOnlyFaction.getBuildings().getBuildings());
+			 tmpRootBuildings = BuildingPureFunctions.getRootBuildings(showOnlyFaction.getBuildings());
 		 }else{
 			 tmpRootBuildings = BuildingPureFunctions.getRootBuildings(p);
 		 }
@@ -262,8 +262,8 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 			 nextBuildingTypes = BuildingPureFunctions.getNextBuildingSteps(buildingType, PlayerPureFunctions.getBuildingTypes(p));
 		 }
 		 else{
-			 buildingType = p.getGalaxy().getFaction(filterChoice.getSelectedItem()).getBuildings().getBuildingType(buildingName);
-			 nextBuildingTypes = BuildingPureFunctions.getNextBuildingSteps(buildingType, p.getGalaxy().getFaction(filterChoice.getSelectedItem()).getBuildings().getBuildings());
+			 buildingType = p.getGalaxy().getFaction(filterChoice.getSelectedItem()).getBuildingType(buildingName);
+			 nextBuildingTypes = BuildingPureFunctions.getNextBuildingSteps(buildingType, p.getGalaxy().getFaction(filterChoice.getSelectedItem()).getBuildings());
 		 }
 		 
     	

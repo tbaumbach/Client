@@ -20,7 +20,6 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
-import spaceraze.util.general.Functions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Alignment;
 import spaceraze.world.Faction;
@@ -170,7 +169,7 @@ public class VipTypePanel extends SRBasePanel implements ListSelectionListener, 
     private void fillFilterList(){
     	filterChoice.addItem("All");
 //    	filterChoice.addItem("Yours");
-    	alignments = p.getGalaxy().getGameWorld().getAlignments().getAllAlignments();
+    	alignments = p.getGalaxy().getGameWorld().getAlignments();
     	for (Alignment alignment : alignments) {
     		filterChoice.addItem("Alignment: " + alignment.getName());
 		}
