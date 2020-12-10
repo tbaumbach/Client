@@ -364,11 +364,11 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 			 viewShipButton.setVisible(false);
 		 }
 
-		 if(researchAdvantage.getTroopTypes().size() > 0){
+		 if(researchAdvantage.getTroops().size() > 0){
 			 DefaultListModel dlm = (DefaultListModel)troopsList.getModel();
 			 dlm.removeAllElements();
 			 List<TroopType> tmpTroops = null;
-			 tmpTroops = researchAdvantage.getTroopTypes();
+			 tmpTroops = researchAdvantage.getTroops();
 			 for (TroopType aTroopType : tmpTroops) {
 				 dlm.addElement(aTroopType.getUniqueName());
 			 }
@@ -387,11 +387,11 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 			 viewTroopButton.setVisible(false);
 		 }
 		 
-		 if(researchAdvantage.getBuildingTypes().size() > 0){
+		 if(researchAdvantage.getBuildings().size() > 0){
 			 DefaultListModel dlm = buildingsList.getModel();
 			 dlm.removeAllElements();
 			 List<BuildingType> tmpBuildings = null;
-			 tmpBuildings = researchAdvantage.getBuildingTypes();
+			 tmpBuildings = researchAdvantage.getBuildings();
 			 for (BuildingType aBuildingType : tmpBuildings) {
 				 dlm.addElement(aBuildingType.getName());
 			 }

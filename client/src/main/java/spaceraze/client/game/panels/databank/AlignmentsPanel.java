@@ -181,7 +181,7 @@ public class AlignmentsPanel extends SRBasePanel implements ListSelectionListene
           canHaveVIPScrollPane.setVisible(true);
           // hate duellist textarea
           hatesDuellistTextArea.setText("");
-          List<Alignment> hatesDuellistList = anAlignment.getHateDuellistList();
+          List<Alignment> hatesDuellistList = anAlignment.getHateDuellistsList();
           for (Alignment tmpAlignment : hatesDuellistList) {
         	  hatesDuellistTextArea.append(tmpAlignment.getName() + "\n");
           }
