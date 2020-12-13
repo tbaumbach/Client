@@ -223,12 +223,12 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	infoarea.append(sepLine);
     	for (DiplomacyOffer anOffer : offersList) {
     		if (anOffer.getSuggestedLevel() == DiplomacyLevel.VASSAL){
-    			infoarea.append("Make offer to " + anOffer.getOtherPlayer(g).getGovernorName() + " for you to become his lord and he your vassal\n");
+    			infoarea.append("Make offer to " + g.getPlayer(anOffer.getOtherPlayerName()).getGovernorName() + " for you to become his lord and he your vassal\n");
     		}else
     		if (anOffer.getSuggestedLevel() == DiplomacyLevel.LORD){
-    			infoarea.append("Make offer to " + anOffer.getOtherPlayer(g).getGovernorName() + " for him to become your lord and you his vassal\n");
+    			infoarea.append("Make offer to " + g.getPlayer(anOffer.getOtherPlayerName()).getGovernorName() + " for him to become your lord and you his vassal\n");
     		}else{ // other offer
-    			infoarea.append("Make offer to " + anOffer.getOtherPlayer(g).getGovernorName() + " for " + anOffer.getSuggestedLevel().toString() + "\n");
+    			infoarea.append("Make offer to " + g.getPlayer(anOffer.getOtherPlayerName()).getGovernorName() + " for " + anOffer.getSuggestedLevel().toString() + "\n");
     		}
     	}
         if (offersList.size() > 0){
