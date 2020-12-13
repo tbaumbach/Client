@@ -15,7 +15,6 @@ import spaceraze.client.components.SRTabbedPaneUI;
 import spaceraze.client.game.panels.battlesim.BattleSimsPanel;
 import spaceraze.client.game.panels.blackmarket.BlackMarketPanel;
 import spaceraze.client.game.panels.databank.DataBankPanel;
-import spaceraze.client.game.panels.diplomacy.DiplomacyPanel;
 import spaceraze.client.game.panels.gift.GiftPanel;
 import spaceraze.client.game.panels.highlight.HighlightsPanel;
 import spaceraze.client.game.panels.incomeexpenses.IncomeExpensesPanel;
@@ -52,7 +51,6 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 	HighlightsPanel hp;
 	BattleSimsPanel bsp;
 	ResearchPanel researchPanel;
-	DiplomacyPanel dp;
 	GameGUIPanel aGameGUIPanel;
 	private SRTabbedPane tabbedPanel;
 
@@ -114,10 +112,6 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		researchPanel = new ResearchPanel(player, "Research", client);
 		researchPanel.setName("Research");
 		panels.add(researchPanel);
-		/*
-		 * Removed. Add if tested and reconstucted. dp = new DiplomacyPanel(player,
-		 * "Diplomacy"); dp.setName("Diplomacy"); panels.add(dp);
-		 */
 
 		tabbedPanel = new SRTabbedPane("noBottomBorder");
 		SRTabbedPaneUI tpui = new SRTabbedPaneUI();

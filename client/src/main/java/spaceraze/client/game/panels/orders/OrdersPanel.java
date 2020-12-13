@@ -17,9 +17,6 @@ import spaceraze.world.Planet;
 import spaceraze.world.Player;
 import spaceraze.world.Spaceship;
 import spaceraze.world.VIP;
-import spaceraze.world.diplomacy.DiplomacyChange;
-import spaceraze.world.diplomacy.DiplomacyLevel;
-import spaceraze.world.diplomacy.DiplomacyOffer;
 import spaceraze.world.orders.Expense;
 import spaceraze.world.orders.Orders;
 import spaceraze.world.orders.PlanetNotesChange;
@@ -211,38 +208,6 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	for (int i = 0; i < researchOrders.size(); i++){
     		ResearchOrder tempResearch = researchOrders.get(i);
     		infoarea.append(tempResearch.getText() + "\n");
-    	}
-    	infoarea.append("\n");
-    }
-
-    // diplomacy orders
-	List<DiplomacyOffer> offersList = orders.getDiplomacyOffers();
-	List<DiplomacyChange> changesList = orders.getDiplomacyChanges();
-    if ((offersList.size() > 0) | (changesList.size() > 0)){
-    	infoarea.append("Diplomacy orders\n");
-    	infoarea.append(sepLine);
-    	for (DiplomacyOffer anOffer : offersList) {
-    		if (anOffer.getSuggestedLevel() == DiplomacyLevel.VASSAL){
-    			infoarea.append("Make offer to " + g.getPlayer(anOffer.getOtherPlayerName()).getGovernorName() + " for you to become his lord and he your vassal\n");
-    		}else
-    		if (anOffer.getSuggestedLevel() == DiplomacyLevel.LORD){
-    			infoarea.append("Make offer to " + g.getPlayer(anOffer.getOtherPlayerName()).getGovernorName() + " for him to become your lord and you his vassal\n");
-    		}else{ // other offer
-    			infoarea.append("Make offer to " + g.getPlayer(anOffer.getOtherPlayerName()).getGovernorName() + " for " + anOffer.getSuggestedLevel().toString() + "\n");
-    		}
-    	}
-        if (offersList.size() > 0){
-        	infoarea.append("\n");
-        }
-    	for (DiplomacyChange aChange : changesList) {
-    		if (aChange.getNewLevel() == DiplomacyLevel.VASSAL){
-    			infoarea.append("Make change for " + aChange.getOtherPlayer(g).getGovernorName() + " that you become his lord and he your vassal\n");
-    		}else
-    		if (aChange.getNewLevel() == DiplomacyLevel.LORD){
-    			infoarea.append("Make change for " + aChange.getOtherPlayer(g).getGovernorName() + " to become your lord and you his vassal\n");
-    		}else{ // other change
-    			infoarea.append("Make change for " + aChange.getOtherPlayer(g).getGovernorName() + " to " + aChange.getNewLevel().toString() + "\n");
-    		}
     	}
     	infoarea.append("\n");
     }
