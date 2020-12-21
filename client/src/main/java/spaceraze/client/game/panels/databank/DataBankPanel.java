@@ -3,17 +3,19 @@ package spaceraze.client.game.panels.databank;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import spaceraze.world.GameWorld;
 import spaceraze.world.Player;
 import spaceraze.client.game.GameGUIPanel;
 import spaceraze.client.game.GamePanel;
 import spaceraze.client.game.GameWorldPanel;
-import spaceraze.client.panels.GameWorldInfoPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRTabbedPane;
 import spaceraze.client.components.SRTabbedPaneUI;
-import spaceraze.client.interfaces.SRUpdateablePanel;;
+import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.world.SpaceshipType;
+import spaceraze.world.enums.SpaceShipSize;;
 
 /**
  * This panel contains the different data panels, and the navigation buttons
@@ -50,7 +52,7 @@ public class DataBankPanel extends SRBasePanel implements SRUpdateablePanel, Cha
      
       fp = new FactionPanel(p, "Factions", client);
     
-      sstp = new ShiptypePanel(p.getGalaxy().getGameWorld().getShipTypes(), p, "ships", p.getGalaxy().getGameWorld().hasSquadrons());
+      sstp = new ShiptypePanel(p.getGalaxy().getGameWorld().getShipTypes(), p, "ships", hasSquadrons(p.getGalaxy().getGameWorld()));
 
       ttp = new TroopTypePanel(p.getGalaxy().getTroopTypes(), p,"troops");
 
@@ -148,4 +150,17 @@ public class DataBankPanel extends SRBasePanel implements SRUpdateablePanel, Cha
 
   public void updateData(){
   }
+
+    public boolean hasSquadrons(GameWorld gameWorld){
+        boolean hasSquadrons = false;
+        int i = 0;
+        while ((i < gameWorld.getShipTypes().size()) && (!hasSquadrons)){
+            SpaceshipType sst = gameWorld.getShipTypes().get(i);
+            if (sst.getSize() == SpaceShipSize.SQUADRON){
+                hasSquadrons = true;
+            }
+            i++;
+        }
+        return hasSquadrons;
+    }
 }

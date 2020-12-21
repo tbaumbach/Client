@@ -1282,13 +1282,8 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			if (tempsst.getSize().getSlots() <= slotsleft) {
 				int cost = tempsst.getBuildCost(tempBuild);
 
-				if (!tempsst.getSize().getName().equals(shipSize)
-						&& !(shipSize.equals("squadron") && tempsst.isSquadron())) {
-					if (tempsst.isSquadron()) {
-						shipSize = "squadron";
-					} else {
-						shipSize = tempsst.getSize().getName();
-					}
+				if (!tempsst.getSize().getDescription().equals(shipSize)) {
+					shipSize = tempsst.getSize().getDescription();
 					shiptypechoice.addItem(getItemDescription(shipSize));
 				}
 				shiptypechoice.addItem(tempsst.getName() + " (cost: " + cost + ") " + tempsst.getUniqueString());

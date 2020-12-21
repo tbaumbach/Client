@@ -29,6 +29,7 @@ import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.SRTextField;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Faction;
@@ -293,10 +294,10 @@ public class BattleSimPanel extends SRBasePanel
 			types.add("defense");
 			types.add("civilan");
 			types.add("squadron");
-			types.add(SpaceShipSize.SMALL.getName());
-			types.add(SpaceShipSize.MEDIUM.getName());
-			types.add(SpaceShipSize.LARGE.getName());
-			types.add(SpaceShipSize.HUGE.getName());
+			types.add(SpaceShipSize.SMALL.getDescription());
+			types.add(SpaceShipSize.MEDIUM.getDescription());
+			types.add(SpaceShipSize.LARGE.getDescription());
+			types.add(SpaceShipSize.HUGE.getDescription());
 
 			for (int i = 0; i < tempSstList.size(); i++) {
 				String shipTypename = checkIfNewShipType(tempSstList.get(i), types);
@@ -328,23 +329,23 @@ public class BattleSimPanel extends SRBasePanel
 
 	private String checkIfNewShipType(SpaceshipType spaceshipType, List<String> types) {
 		String type = null;
-		if ((spaceshipType.isDefenceShip() && types.contains("defense"))
+		if ((SpaceshipPureFunctions.isDefenceShip(spaceshipType) && types.contains("defense"))
 				|| (spaceshipType.isCivilian() && types.contains("civilan"))
-				|| (spaceshipType.isSquadron() && types.contains("squadron"))
-				|| (!spaceshipType.isDefenceShip() && !spaceshipType.isSquadron() && !spaceshipType.isCivilian()
-						&& types.contains(spaceshipType.getSize().getName()))) {
-			if (spaceshipType.isDefenceShip()) {
+				|| (spaceshipType.getSize() == SpaceShipSize.SQUADRON && types.contains("squadron"))
+				|| (!SpaceshipPureFunctions.isDefenceShip(spaceshipType) && spaceshipType.getSize() != SpaceShipSize.SQUADRON && !spaceshipType.isCivilian()
+						&& types.contains(spaceshipType.getSize().getDescription()))) {
+			if (SpaceshipPureFunctions.isDefenceShip(spaceshipType)) {
 				types.remove("defense");
 				type = "defense";
 			} else if (spaceshipType.isCivilian()) {
 				types.remove("civilan");
 				type = "civilan";
-			} else if (spaceshipType.isSquadron()) {
+			} else if (spaceshipType.getSize() == SpaceShipSize.SQUADRON) {
 				types.remove("squadron");
 				type = "squadron";
 			} else {
-				types.remove(spaceshipType.getSize().getName());
-				type = spaceshipType.getSize().getName();
+				types.remove(spaceshipType.getSize().getDescription());
+				type = spaceshipType.getSize().getDescription();
 			}
 		}
 		return type;
@@ -356,8 +357,7 @@ public class BattleSimPanel extends SRBasePanel
 	/**
 	 * This method is called by the battle sim each time a new simulation is
 	 * finished
-	 * 
-	 * @param bsr
+	 *
 	 */
 	public void battleSimPerformed(BattleSimResult battleSimResult) {
 		long tf1winsPercent = Math.round(battleSimResult.getTf1wins() * 100);

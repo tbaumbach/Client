@@ -35,6 +35,7 @@ import spaceraze.world.Spaceship;
 import spaceraze.world.Troop;
 import spaceraze.world.VIP;
 import spaceraze.servlethelper.comparator.SpaceshipTypeAndBuildCostComparator;
+import spaceraze.world.enums.SpaceShipSize;
 import spaceraze.world.enums.SpaceshipRange;
 
 /**
@@ -325,7 +326,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 				if (player.getShipSelfDestruct(tempss)) {
 					dlm.addElement(prefix + tempss.getName() + slotsString + " (selfdestruct)");
 				} else {
-					if (tempss.isSquadron()) {
+					if (tempss.getSize() == SpaceShipSize.SQUADRON) {
 						String sqdString = "";
 						Spaceship tempcarrier = tempss.getCarrierLocation();
 						if (tempcarrier != null) {
@@ -344,7 +345,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 	private String getCapacitySlotsString(Spaceship aSpaceship) {
 		// Logger.fine("getCarrierSlotsString called");
 		String slotsString = "";
-		if (SpaceshipPureFunctions.isCarrier(aSpaceship, player.getGalaxy().getGameWorld())) {
+		if (SpaceshipPureFunctions.isCarrier(aSpaceship)) {
 			//
 			slotsString = "S:" + getCarrierSlotsString(aSpaceship);
 		}
@@ -360,7 +361,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 
 	private String getCarrierSlotsString(Spaceship aSpaceship) {
 		String slotsString = "";
-		int capacity = SpaceshipPureFunctions.getSpaceshipTypeByKey(aSpaceship.getTypeKey(), player.getGalaxy().getGameWorld()).getSquadronCapacity();
+		int capacity = aSpaceship.getSquadronCapacity();
 		slotsString = getTakenSlots(aSpaceship) + "/" + capacity;
 		return slotsString;
 	}
@@ -726,7 +727,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			if (player.getGalaxy().getTurn() == 0) {
 				destinationchoice.setEnabled(false);
 				selfDestructCheckBox.setEnabled(false);
-			} else if ((SpaceshipPureFunctions.getRange(ss, player.getGalaxy()) == SpaceshipRange.NONE) & (!ss.isSquadron())) {
+			} else if ((SpaceshipPureFunctions.getRange(ss, player.getGalaxy()) == SpaceshipRange.NONE) & (ss.getSize() != SpaceShipSize.SQUADRON)) {
 				destinationchoice.setEnabled(false);
 			} else if (CostPureFunctions.isBroke(player, player.getGalaxy())) {
 				destinationchoice.setEnabled(false);
@@ -757,10 +758,10 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 					// if a squadron has a full carrier as destination, we must add the carrier
 					// otherwise to the combobox
 					String tempDest = player.getShipDestinationCarrierName(ss);
-					Logger.fine("ss.isSquadron(): " + ss.isSquadron());
+					Logger.fine("ss.isSquadron(): " + (ss.getSize() == SpaceShipSize.SQUADRON));
 					Logger.fine("tempDest: " + tempDest);
 					Logger.fine("!destinationchoice.contains(tempDest): " + !destinationchoice.contains(tempDest));
-					if (ss.isSquadron() & !tempDest.equals("") & !destinationchoice.contains(tempDest)) {
+					if (ss.getSize() == SpaceShipSize.SQUADRON & !tempDest.equals("") && !destinationchoice.contains(tempDest)) {
 						destinationchoice.addItem(tempDest);
 					}
 				}
@@ -785,14 +786,14 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			motherShipInfo2.setVisible(false);
 			// troopInfo2.setVisible(false);
 
-			if (SpaceshipPureFunctions.isCarrier(ss, player.getGalaxy().getGameWorld())) {
+			if (SpaceshipPureFunctions.isCarrier(ss)) {
 				carrierInfo.setText("Sqd capacity:    " + getCarrierSlotsString(ss));
 				carrierInfo.setToolTipText(getTakenSlots(ss) + " squodron/s are carried and the maximum capacity is "
-						+ SpaceshipPureFunctions.getSpaceshipTypeByKey(ss.getTypeKey(), player.getGalaxy().getGameWorld()).getSquadronCapacity());
+						+ ss.getSquadronCapacity());
 				carrierInfo.setVisible(true);
 
 			}
-			if (ss.isSquadron()) {
+			if (ss.getSize() == SpaceShipSize.SQUADRON) {
 
 				if (player.checkShipMove(ss)) {
 
@@ -993,7 +994,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			int index = (Integer) object;
 			Spaceship ss = (Spaceship) spaceships.get(index);
 			Logger.fine("foreach: " + ss.getName());
-			if (ss.isSquadron()) {
+			if (ss.getSize() == SpaceShipSize.SQUADRON) {
 				countSquadrons++;
 				Logger.fine("countSquadrons: " + countSquadrons);
 			} else {
@@ -1048,7 +1049,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			List<Spaceship> allCarriers = new ArrayList<Spaceship>();
 			for (Object spaceshipObject : spaceships) {
 				Spaceship aShip = (Spaceship) spaceshipObject;
-				if (SpaceshipPureFunctions.isCarrier(aShip, player.getGalaxy().getGameWorld())) {
+				if (SpaceshipPureFunctions.isCarrier(aShip)) {
 					allCarriers.add(aShip);
 				}
 			}
@@ -1079,8 +1080,8 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 					int nrSquadronsOrdered = player.countShipToCarrierMoves(aCarrier);
 					int takenSlots = nrSquadronsAssigned + nrSquadronsOrdered;
 					// none is not ok
-					Logger.fine("NoneOk? " + SpaceshipPureFunctions.getSpaceshipTypeByKey(aCarrier.getTypeKey(), player.getGalaxy().getGameWorld()).getSquadronCapacity() + " " + takenSlots + " " + nrSqdMovedAway);
-					if (SpaceshipPureFunctions.getSpaceshipTypeByKey(aCarrier.getTypeKey(), player.getGalaxy().getGameWorld()).getSquadronCapacity() < (takenSlots + nrSqdMovedAway)) {
+					Logger.fine("NoneOk? " + aCarrier.getSquadronCapacity() + " " + takenSlots + " " + nrSqdMovedAway);
+					if (aCarrier.getSquadronCapacity() < (takenSlots + nrSqdMovedAway)) {
 						noneOk = false;
 					}
 				}
@@ -1134,7 +1135,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			Spaceship aSpaceship = (Spaceship) anObject;
 			Logger.fine("foreach ship: " + aSpaceship.getName());
 			// if ship is a carrier
-			if (SpaceshipPureFunctions.isCarrier(aSpaceship, player.getGalaxy().getGameWorld())) {
+			if (SpaceshipPureFunctions.isCarrier(aSpaceship)) {
 				Logger.fine("is carrier");
 				boolean noSqdAtCarrier = checkNoSqdAtCarrier(aSpaceship, selectedShipsIndexes);
 				if (noSqdAtCarrier) {
@@ -1143,8 +1144,8 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 					// y=count number of squadrons who have move orders to the ship
 					int nrSquadronsOrdered = player.countShipToCarrierMoves(aSpaceship);
 					// if ((slots-(x+y)) >= minFeeSlots)
-					int freeSlots = SpaceshipPureFunctions.getSpaceshipTypeByKey(aSpaceship.getTypeKey(), player.getGalaxy().getGameWorld()).getSquadronCapacity() - (nrSquadronsAssigned + nrSquadronsOrdered);
-					Logger.fine(SpaceshipPureFunctions.getSpaceshipTypeByKey(aSpaceship.getTypeKey(), player.getGalaxy().getGameWorld()).getSquadronCapacity() + " - (" + nrSquadronsAssigned + "+"
+					int freeSlots = aSpaceship.getSquadronCapacity() - (nrSquadronsAssigned + nrSquadronsOrdered);
+					Logger.fine(aSpaceship.getSquadronCapacity() + " - (" + nrSquadronsAssigned + "+"
 							+ nrSquadronsOrdered + ")=" + freeSlots);
 					if (freeSlots >= minFreeSlots) {
 						Logger.fine("adding carrier!");
@@ -1221,7 +1222,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			Spaceship aSpaceship = spaceships.get(i);
 			Logger.fine("foreach ship: " + aSpaceship.getName());
 			// if ship is a squadron
-			if (aSpaceship.isSquadron() && aSpaceship.getCarrierLocation() == null
+			if (aSpaceship.getSize() == SpaceShipSize.SQUADRON && aSpaceship.getCarrierLocation() == null
 					&& player.getShipDestinationCarrierName(aSpaceship).equals("")
 					&& player.getShipDestinationName(aSpaceship).equals("")) {
 				squadrons.add(aSpaceship);
@@ -1233,7 +1234,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 	private int getNumberOfCarriersEmptySlots(Spaceship inCarrier) {
 		int numberOfEmpty = 0;
 
-		numberOfEmpty = SpaceshipPureFunctions.getSpaceshipTypeByKey(inCarrier.getTypeKey(), player.getGalaxy().getGameWorld()).getSquadronCapacity();
+		numberOfEmpty = inCarrier.getSquadronCapacity();
 
 		for (int j = 0; j < spaceships.size(); j++) {
 			Spaceship tmpss = spaceships.get(j);
@@ -1258,8 +1259,8 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			Logger.fine("foreach ship: " + aSpaceship.getName());
 			// if ship is a carrier
 			int totalSqdInTheCarrier = 0;
-			if (SpaceshipPureFunctions.isCarrier(aSpaceship, player.getGalaxy().getGameWorld())) {
-				totalSqdInTheCarrier = SpaceshipPureFunctions.getSpaceshipTypeByKey(aSpaceship.getTypeKey(), player.getGalaxy().getGameWorld()).getSquadronCapacity();
+			if (SpaceshipPureFunctions.isCarrier(aSpaceship)) {
+				totalSqdInTheCarrier = aSpaceship.getSquadronCapacity();
 
 				for (int j = 0; j < spaceships.size(); j++) {
 					Spaceship tmpss = spaceships.get(j);
@@ -1284,16 +1285,16 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 
 	private boolean haveSqdOutSideCarrier(List<Spaceship> spaceships, Spaceship carrier) {
 		Logger.fine("Startar loopen");
-		if (SpaceshipPureFunctions.getSpaceshipTypeByKey(carrier.getTypeKey(), player.getGalaxy().getGameWorld()).getSquadronCapacity() > getTakenSlots(carrier)) {
+		if (carrier.getSquadronCapacity() > getTakenSlots(carrier)) {
 			for (int i = 0; i < spaceships.size(); i++) {
 				Spaceship tempss = ((Spaceship) spaceships.get(i));
-				Logger.fine("tempss.isSquadron() " + tempss.isSquadron());
+				Logger.fine("tempss.isSquadron() " + (tempss.getSize() == SpaceShipSize.SQUADRON));
 				Logger.fine("tempss.getCarrierLocation " + tempss.getCarrierLocation());
 				Logger.fine("player.getShipSelfDestruct(tempss) " + player.getShipSelfDestruct(tempss));
 				Logger.fine(
 						"player.getShipDestinationCarrierName(tempss) " + player.getShipDestinationCarrierName(tempss));
 				Logger.fine("player.getShipDestinationName(tempss) " + player.getShipDestinationName(tempss));
-				if (tempss.isSquadron() && tempss.getCarrierLocation() == null && !player.getShipSelfDestruct(tempss)
+				if (tempss.getSize() == SpaceShipSize.SQUADRON && tempss.getCarrierLocation() == null && !player.getShipSelfDestruct(tempss)
 						&& player.getShipDestinationCarrierName(tempss) == ""
 						&& player.getShipDestinationName(tempss) == "") {
 					Logger.fine("sqd = true");

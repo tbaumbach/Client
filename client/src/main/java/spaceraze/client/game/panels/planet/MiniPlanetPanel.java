@@ -569,7 +569,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			// check if all in shipsOnPlanet are squadrons in carriers
 			boolean allIsSquadronsInCarrier = true;
 			for (Spaceship aShipOnPlanet : shipsOnPlanet) {
-				if (aShipOnPlanet.isSquadron()) {
+				if (aShipOnPlanet.getSize() == SpaceShipSize.SQUADRON) {
 					if (aShipOnPlanet.getCarrierLocation() == null) {
 						allIsSquadronsInCarrier = false;
 					} else {

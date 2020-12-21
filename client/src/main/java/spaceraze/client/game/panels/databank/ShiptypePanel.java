@@ -26,13 +26,12 @@ import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Faction;
-import spaceraze.world.Player;
-import spaceraze.world.SpaceshipType;
+import spaceraze.world.*;
 import spaceraze.servlethelper.comparator.FactionsComparator;
 import spaceraze.servlethelper.comparator.SpaceshipTypeComparator;
 import spaceraze.servlethelper.comparator.SpaceshipTypeNameComparator;
 import spaceraze.world.enums.SpaceShipSize;
+import spaceraze.world.enums.SpaceshipTargetingType;
 
 @SuppressWarnings("serial")
 public class ShiptypePanel extends SRBasePanel implements ListSelectionListener, SRUpdateablePanel, ActionListener {
@@ -798,23 +797,23 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     
     private String checkIfNewShipType(SpaceshipType spaceshipType, List<String> types){
     	String type=null;
-    	if((spaceshipType.isDefenceShip() && types.contains("defense")) ||
+    	if((SpaceshipPureFunctions.isDefenceShip(spaceshipType) && types.contains("defense")) ||
     			(spaceshipType.isCivilian() && types.contains("civilan")) ||
-    			(spaceshipType.isSquadron() && types.contains("squadron")) ||
-    			(!spaceshipType.isDefenceShip() && !spaceshipType.isSquadron() && !spaceshipType.isCivilian() 
-    					&& types.contains(spaceshipType.getSize().getName())) ){
-    		if(spaceshipType.isDefenceShip()){
+    			(spaceshipType.getSize() == SpaceShipSize.SQUADRON && types.contains("squadron")) ||
+    			(!SpaceshipPureFunctions.isDefenceShip(spaceshipType) && spaceshipType.getSize() != SpaceShipSize.SQUADRON && !spaceshipType.isCivilian()
+    					&& types.contains(spaceshipType.getSize().getDescription())) ){
+    		if(SpaceshipPureFunctions.isDefenceShip(spaceshipType)){
     			types.remove("defense");
     			type = "defense";
     		}else if(spaceshipType.isCivilian()){
     			types.remove("civilan");
     			type = "civilan";
-    		}else if(spaceshipType.isSquadron()){
+    		}else if(spaceshipType.getSize() == SpaceShipSize.SQUADRON){
     			types.remove("squadron");
     			type = "squadron";
     		}else{
-    			types.remove(spaceshipType.getSize().getName());
-    			type = spaceshipType.getSize().getName();
+    			types.remove(spaceshipType.getSize().getDescription());
+    			type = spaceshipType.getSize().getDescription();
     		}
     	}
     	return type;
@@ -904,7 +903,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	  
     		shipTypeLbl.setText("Type: ");
     		shipTypeLbl.setLocation(column1X,newLine());
-    		shipTypeLbl2.setText(sst.getShipType());
+    		shipTypeLbl2.setText(getShipType(sst));
     		shipTypeLbl2.setLocation(column2X,yPosition);
     	  
     	  
@@ -914,7 +913,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	  targetingTypeLbl2.setLocation(column2X,yPosition);
     	  
     	  sizelbl.setText("Size: ");
-    	  sizelbl2.setText(sst.getSize().getName());
+    	  sizelbl2.setText(sst.getSize().getDescription());
     	  sizelbl.setLocation(column1X,newLine());
     	  sizelbl2.setLocation(column2X,yPosition);
     	  
@@ -1090,7 +1089,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	  
     	  if(sst.getSupply() != SpaceShipSize.NONE){
     		  supplyLabel.setText("Supply level:");
-    		  supplyLabel2.setText(sst.getSupply().getName());
+    		  supplyLabel2.setText(sst.getSupply().getDescription());
     		  supplyLabel.setLocation(column1X,newLine());
     		  supplyLabel2.setLocation(column2X,yPosition);
     		  supplyLabel.setVisible(true);
@@ -1294,7 +1293,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		shortTypenamelbl4.setText(sst.getShortName());
     	  
     	  shipTypeLbl3.setText("Type: ");
-		  shipTypeLbl4.setText(sst.getShipType());
+		  shipTypeLbl4.setText(getShipType(sst));
 		  shipTypeLbl3.setLocation(column3X,newLine());
 		  shipTypeLbl4.setLocation(column4X,yPosition);
 		  
@@ -1304,7 +1303,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
 		  targetingTypeLbl4.setLocation(column4X,yPosition);
 		  
 		  sizelbl3.setText("Size: ");
-		  sizelbl4.setText(sst.getSize().getName());
+		  sizelbl4.setText(sst.getSize().getDescription());
 		  sizelbl3.setLocation(column3X,newLine());
 		  sizelbl4.setLocation(column4X,yPosition);
 		  
@@ -1480,7 +1479,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	  
     	  if(sst.getSupply() !=SpaceShipSize.NONE){
     		  supplyLabel3.setText("Supply level:");
-    		  supplyLabel4.setText(sst.getSupply().getName());
+    		  supplyLabel4.setText(sst.getSupply().getDescription());
     		  supplyLabel3.setLocation(column3X,newLine());
     		  supplyLabel4.setLocation(column4X,yPosition);
     		  supplyLabel3.setVisible(true);
@@ -1693,5 +1692,20 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
       returnString = "Yes";
     }
     return returnString;
+  }
+
+  public String getShipType(SpaceshipType spaceshipType){
+    String type = "Capital Ship";
+    if (spaceshipType.getSize() == SpaceShipSize.SQUADRON){
+      if (spaceshipType.getTargetingType() == SpaceshipTargetingType.ANTIAIR){
+        type = "Fighter Squadron";
+      }else
+      if (spaceshipType.getTargetingType() == SpaceshipTargetingType.ANTIMBU){
+        type = "Bomber Squadron";
+      }else{ // ALLROUND
+        type = "Multirole Squadron";
+      }
+    }
+    return type;
   }
 }

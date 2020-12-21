@@ -188,7 +188,8 @@ public class NotifierFrame extends JFrame implements Runnable,ActionListener{
 					Thread.sleep(Integer.MAX_VALUE);
 				}else{
 					// sleep 5 minutes before next update
-					Thread.sleep(5*60*1000);
+					//Thread.sleep(5*60*1000);
+					Thread.sleep(50*60*1000);
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
