@@ -28,14 +28,11 @@ import spaceraze.servlethelper.game.planet.PlanetOrderStatusPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.player.CostPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
+import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
-import spaceraze.world.Planet;
-import spaceraze.world.Player;
-import spaceraze.world.Spaceship;
-import spaceraze.world.Troop;
-import spaceraze.world.VIP;
-import spaceraze.world.comparator.TroopTypeAndBuildCostComparator;
+import spaceraze.world.*;
+import spaceraze.servlethelper.comparator.TroopTypeAndBuildCostComparator;
 import spaceraze.world.diplomacy.DiplomacyLevel;
 
 /**
@@ -671,7 +668,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 	 * @return
 	 */
 	private boolean playerIsAloneAtPlanet(Planet thePlanet) {
-		List<Spaceship> shipsAtPlanet = player.getGalaxy().getShips(planet, false);
+		List<Spaceship> shipsAtPlanet = SpaceshipPureFunctions.getShips(planet, false, player.getGalaxy());
 		boolean found = false;
 		int index = 0;
 		while (!found & (index < shipsAtPlanet.size())) {
@@ -767,7 +764,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			// for each carrier
 			for (Spaceship aCarrier : carriers) {
 				// count the number of free slots (including troops moving to the carrier)
-				int nrTroopsAssigned = player.getGalaxy().getNoTroopsAssignedToCarrier(aCarrier);
+				int nrTroopsAssigned = TroopPureFunctions.getNoTroopsAssignedToCarrier(aCarrier, player, player.getGalaxy().getTroops());
 				int nrTroopsOrdered = player.countTroopToCarrierMoves(aCarrier);
 				int freeSlots = aCarrier.getTroopCapacity() - nrTroopsAssigned - nrTroopsOrdered;
 				// count the number of selected troops in that carrier (who have been given
@@ -789,8 +786,8 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 	}
 
 	private List<Spaceship> getCarriers(int minFreeSlots) {
-		List<Spaceship> carriers = player.getGalaxy().getCarriersWithFreeTroopSlotsInSystem(planet, player,
-				minFreeSlots);
+		List<Spaceship> carriers = getCarriersWithFreeTroopSlotsInSystem(planet, player,
+				minFreeSlots, player.getGalaxy());
 		return carriers;
 	}
 
@@ -806,6 +803,46 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			fillList();
 
 		}
+	}
+
+	/**
+	 * Return all carriers with at least minFreeSlots free slots for troops
+	 *
+	 * @param aLocation
+	 * @param aPlayer
+	 * @param minFreeSlots
+	 * @return
+	 */
+	private List<Spaceship> getCarriersWithFreeTroopSlotsInSystem(Planet aLocation, Player aPlayer, int minFreeSlots, Galaxy galaxy) {
+		List<Spaceship> carriersWithFreeSlots = new ArrayList<Spaceship>();
+		List<Spaceship> shipsAtPlanet = SpaceshipPureFunctions.getPlayersSpaceshipsOnPlanet(aPlayer, aLocation, galaxy.getSpaceships());
+		for (Spaceship spaceship : shipsAtPlanet) {
+			if (spaceship.getTroopCapacity() > 0) {
+				int maxSlots = spaceship.getTroopCapacity();
+				int slotsFull = TroopPureFunctions.getNoTroopsAssignedToCarrier(spaceship, player, galaxy.getTroops());
+				int troopsMovingToCarrier = getNrTroopsMovingToCarrier(spaceship, galaxy);
+				if ((slotsFull + troopsMovingToCarrier + minFreeSlots) <= maxSlots) {
+					carriersWithFreeSlots.add(spaceship);
+				}
+			}
+		}
+		return carriersWithFreeSlots;
+	}
+
+	private int getNrTroopsMovingToCarrier(Spaceship aCarrier, Galaxy galaxy) {
+		int count = 0;
+		Player aPlayer = aCarrier.getOwner();
+		List<Troop> troopsAtPlanet = TroopPureFunctions.getPlayersTroopsOnPlanet(aPlayer, aCarrier.getLocation(), galaxy.getTroops());
+		for (Troop aTroop : troopsAtPlanet) {
+			// check if a has a move order to the carrier
+			if (aPlayer != null) {
+				boolean moveToCarrierOrder = aPlayer.checkTroopToCarrierMove(aTroop, aCarrier);
+				if (moveToCarrierOrder) {
+					count++;
+				}
+			}
+		}
+		return count;
 	}
 
 }

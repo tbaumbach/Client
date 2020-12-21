@@ -31,7 +31,7 @@ import spaceraze.world.BuildingType;
 import spaceraze.world.Faction;
 import spaceraze.world.Player;
 import spaceraze.world.VIPType;
-import spaceraze.world.comparator.FactionsComparator;
+import spaceraze.servlethelper.comparator.FactionsComparator;
 
 public class BuildingTypePanel extends SRBasePanel implements ListSelectionListener, SRUpdateablePanel, ActionListener {
 	private static final long serialVersionUID = 1L;

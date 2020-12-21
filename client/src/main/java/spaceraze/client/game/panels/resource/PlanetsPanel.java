@@ -16,7 +16,7 @@ import spaceraze.client.components.SRTableHeader;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.game.GameGUIPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
-import spaceraze.servlethelper.game.VipPureFunctions;
+import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Galaxy;
 import spaceraze.world.Planet;

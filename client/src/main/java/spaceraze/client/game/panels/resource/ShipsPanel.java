@@ -17,7 +17,8 @@ import spaceraze.client.components.SRTableHeader;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.game.GameGUIPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
-import spaceraze.servlethelper.game.VipPureFunctions;
+import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
+import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Galaxy;
@@ -26,6 +27,7 @@ import spaceraze.world.Player;
 import spaceraze.world.Spaceship;
 import spaceraze.world.Troop;
 import spaceraze.world.VIP;
+import spaceraze.world.enums.SpaceshipRange;
 
 /**
  * 
@@ -118,19 +120,19 @@ public class ShipsPanel extends SRBasePanel implements SRUpdateablePanel, ListSe
 				shipTable.setValueAt("Retreating", i, 1);
 			}
 
-			if (!aShip.isCanMove()){
+			if (SpaceshipPureFunctions.getRange(aShip, g) == SpaceshipRange.NONE){
 				shipTable.setValueAt("-", i, 2);
 			}else
 			if (player.checkShipMove(aShip)){
 				shipTable.setValueAt(player.getShipDestinationName(aShip), i, 2);
 			}
-			Logger.finer("Scr1" + aShip.getScreened());
+			Logger.finer("Scr1" + aShip.isScreened());
 			Logger.finer("Scr2" + player.getOrders().checkScreenedShip(aShip));
 	
 			
-			if (aShip.getScreened() == true)
+			if (aShip.isScreened() == true)
 				tempbesiged = "Yes";
-			if (aShip.getScreened() == false)
+			if (aShip.isScreened() == false)
 				tempbesiged = "No";
 			if (player.getOrders().checkScreenedShip(aShip) == 0)
 				tempbesiged = "No";

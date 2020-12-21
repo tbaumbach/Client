@@ -180,9 +180,9 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	for (int p = 0; p < shipIds.size(); p++){
     		Spaceship tempss = g.findSpaceshipByUniqueId(shipIds.get(p));
     		if (tempss.getLocation() != null){
-    			infoarea.append("Your ship " + tempss.getName() + " at " + tempss.getLocation().getName() + "  is to change its screened status to " + !tempss.getScreened() + "\n");
+    			infoarea.append("Your ship " + tempss.getName() + " at " + tempss.getLocation().getName() + "  is to change its screened status to " + !tempss.isScreened() + "\n");
     		}else{
-    			infoarea.append("Your ship " + tempss.getName() + " in deep space is to change its screened status to " + !tempss.getScreened() + "\n");
+    			infoarea.append("Your ship " + tempss.getName() + " in deep space is to change its screened status to " + !tempss.isScreened() + "\n");
     		}
     	}
     	infoarea.append("\n");

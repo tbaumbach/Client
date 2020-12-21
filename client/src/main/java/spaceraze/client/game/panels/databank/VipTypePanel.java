@@ -25,8 +25,8 @@ import spaceraze.world.Alignment;
 import spaceraze.world.Faction;
 import spaceraze.world.Player;
 import spaceraze.world.VIPType;
-import spaceraze.world.comparator.FactionsComparator;
-import spaceraze.world.comparator.VIPTypeComparator;
+import spaceraze.servlethelper.comparator.FactionsComparator;
+import spaceraze.servlethelper.comparator.VIPTypeComparator;
 
 @SuppressWarnings("serial")
 public class VipTypePanel extends SRBasePanel implements ListSelectionListener, SRUpdateablePanel, ActionListener{

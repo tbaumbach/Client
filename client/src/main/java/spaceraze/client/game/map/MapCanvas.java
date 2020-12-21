@@ -23,12 +23,14 @@ import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.game.ShowMapPlanet;
 import spaceraze.servlethelper.game.DiplomacyPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
+import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
+import spaceraze.servlethelper.map.MapPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.*;
-import spaceraze.world.comparator.SpaceshipSizeAndBuildCostComparator;
-import spaceraze.world.comparator.TroopTypeAndBuildCostComparator;
+import spaceraze.servlethelper.comparator.SpaceshipSizeAndBuildCostComparator;
+import spaceraze.servlethelper.comparator.TroopTypeAndBuildCostComparator;
 import spaceraze.world.orders.PlanetNotesChange;
 
 public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, MouseMotionListener {
@@ -581,7 +583,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 							// get players spaceships on this planet
 							List<Spaceship> tempshortsShips = c.getShortNameablesShips();
 							// sort the ships
-							Collections.sort(tempshortsShips, new SpaceshipSizeAndBuildCostComparator());
+							Collections.sort(tempshortsShips, new SpaceshipSizeAndBuildCostComparator(player.getGalaxy().getGameWorld()));
 							int currentx = 0;
 							int shipCount = 0;
 							List<VIP> tmpVips = new ArrayList<VIP>();
@@ -597,13 +599,13 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 									drawNow = true;
 								} else {
 									Spaceship tempss2 = tempshortsShips.get(l + 1);
-									if (!tempss2.getSpaceshipType().getName()
-											.equals(tempss.getSpaceshipType().getName())) {
+									if (!SpaceshipPureFunctions.getSpaceshipTypeByKey(tempss2.getTypeKey(), player.getGalaxy().getGameWorld()).getName()
+											.equals(SpaceshipPureFunctions.getSpaceshipTypeByKey(tempss.getTypeKey(), player.getGalaxy().getGameWorld()).getName())) {
 										drawNow = true;
 									}
 								}
 								if (drawNow) {
-									String tmpShipStr = tempss.getSpaceshipType().getShortName();
+									String tmpShipStr = SpaceshipPureFunctions.getSpaceshipTypeByKey(tempss.getTypeKey(), player.getGalaxy().getGameWorld()).getShortName();
 									if (shipCount > 1) {
 										tmpShipStr = shipCount + " " + tmpShipStr;
 									}
@@ -869,9 +871,9 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 			for (int i = 0; i < allp.size(); i++) {
 				Player tempPlayer = (Player) allp.get(i);
 				if (tempPlayer != player) {
-					shipSize = player.getGalaxy().getLargestShipSizeOnPlanet(tempPlanet, tempPlayer, false);
-					boolean civilianExists = !player.getGalaxy()
-							.getLargestShipSizeOnPlanet(tempPlanet, tempPlayer, true).equals("");
+					shipSize = MapPureFunctions.getLargestShipSizeOnPlanet(tempPlanet, tempPlayer, false, player.getGalaxy());
+					boolean civilianExists = !MapPureFunctions
+							.getLargestShipSizeOnPlanet(tempPlanet, tempPlayer, true, player.getGalaxy()).equals("");
 					if (civilianExists) {
 						if (shipSize.equals("")) {
 							shipSize = "civ";
@@ -888,7 +890,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 				}
 			}
 			// kolla efter neutrala skepp
-			shipSize = player.getGalaxy().getLargestShipSizeOnPlanet(tempPlanet, null, false);
+			shipSize = MapPureFunctions.getLargestShipSizeOnPlanet(tempPlanet, null, false, player.getGalaxy());
 			if (!shipSize.equalsIgnoreCase("")) {
 				g.setColor(StyleGuide.colorNeutralWhite);
 				// g.drawString(shipSize + " (Neutral)",x,y);
@@ -902,7 +904,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 		Planet tempPlanet = player.getGalaxy().findPlanet(aCoors.getName());
 		String troopString = "";
 
-		boolean surveyShip = (player.getGalaxy().findSurveyShip(tempPlanet, player) != null);
+		boolean surveyShip = SpaceshipPureFunctions.findSurveyShip(tempPlanet, player, player.getGalaxy().getSpaceships(), player.getGalaxy().getGameWorld()) != null;
 		boolean surveyVIP = (player.getGalaxy().findSurveyVIPonShip(tempPlanet, player) != null);
 
 		if ((tempPlanet.getPlayerInControl() == player) | (player.getGalaxy().findVIPSpy(tempPlanet, player) != null)
@@ -1143,7 +1145,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 			if (player.getGalaxy().getTroopsOnPlanet(p, aPlayer).size() > 0) {
 				troopInSystem = true;
 			}
-			boolean surveyShip = (aPlayer.getGalaxy().findSurveyShip(p, aPlayer) != null);
+			boolean surveyShip = SpaceshipPureFunctions.findSurveyShip(p, aPlayer, aPlayer.getGalaxy().getSpaceships(), aPlayer.getGalaxy().getGameWorld()) != null;
 			boolean surveyVIP = (aPlayer.getGalaxy().findSurveyVIPonShip(p, aPlayer) != null);
 			// c = new Coors(p.getXcoor()-50, p.getYcoor()-50, p.getZcoor()-50); varf�r -50?
 			c = new Coors(p.getX(), p.getY(), p.getZ());

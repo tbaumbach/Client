@@ -29,7 +29,6 @@ import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.SRTextField;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
-import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Faction;
@@ -37,10 +36,10 @@ import spaceraze.world.Galaxy;
 import spaceraze.world.Player;
 import spaceraze.world.SpaceshipType;
 import spaceraze.world.VIPType;
-import spaceraze.world.comparator.FactionsComparator;
-import spaceraze.world.comparator.SpaceshipTypeComparator;
-import spaceraze.world.comparator.SpaceshipTypeNameComparator;
-import spaceraze.world.comparator.VIPTypeComparator;
+import spaceraze.servlethelper.comparator.FactionsComparator;
+import spaceraze.servlethelper.comparator.SpaceshipTypeComparator;
+import spaceraze.servlethelper.comparator.SpaceshipTypeNameComparator;
+import spaceraze.servlethelper.comparator.VIPTypeComparator;
 import spaceraze.world.enums.SpaceShipSize;
 
 public class BattleSimPanel extends SRBasePanel

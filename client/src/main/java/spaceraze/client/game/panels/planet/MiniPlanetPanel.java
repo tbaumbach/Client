@@ -23,7 +23,7 @@ import spaceraze.client.components.SRTextField;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.servlethelper.game.DiplomacyPureFunctions;
-import spaceraze.servlethelper.game.VipPureFunctions;
+import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetOrderStatusMutator;
 import spaceraze.servlethelper.game.planet.PlanetOrderStatusPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
@@ -31,14 +31,9 @@ import spaceraze.servlethelper.game.player.CostPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Building;
-import spaceraze.world.Galaxy;
-import spaceraze.world.Planet;
-import spaceraze.world.Player;
-import spaceraze.world.Spaceship;
-import spaceraze.world.Troop;
-import spaceraze.world.VIP;
+import spaceraze.world.*;
 import spaceraze.world.diplomacy.DiplomacyLevel;
+import spaceraze.world.enums.SpaceShipSize;
 import spaceraze.world.enums.SpaceshipRange;
 import spaceraze.world.orders.Orders;
 import spaceraze.world.orders.PlanetNotesChange;
@@ -199,7 +194,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 		add(maxProdLabel2);
 
 		if (planet.isOpen() && !planet.isPlayerPlanet()) {
-			String defenders = planet.getNeutralSpaceshipsOnOpenPlanetString(aPlayer.getGalaxy());
+			String defenders = getNeutralSpaceshipsOnOpenPlanetString(aPlayer.getGalaxy());
 			if (defenders != null) {
 				defendersLabel = new SRLabel(defenders);
 				defendersLabel.setBounds(200 + x, 180, 315, 20);
@@ -311,7 +306,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			} else if (ae.getSource() == updateMapButton) {
 				saveNotesUpdateMap(true);
 			} else if (ae.getSource() == toBattleSimButton) {
-				client.addToBattleSim(planet.getNeutralSpaceshipsOnOpenPlanetToBattleSim(aPlayer.getGalaxy()), "B");
+				client.addToBattleSim(getNeutralSpaceshipsOnOpenPlanetToBattleSim(aPlayer.getGalaxy()), "B");
 				client.addToBattleSim(getShipsAsBattleSimString(), "A");
 				client.showBattleSim();
 			} else if (ae.getSource() instanceof SRTextField) {
@@ -328,14 +323,14 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 		List<Spaceship> selectedShips = SpaceshipPureFunctions.getShipAtPlanetNextTurn(aPlayer, planet);
 		boolean semicolon = false;
 		for (Spaceship aShip : selectedShips) {
-			if (!aShip.isCivilian()) {
+			if (!SpaceshipPureFunctions.getSpaceshipTypeByKey(aShip.getTypeKey(), aPlayer.getGalaxy().getGameWorld()).isCivilian()) {
 				if (semicolon) {
 					sb.append(";");
 				}
-				sb.append(aShip.getType().getName());
-				String abilities = aShip.getBattleSimAbilities();
+				sb.append(SpaceshipPureFunctions.getSpaceshipTypeByKey(aShip.getTypeKey(), aPlayer.getGalaxy().getGameWorld()).getName());
+				String abilities = MiniShipPanel.getBattleSimAbilities(aShip);
 				// append () if needed
-				String vips = aPlayer.getGalaxy().getAllBattleSimVipsOnShip(aShip);
+				String vips = SpaceshipPureFunctions.getAllBattleSimVipsOnShip(aShip, aPlayer.getGalaxy().getAllVIPs());
 				if (!vips.equals("")) {
 					if (!abilities.equals("")) {
 						abilities += ",";
@@ -378,6 +373,93 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			}
 		} catch (NumberFormatException nfe) {
 		}
+	}
+
+	/**
+	 * Return battle sim string on max neutral defender on open planet.
+	 * @param aGalaxy
+	 * @return
+	 */
+	public String getNeutralSpaceshipsOnOpenPlanetToBattleSim(Galaxy aGalaxy){
+		SpaceshipType aType =  null;
+		String shipListString = null;
+		if(planet.isHasNeverSurrendered() && planet.getPlayerInControl() == null && planet.isOpen()){
+			List<Spaceship> tempList = aGalaxy.getSpaceships();
+			for (int i = 0; i < tempList.size(); i++){
+				Spaceship tempss = tempList.get(i);
+				if ((tempss.getOwner() == null) & (tempss.getLocation() == planet)){
+					aType = SpaceshipPureFunctions.getSpaceshipTypeByKey(tempss.getTypeKey(), aGalaxy.getGameWorld());
+					break;
+				}
+			}
+
+			if(aType != null){
+				if(aType.getSize() == SpaceShipSize.SMALL){
+					if(planet.getPopulation() < 3){
+						shipListString ="[2]" + aType.getName();
+					}else{
+						shipListString ="[4]" + aType.getName();
+					}
+				}else if(aType.getSize() == SpaceShipSize.MEDIUM){
+					if(planet.getPopulation() < 5){
+						shipListString ="[2]" + aType.getName();
+					}else{
+						shipListString ="[4]" + aType.getName();
+					}
+				}else{
+					shipListString ="[3]" + aType.getName();
+				}
+
+			}
+
+		}
+		return shipListString;
+	}
+
+	/**
+	 * Return a string on posible neutral defender on open planet.
+	 * @param aGalaxy
+	 * @return
+	 */
+	public String getNeutralSpaceshipsOnOpenPlanetString(Galaxy aGalaxy){
+		SpaceshipType aType =  null;
+		String shipListString = null;
+
+		if(planet.isHasNeverSurrendered() && planet.getPlayerInControl() == null && planet.isOpen()){
+			List<Spaceship> tempList = aGalaxy.getSpaceships();
+			for (int i = 0; i < tempList.size(); i++){
+				Spaceship tempss = tempList.get(i);
+				if ((tempss.getOwner() == null) & (tempss.getLocation() == planet)){
+					aType = SpaceshipPureFunctions.getSpaceshipTypeByKey(tempss.getTypeKey(), aGalaxy.getGameWorld());
+					break;
+				}
+			}
+			if (aType != null){
+				Logger.fine("### aType.getName() ### " + aType.getName());
+			}else{
+				Logger.fine("### aType.getName() ### No ships on planet");
+			}
+			if(aType != null){
+				if(aType.getSize() == SpaceShipSize.SMALL){
+					if(planet.getPopulation() < 3){
+						shipListString ="1 - 2 " + aType.getName() + "s in defence";
+					}else{
+						shipListString ="2 - 4 " + aType.getName()+ "s in defence";
+					}
+				}else if(aType.getSize() == SpaceShipSize.MEDIUM){
+					if(planet.getPopulation() < 5){
+						shipListString ="1 - 2 " + aType.getName()+ "s in defence";
+					}else{
+						shipListString ="2 - 4 " + aType.getName()+ "s in defence";
+					}
+				}else{
+					shipListString ="1 - 3 " + aType.getName()+ "s in defence";
+				}
+
+			}
+
+		}
+		return shipListString;
 	}
 
 	public void saveNotesUpdateMap(boolean updateMap) {
@@ -482,8 +564,8 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			if (gov != null) {
 				messages.add("Planets can't be abandoned while your Governor are on the planet");
 			}
-			List<Spaceship> shipsOnPlanet = aPlayer.getGalaxy().findPlayersSpaceshipsOnPlanet(aPlayer, planet,
-					SpaceshipRange.NONE);
+			List<Spaceship> shipsOnPlanet = findPlayersSpaceshipsOnPlanet(aPlayer, planet,
+					SpaceshipRange.NONE, aPlayer.getGalaxy());
 			// check if all in shipsOnPlanet are squadrons in carriers
 			boolean allIsSquadronsInCarrier = true;
 			for (Spaceship aShipOnPlanet : shipsOnPlanet) {
@@ -560,6 +642,17 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 		}
 	}
 
+	private List<Spaceship> findPlayersSpaceshipsOnPlanet(Player aPlayer, Planet aPlanet, SpaceshipRange range, Galaxy galaxy) {
+		List<Spaceship> retShips = new LinkedList<Spaceship>();
+		List<Spaceship> playersss = SpaceshipPureFunctions.getPlayersSpaceshipsOnPlanet(aPlayer, aPlanet, galaxy.getSpaceships());
+		for (Spaceship aSpaceship : playersss) {
+			if (SpaceshipPureFunctions.getRange(aSpaceship, galaxy) == range) {
+				retShips.add(aSpaceship);
+			}
+		}
+		return retShips;
+	}
+
 	// uppdatera spelarens PlanetInfo om choices har använts
 	private void newOrder(ComboBoxPanel c) {
 
@@ -603,7 +696,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 						if ((taskforces.size() == 1) & aPlayer.getGalaxy().playerHasShipsInSystem(aPlayer, planet)) {
 							// should cb be enabled? Only if at least one ship has troops.
 							TaskForce playerTaskforce = TaskForceHandler.getTaskForce(aPlayer, planet, true, g);
-							if (playerTaskforce.getMaxPsychWarfare() > 0 || playerTaskforce.getTroopCapacity() > 0) {
+							if (playerTaskforce.getMaxPsychWarfare(g.getGameWorld()) > 0 || playerTaskforce.getTroopCapacity() > 0) {
 								reconstructCheckbox.setEnabled(true);
 								// fetch value (already reconstructing?)
 								Orders o = aPlayer.getOrders();
@@ -655,7 +748,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 
 			} else {
 				if (planet.isOpen() | (aPlayer.getGalaxy().playerHasShipsInSystem(aPlayer, planet)) | (spy)) {
-					boolean surveyShip = (aPlayer.getGalaxy().findSurveyShip(planet, aPlayer) != null);
+					boolean surveyShip = SpaceshipPureFunctions.findSurveyShip(planet, aPlayer, g.getSpaceships(), g.getGameWorld()) != null;
 					boolean surveyVIP = (aPlayer.getGalaxy().findSurveyVIPonShip(planet, aPlayer) != null);
 					if (planet.isOpen() | surveyShip | surveyVIP | spy) {
 						maxProdLabel.setVisible(true);
@@ -769,7 +862,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			// detta kan bli problem om planeten bli neutral. vilken faction är då ägare
 			// till byggnaden. Blir fellänkat.
 			if (aPlayer != planet.getPlayerInControl() && (((planet.isOpen() && !planet.isBesieged()) || (spy)
-					|| (aPlayer.getGalaxy().findSurveyShip(planet, aPlayer) != null))
+					|| SpaceshipPureFunctions.findSurveyShip(planet, aPlayer, g.getSpaceships(), g.getGameWorld()) != null)
 					|| (aPlayer.getGalaxy().findSurveyVIPonShip(planet, aPlayer) != null))) {
 				if (allBuildings.size() > 0) {
 					List<Building> visibleBuildings = new ArrayList<Building>();

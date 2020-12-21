@@ -27,10 +27,10 @@ import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Faction;
 import spaceraze.world.Player;
 import spaceraze.world.TroopType;
-import spaceraze.world.comparator.FactionsComparator;
-import spaceraze.world.comparator.trooptype.TroopTypeComparator;
-import spaceraze.world.comparator.trooptype.TroopTypeNameComparator;
-import spaceraze.world.comparator.trooptype.TroopTypeTypeAndBuildCostComparator;
+import spaceraze.servlethelper.comparator.FactionsComparator;
+import spaceraze.servlethelper.comparator.trooptype.TroopTypeComparator;
+import spaceraze.servlethelper.comparator.trooptype.TroopTypeNameComparator;
+import spaceraze.servlethelper.comparator.trooptype.TroopTypeTypeAndBuildCostComparator;
 import spaceraze.world.enums.BattleGroupPosition;
 import spaceraze.world.enums.TypeOfTroop;
 

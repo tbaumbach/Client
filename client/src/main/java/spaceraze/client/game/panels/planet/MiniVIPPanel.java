@@ -27,8 +27,8 @@ import spaceraze.world.Player;
 import spaceraze.world.Spaceship;
 import spaceraze.world.Troop;
 import spaceraze.world.VIP;
-import spaceraze.world.comparator.PlanetNameComparator;
-import spaceraze.world.comparator.VIPNameComparator;
+import spaceraze.servlethelper.comparator.PlanetNameComparator;
+import spaceraze.servlethelper.comparator.VIPNameComparator;
 import spaceraze.world.enums.SpaceshipRange;
 import spaceraze.world.orders.Orders;
 
@@ -220,7 +220,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 			if (currentVIP.isFTLbonus()) {
 				Spaceship shipLocation = currentVIP.getShipLocation();
 				if (shipLocation != null) {
-					SpaceshipRange range = shipLocation.getSpaceshipType().getRange();
+					SpaceshipRange range = shipLocation.getRange();
 					if (range == SpaceshipRange.SHORT) {
 						Orders orders = player.getOrders();
 						Planet shipDestination = orders.getDestination(shipLocation, player.getGalaxy());

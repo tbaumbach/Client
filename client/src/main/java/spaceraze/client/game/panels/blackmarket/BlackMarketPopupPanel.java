@@ -19,7 +19,7 @@ import spaceraze.world.BlackMarketBid;
 import spaceraze.world.BlackMarketOffer;
 import spaceraze.world.Planet;
 import spaceraze.world.Player;
-import spaceraze.world.comparator.PlanetNameComparator;
+import spaceraze.servlethelper.comparator.PlanetNameComparator;
 
 /**
  * Pop up panel used for creation and edits of black market bids

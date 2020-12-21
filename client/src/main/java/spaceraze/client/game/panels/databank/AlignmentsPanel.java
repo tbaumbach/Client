@@ -10,7 +10,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import spaceraze.world.comparator.AlignmentNameComparator;
+import spaceraze.servlethelper.comparator.AlignmentNameComparator;
 import spaceraze.util.general.Functions;
 import spaceraze.world.Alignment;
 import spaceraze.world.Player;

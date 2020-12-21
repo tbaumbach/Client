@@ -20,8 +20,8 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Planet;
 import spaceraze.world.Player;
-import spaceraze.world.comparator.PlanetNameComparator;
-import spaceraze.world.comparator.PlayerNameComparator;
+import spaceraze.servlethelper.comparator.PlanetNameComparator;
+import spaceraze.servlethelper.comparator.PlayerNameComparator;
 
 public class MapControls extends SRBasePanel implements ItemListener, MouseListener {
 	private static final long serialVersionUID = 1L;

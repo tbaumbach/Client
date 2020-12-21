@@ -17,7 +17,7 @@ import spaceraze.client.components.SRTabbedPane;
 import spaceraze.client.components.SRTabbedPaneUI;
 import spaceraze.client.game.ImageHandler;
 import spaceraze.client.game.SpaceRazePanel;
-import spaceraze.servlethelper.game.VipPureFunctions;
+import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
@@ -164,7 +164,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		;
 		boolean shipInSystem = aPlayer.getGalaxy().playerHasShipsInSystem(aPlayer, aPlanet);
 		boolean lastKnownRazed = PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).isRazed();
-		boolean surveyShip = (aPlayer.getGalaxy().findSurveyShip(aPlanet, aPlayer) != null);
+		boolean surveyShip = SpaceshipPureFunctions.findSurveyShip(aPlanet, aPlayer, aPlayer.getGalaxy().getSpaceships(), aPlayer.getGalaxy().getGameWorld()) != null;
 		boolean surveyVIP = (aPlayer.getGalaxy().findSurveyVIPonShip(aPlanet, aPlayer) != null);
 		boolean razed = aPlanet.isRazed() & (aPlanet.getPlayerInControl() == null);
 		// if player is present in system or was it razed at the last visit

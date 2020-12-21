@@ -16,7 +16,6 @@ import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.panels.login.FactionDetailInfoPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
-import spaceraze.util.general.Functions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.BuildingType;
 import spaceraze.world.Faction;
@@ -24,7 +23,7 @@ import spaceraze.world.Player;
 import spaceraze.world.SpaceshipType;
 import spaceraze.world.TroopType;
 import spaceraze.world.VIPType;
-import spaceraze.world.comparator.FactionsComparator;
+import spaceraze.servlethelper.comparator.FactionsComparator;
 
 /**
  * A panel showing a list with all factions in the gameworld of the current game.

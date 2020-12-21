@@ -23,14 +23,15 @@ import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
+import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Faction;
 import spaceraze.world.Player;
 import spaceraze.world.SpaceshipType;
-import spaceraze.world.comparator.FactionsComparator;
-import spaceraze.world.comparator.SpaceshipTypeComparator;
-import spaceraze.world.comparator.SpaceshipTypeNameComparator;
+import spaceraze.servlethelper.comparator.FactionsComparator;
+import spaceraze.servlethelper.comparator.SpaceshipTypeComparator;
+import spaceraze.servlethelper.comparator.SpaceshipTypeNameComparator;
 import spaceraze.world.enums.SpaceShipSize;
 
 @SuppressWarnings("serial")
@@ -918,7 +919,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	  sizelbl2.setLocation(column2X,yPosition);
     	  
     	  rangelbl.setText("Range: ");
-    	  rangelbl2.setText(sst.getRangeString());
+    	  rangelbl2.setText(sst.getRange().toLowercaseString());
     	  rangelbl.setLocation(column1X,newLine());
     	  rangelbl2.setLocation(column2X,yPosition);
     	  
@@ -1027,9 +1028,9 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		  troopCapLbl2.setVisible(false);
     	  }
     	  
-    	  if(sst.getInitiativeBonus() > 0){
+    	  if(SpaceshipPureFunctions.getInitiativeBonus(sst) > 0){
     		  initiativeLabel.setText("Initiative bonus:");
-    		  initiativeLabel2.setText(sst.getInitiativeBonus() + "%");
+    		  initiativeLabel2.setText(SpaceshipPureFunctions.getInitiativeBonus(sst) + "%");
     		  initiativeLabel.setLocation(column1X,newLine());
     		  initiativeLabel2.setLocation(column2X,yPosition);
     		  initiativeLabel.setVisible(true);
@@ -1039,9 +1040,9 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		  initiativeLabel2.setVisible(false);
     	  }
     	  
-    	  if(sst.getInitSupportBonus() > 0){
+    	  if(SpaceshipPureFunctions.getInitSupportBonus(sst) > 0){
     		  initSupportBonusLbl.setText("Init support bonus:");
-    		  initSupportBonusLbl2.setText(sst.getInitSupportBonus() + "%");
+    		  initSupportBonusLbl2.setText(SpaceshipPureFunctions.getInitSupportBonus(sst) + "%");
     		  initSupportBonusLbl.setLocation(column1X,newLine());
     		  initSupportBonusLbl2.setLocation(column2X,yPosition);
     		  initSupportBonusLbl.setVisible(true);
@@ -1063,9 +1064,9 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		  initDefenceBonusLbl2.setVisible(false);
     	  }
     	  
-    	  if(sst.getNoRetreat()){
+    	  if(sst.isNoRetreat()){
     		  retreatLabel.setText("Stops retreat: ");
-    		  retreatLabel2.setText(sst.getNoRetreatString());
+    		  retreatLabel2.setText(getNoRetreatString(sst));
     		  retreatLabel.setLocation(column1X,newLine());
     		  retreatLabel2.setLocation(column2X,yPosition);
     		  retreatLabel.setVisible(true);
@@ -1308,7 +1309,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
 		  sizelbl4.setLocation(column4X,yPosition);
 		  
 		  rangelbl3.setText("Range: ");
-		  rangelbl4.setText(sst.getRangeString());
+		  rangelbl4.setText(sst.getRange().toLowercaseString());
 		  rangelbl3.setLocation(column3X,newLine());
 		  rangelbl4.setLocation(column4X,yPosition);
     	  
@@ -1417,9 +1418,9 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		  troopCapLbl4.setVisible(false);
     	  }
     	  
-    	  if(sst.getInitiativeBonus() > 0){
+    	  if(SpaceshipPureFunctions.getInitiativeBonus(sst) > 0){
     		  initiativeLabel3.setText("Initiative bonus:");
-    		  initiativeLabel4.setText(sst.getInitiativeBonus() + "%");
+    		  initiativeLabel4.setText(SpaceshipPureFunctions.getInitiativeBonus(sst) + "%");
     		  initiativeLabel3.setLocation(column3X,newLine());
     		  initiativeLabel4.setLocation(column4X,yPosition);
     		  initiativeLabel3.setVisible(true);
@@ -1429,9 +1430,9 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		  initiativeLabel4.setVisible(false);
     	  }
     	  
-    	  if(sst.getInitSupportBonus() > 0){
+    	  if(SpaceshipPureFunctions.getInitSupportBonus(sst) > 0){
     		  initSupportBonusLbl3.setText("Init support bonus:");
-    		  initSupportBonusLbl4.setText(sst.getInitSupportBonus() + "%");
+    		  initSupportBonusLbl4.setText(SpaceshipPureFunctions.getInitSupportBonus(sst) + "%");
     		  initSupportBonusLbl3.setLocation(column3X,newLine());
     		  initSupportBonusLbl4.setLocation(column4X,yPosition);
     		  initSupportBonusLbl3.setVisible(true);
@@ -1453,9 +1454,9 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     		  initDefenceBonusLbl4.setVisible(false);
     	  }
     	  
-    	  if(sst.getNoRetreat()){
+    	  if(sst.isNoRetreat()){
     		  retreatLabel3.setText("Stops retreat: ");
-    		  retreatLabel4.setText(sst.getNoRetreatString());
+    		  retreatLabel4.setText(getNoRetreatString(sst));
     		  retreatLabel3.setLocation(column3X,newLine());
     		  retreatLabel4.setLocation(column4X,yPosition);
     		  retreatLabel3.setVisible(true);
@@ -1685,4 +1686,12 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
 		}
 		
 	}
+
+  public String getNoRetreatString(SpaceshipType spaceshipType){
+    String returnString = "No";
+    if (spaceshipType.isNoRetreat()){
+      returnString = "Yes";
+    }
+    return returnString;
+  }
 }

@@ -27,7 +27,7 @@ import spaceraze.servlethelper.game.player.IncomePureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.*;
-import spaceraze.world.comparator.FactionsComparator;
+import spaceraze.servlethelper.comparator.FactionsComparator;
 import spaceraze.world.orders.ResearchOrder;
 
 @SuppressWarnings("serial")
