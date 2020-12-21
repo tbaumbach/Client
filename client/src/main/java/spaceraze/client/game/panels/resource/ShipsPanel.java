@@ -140,7 +140,7 @@ public class ShipsPanel extends SRBasePanel implements SRUpdateablePanel, ListSe
 				tempbesiged = "Yes";
 			 
 			
-			shipTable.setValueAt(aShip.getHullStrength() + "%", i, 3);
+			shipTable.setValueAt(SpaceshipPureFunctions.getHullStrength(aShip) + "%", i, 3);
 			shipTable.setValueAt(aShip.getKills(), i, 4);
 			shipTable.setValueAt(tempbesiged, i, 5);
 			shipTable.setValueAt(aShip.getTechWhenBuilt(), i, 6);
