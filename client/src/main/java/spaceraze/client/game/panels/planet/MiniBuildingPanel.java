@@ -21,6 +21,8 @@ import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.components.scrollable.TextAreaPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.servlethelper.game.BuildingPureFunctions;
+import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
+import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.util.general.Functions;
@@ -73,7 +75,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		buildnewBuildingChoice = new ComboBoxPanel();
 		buildnewBuildingChoice.setBounds(5, 23, 294, 20);
 		// ej kunna bygga ny vid abandon, bel�gring och fiendetrupper
-		boolean enemyTroopsOnPlanet = player.getGalaxy().findOtherTroopsPlayersOnRazedPlanet(player, aPlanet)
+		boolean enemyTroopsOnPlanet = TroopPureFunctions.findOtherTroopsPlayersOnRazedPlanet(player, aPlanet, player.getGalaxy().getTroops())
 				.size() > 0;
 		boolean underSiege = aPlanet.isBesieged();
 		boolean abandonPlanet = player.getOrders().getAbandonPlanet(aPlanet);
@@ -672,8 +674,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 
 			String statusString = "";
 			// Kolla om man kan bygga i byggnaden
-			boolean enemyTroopsOnPlanet = player.getGalaxy()
-					.findOtherTroopsPlayersOnRazedPlanet(player, currentBuilding.getLocation()).size() > 0;
+			boolean enemyTroopsOnPlanet = TroopPureFunctions.findOtherTroopsPlayersOnRazedPlanet(player, currentBuilding.getLocation(), player.getGalaxy().getTroops()).size() > 0;
 			boolean underSiege = currentBuilding.getLocation().isBesieged()
 					&& currentBuilding.getBuildingType().isInOrbit();
 			boolean abandonPlanet = player.getOrders().getAbandonPlanet(aPlanet);
@@ -993,10 +994,10 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 				// compute cost
 				tempBuild = VipPureFunctions.findVIPShipBuildBonus(currentBuilding.getLocation(), player,
 						player.getOrders(), player.getGalaxy());
-				int cost = tempsst.getBuildCost(tempBuild);
+				int cost = SpaceshipPureFunctions.getBuildCost(tempsst, tempBuild);
 				// set selected
 				shipTypeChoice[index]
-						.setSelectedItem(tempsst.getName() + " (cost: " + cost + ") " + tempsst.getUniqueString());
+						.setSelectedItem(tempsst.getName() + " (cost: " + cost + ") " + getUniqueString(tempsst));
 				shipTypeChoice[index].setVisible(true);
 
 				// show detailsButton
@@ -1021,6 +1022,22 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			}
 		}
 
+	}
+
+	private String getUniqueString(SpaceshipType  spaceshipType){
+		String uniqueString = "";
+
+		if(spaceshipType.isPlayerUnique()){
+			uniqueString = "Player unique";
+		}else
+		if(spaceshipType.isFactionUnique()){
+			uniqueString = "Faction unique";
+		}else
+		if(spaceshipType.isWorldUnique()){
+			uniqueString = "World unique";
+		}
+
+		return uniqueString;
 	}
 
 	// ska returnera en lista med alla skeppstyper det finns byggorder på för currentBuilding.
@@ -1083,7 +1100,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			while (index < buildTroopType.size()) {
 
 				TroopType troopType = buildTroopType.get(index);
-				System.out.println("troopType: " + troopType.getUniqueName());
+				System.out.println("troopType: " + troopType.getName());
 				addTroopTypes(troopTypeChoice[index], showUpgrade);
 				if (showUpgrade) { // sätt till false ss att endast den första choicen visar upgrade
 					showUpgrade = false;
@@ -1095,10 +1112,10 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 
 				tempBuild = VipPureFunctions.findVIPTroopBuildBonus(currentBuilding.getLocation(), player,
 						player.getOrders(), player.getGalaxy());
-				int cost = troopType.getCostBuild(tempBuild);
+				int cost = TroopPureFunctions.getCostBuild(troopType, tempBuild);
 				// set selected
 				troopTypeChoice[index].setSelectedItem(
-						troopType.getUniqueName() + " (cost: " + cost + ") " + troopType.getUniqueString());
+						troopType.getName() + " (cost: " + cost + ") " + getUniqueString(troopType));
 				troopTypeChoice[index].setVisible(true);
 
 				// show detailsButton
@@ -1120,6 +1137,22 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			}
 		}
 
+	}
+
+	private String getUniqueString(TroopType troopType){
+		String uniqueString = "";
+
+		if(troopType.isPlayerUnique()){
+			uniqueString = "Player unique";
+		}else
+		if(troopType.isFactionUnique()){
+			uniqueString = "Faction unique";
+		}else
+		if(troopType.isWorldUnique()){
+			uniqueString = "World unique";
+		}
+
+		return uniqueString;
 	}
 
 	private void showVIPTypeChoices(Building currentBuilding) {
@@ -1280,13 +1313,13 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		String shipSize = "";
 		for (SpaceshipType tempsst : alltypes) {
 			if (tempsst.getSize().getSlots() <= slotsleft) {
-				int cost = tempsst.getBuildCost(tempBuild);
+				int cost = SpaceshipPureFunctions.getBuildCost(tempsst, tempBuild);
 
 				if (!tempsst.getSize().getDescription().equals(shipSize)) {
 					shipSize = tempsst.getSize().getDescription();
 					shiptypechoice.addItem(getItemDescription(shipSize));
 				}
-				shiptypechoice.addItem(tempsst.getName() + " (cost: " + cost + ") " + tempsst.getUniqueString());
+				shiptypechoice.addItem(tempsst.getName() + " (cost: " + cost + ") " + getUniqueString(tempsst));
 			}
 		}
 		// dumpdata(shiptypechoice);
@@ -1322,8 +1355,8 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		// System.out.println("efter alltypes");
 		for (TroopType tempTP : copyAllTypes) {
 			if (currentBuilding.getBuildingType().canBuildTypeOfTroop(tempTP.getTypeOfTroop())) {
-				int cost = tempTP.getCostBuild(tempBuild);
-				trooptypechoice.addItem(tempTP.getUniqueName() + " (cost: " + cost + ") " + tempTP.getUniqueString());
+				int cost =TroopPureFunctions.getCostBuild(tempTP, tempBuild);
+				trooptypechoice.addItem(tempTP.getName() + " (cost: " + cost + ") " + getUniqueString(tempTP));
 			}
 		}
 	}

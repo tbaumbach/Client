@@ -188,7 +188,7 @@ public class ShipsPanel extends SRBasePanel implements SRUpdateablePanel, ListSe
     	}else{
     		TroopInfoTextArea.setText("");
     		for (Troop aTroop : allTroops) {
-    			TroopInfoTextArea.append(aTroop.getUniqueName() + "\n");
+    			TroopInfoTextArea.append(aTroop.getName() + "\n");
 			}
     	}
     }

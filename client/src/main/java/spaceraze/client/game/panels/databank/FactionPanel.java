@@ -128,7 +128,7 @@ public class FactionPanel extends SRBasePanel implements ListSelectionListener, 
 	    	  this.spaceRazePanel.showShiptypeDetails(((SpaceshipType)startingUnit).getName(), factionlist.getSelectedItem());
 	      }else
 	      if (startingUnit instanceof TroopType){ 
-	    	  this.spaceRazePanel.showTroopTypeDetails(((TroopType)startingUnit).getUniqueName(), factionlist.getSelectedItem());
+	    	  this.spaceRazePanel.showTroopTypeDetails(((TroopType)startingUnit).getName(), factionlist.getSelectedItem());
 	      }else
 	      if (startingUnit instanceof BuildingType){ 
 	    	  this.spaceRazePanel.showBuildingTypeDetails(((BuildingType)startingUnit).getName(), factionlist.getSelectedItem());
@@ -211,7 +211,7 @@ public class FactionPanel extends SRBasePanel implements ListSelectionListener, 
         		dlm.addElement("------   Troops   ------------------");
     			addTroopInfoText = false;
     		}
-        	dlm.addElement(troopType.getUniqueName());
+        	dlm.addElement(troopType.getName());
         	startingUnits.add(troopType);
 		}
         
@@ -242,7 +242,7 @@ public class FactionPanel extends SRBasePanel implements ListSelectionListener, 
   	    	  }
   	      }else
   	      if (destObject instanceof TroopType){ // is Troop instance
-  	    	  if(((TroopType)destObject).getUniqueName().equalsIgnoreCase(choice)){
+  	    	  if(((TroopType)destObject).getName().equalsIgnoreCase(choice)){
   		        	choicedObject = destObject;
   	    	  }
   	      }else

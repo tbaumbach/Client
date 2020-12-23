@@ -24,6 +24,7 @@ import spaceraze.client.game.ShowMapPlanet;
 import spaceraze.servlethelper.game.DiplomacyPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
+import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.servlethelper.map.MapPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
@@ -416,7 +417,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 							boolean spy = (player.getGalaxy().findVIPSpy(tempPlanet, player) != null);
 							boolean shipInSystem = player.getGalaxy().playerHasShipsInSystem(player, tempPlanet);
 							boolean troopInSystem = false;
-							if (player.getGalaxy().getTroopsOnPlanet(tempPlanet, player).size() > 0) {
+							if (TroopPureFunctions.getTroopsOnPlanet(tempPlanet, player, player.getGalaxy().getTroops()).size() > 0) {
 								troopInSystem = true;
 							}
 							if ((planetOwner != null) && (planetOwner.equals(highlightPlayer))) {
@@ -634,7 +635,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 							}
 							// show troops on planet (not in ships at planet)
 							List<Troop> tempTroops = c.getTroops();
-							Collections.sort(tempTroops, new TroopTypeAndBuildCostComparator());
+							Collections.sort(tempTroops, new TroopTypeAndBuildCostComparator(player.getGalaxy().getGameWorld()));
 							// only keep those that are on the planet
 							LinkedHashMap<String, Integer> troopsMap = new LinkedHashMap<String, Integer>(); // String
 																												// contains
@@ -645,14 +646,14 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 																												// of
 																												// troop
 							for (Troop troop : tempTroops) {
-								String name = troop.getTroopType().getUniqueShortName();
+								String name = TroopPureFunctions.getTroopTypeByKey(troop.getTypeKey(), player.getGalaxy().getGameWorld()).getShortName();
 								Integer tempCounter = troopsMap.get(name);
 								if (tempCounter == null) {
 									tempCounter = 1;
 								} else {
 									tempCounter = tempCounter + 1;
 								}
-								troopsMap.put(troop.getTroopType().getUniqueShortName(), tempCounter);
+								troopsMap.put(TroopPureFunctions.getTroopTypeByKey(troop.getTypeKey(), player.getGalaxy().getGameWorld()).getShortName(), tempCounter);
 							}
 							if ((tempTroops.size() > 0) & (tempshortsShips.size() > 0)) {
 								// draw line between ships and troops
@@ -673,7 +674,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 									List<VIP> vipsOnTroops = new LinkedList<VIP>();
 									for (Troop aTroop : tempTroops) {
 										// System.out.println("looking for vips in troops " + aTroop);
-										if (aTroop.getTroopType().getUniqueShortName().equals(aTroopTypeName)) {
+										if (TroopPureFunctions.getTroopTypeByKey(aTroop.getTypeKey(), player.getGalaxy().getGameWorld()).getShortName().equals(aTroopTypeName)) {
 											addVIPsOnTroop(aTroop, c, vipsOnTroops);
 										}
 									}
@@ -858,7 +859,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 		String shipSize = "";
 
 		boolean troopInSystem = false;
-		if (player.getGalaxy().getTroopsOnPlanet(tempPlanet, player).size() > 0) {
+		if (TroopPureFunctions.getTroopsOnPlanet(tempPlanet, player, player.getGalaxy().getTroops()).size() > 0) {
 			troopInSystem = true;
 		}
 
@@ -914,7 +915,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 			for (int i = 0; i < allp.size(); i++) {
 				Player tempPlayer = (Player) allp.get(i);
 				if (tempPlayer != player && tempPlayer != tempPlanet.getPlayerInControl()) {
-					int numberOfTroops = player.getGalaxy().getTroopsOnPlanet(tempPlanet, tempPlayer).size();
+					int numberOfTroops = TroopPureFunctions.getTroopsOnPlanet(tempPlanet, tempPlayer, player.getGalaxy().getTroops()).size();
 					if (numberOfTroops > 0) {
 						troopString = numberOfTroops + " troops";
 						g.setColor(ColorConverter.getColorFromHexString(tempPlayer.getFaction().getPlanetHexColor()));
@@ -1142,7 +1143,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 			boolean spy = (aPlayer.getGalaxy().findVIPSpy(p, aPlayer) != null);
 
 			boolean troopInSystem = false;
-			if (player.getGalaxy().getTroopsOnPlanet(p, aPlayer).size() > 0) {
+			if (TroopPureFunctions.getTroopsOnPlanet(p, aPlayer, player.getGalaxy().getTroops()).size() > 0) {
 				troopInSystem = true;
 			}
 			boolean surveyShip = SpaceshipPureFunctions.findSurveyShip(p, aPlayer, aPlayer.getGalaxy().getSpaceships(), aPlayer.getGalaxy().getGameWorld()) != null;
@@ -1155,7 +1156,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 			if ((p.isOpen()) | (p.getPlayerInControl() == aPlayer) | (spy) | (surveyShip | surveyVIP | troopInSystem)) {
 				c.setProduction(p.getPopulation());
 				c.setResistance(p.getResistance());
-				int nrTroops = aPlayer.getGalaxy().getNrTroops(p);
+				int nrTroops = getNrTroops(p);
 				c.setNrTroops(nrTroops);
 			} else {
 				// set last known prod & res
@@ -1211,6 +1212,24 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 			}
 			insertCoorSorted(c, pcoors);
 		}
+	}
+
+	private int getNrTroops(Planet aPlanet) {
+		int nrTroopsOnPlanet = 0;
+		if (troops != null){
+			for (Troop aTroop : troops) {
+				if (aTroop.getPlanetLocation() != null) {
+					if (aTroop.getPlanetLocation() == aPlanet) {
+						if (aPlanet.getPlayerInControl() == aTroop.getOwner()) {
+							if (TroopPureFunctions.getTroopTypeByKey(aTroop.getTypeKey(), player.getGalaxy().getGameWorld()).isVisible()) {
+								nrTroopsOnPlanet++;
+							}
+						}
+					}
+				}
+			}
+		}
+		return nrTroopsOnPlanet;
 	}
 
 	public void updatePcoors() {

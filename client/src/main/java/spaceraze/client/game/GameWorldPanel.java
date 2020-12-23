@@ -149,7 +149,7 @@ public class GameWorldPanel extends SRBasePanel implements SRUpdateablePanel{
     	neutralSize3Lbl.setText("Neutral large ship : ");
     	if(gw.isTroopGameWorld()){
     		neutralTroopLbl.setText("Neutral troop: ");
-    		neutralTroopLbl2.setText(gw.getNeutralTroopType().getUniqueName());
+    		neutralTroopLbl2.setText(gw.getNeutralTroopType().getName());
     	}else{
     		neutralTroopLbl.setVisible(false);
     		neutralTroopLbl2.setVisible(false);

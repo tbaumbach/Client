@@ -22,6 +22,7 @@ import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
+import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Faction;
@@ -395,7 +396,7 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
     	// add to name list
     	if (filterChoice.getSelectedIndex() == 0){
     		for (TroopType aTroopType : tempTtList) {
-    			tempTtListName.add(aTroopType.getUniqueName());
+    			tempTtListName.add(aTroopType.getName());
 			}
     		Collections.sort(tempTtListName,new TroopTypeNameComparator());
     	}else{
@@ -415,12 +416,12 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
     			}
     			
     			if (filterChoice.getSelectedIndex() == 1){
-        			tempTtListName.add(aTroopType.getUniqueName());
+        			tempTtListName.add(aTroopType.getName());
         		}else{
             		if(aTroopType.isCanBuild()){
-        				tempTtListName.add(aTroopType.getUniqueName());
+        				tempTtListName.add(aTroopType.getName());
         			}else{
-        				tempTtListName.add("*" + aTroopType.getUniqueName());
+        				tempTtListName.add("*" + aTroopType.getName());
         			}
         		}
 			}
@@ -479,7 +480,7 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
       }else{
 	      while ((tt == null) & (i < troopTypes.size())){
 	    	  TroopType temp = troopTypes.get(i);
-	    	  if (temp.getUniqueName().equalsIgnoreCase(findname)){
+	    	  if (temp.getName().equalsIgnoreCase(findname)){
 	    		  tt = temp;
 	    	  }else{
 	    		  i++;
@@ -534,11 +535,11 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
     		yPosition = 10;
 	        
 	        typenamelbl.setText("Name: ");
-	        typenamelbl2.setText(troopType.getUniqueName());
+	        typenamelbl2.setText(troopType.getName());
 	        newLine();
 	        
 	        typeShortnamelbl.setText("Short name: ");
-	        typeShortnamelbl2.setText(troopType.getUniqueShortName());
+	        typeShortnamelbl2.setText(troopType.getShortName());
 	        newLine();
 	        
 	        troopTypeLbl.setText("Type: ");
@@ -626,7 +627,7 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
 	        
 	        buildCostLbl.setText("Build Cost: ");
 	        buildCostLbl.setLocation(column1X, yPosition);
-	        buildCostLbl2.setText(String.valueOf(troopType.getCostBuild(null)));
+	        buildCostLbl2.setText(String.valueOf(TroopPureFunctions.getCostBuild(troopType,null)));
 	        buildCostLbl2.setLocation(column2X, yPosition);
 	        newLine();
 	        
@@ -659,12 +660,39 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
         
 	        // description textarea
         	troopTypeInfoLbl.setText("Description:");
-        	troopTypeInfoTextArea.setText(troopType.getTotalDescription());
+        	troopTypeInfoTextArea.setText(getTotalDescription(troopType));
         	troopTypeInfoTextArea.setVisible(true);
         	scrollPane.setVisible(true);
         	buttonAddTroopToCompare.setVisible(true);
         }
  
+    }
+
+    private String getTotalDescription(TroopType troopType){
+        String totalDescription = "";
+
+        if(troopType.getAdvantages() != null && !troopType.getAdvantages().equals("")){
+            totalDescription += "Advantages: " + troopType.getAdvantages() + "\n\n";
+        }
+        if(troopType.getDisadvantages() != null && !troopType.getDisadvantages().equals("")){
+            totalDescription += "Disadvantages: " + troopType.getDisadvantages() + "\n\n";
+        }
+
+        if(troopType.getShortDescription() != null && !troopType.getShortDescription().equals("")){
+            totalDescription += "Short Description\n";
+            totalDescription += troopType.getShortDescription() + "\n\n";
+        }
+
+        if(troopType.getDescription() != null && !troopType.getDescription().equals("")){
+            totalDescription +="Description\n";
+            totalDescription += troopType.getDescription() + "\n\n";
+        }
+        if(troopType.getHistory() != null && !troopType.getHistory().equals("")){
+            totalDescription +="History\n";
+            totalDescription += troopType.getHistory();
+        }
+
+        return totalDescription;
     }
     
     private void showTroopTypeToCompare(TroopType troopTypeToCompare){
@@ -676,7 +704,7 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
 	        typenamelbl3.setText("Name: ");
 	        typenamelbl3.setVisible(true);
 	        typenamelbl3.setLocation(column3X, yPosition);
-	        typenamelbl4.setText(troopTypeToCompare.getUniqueName());
+	        typenamelbl4.setText(troopTypeToCompare.getName());
 	        typenamelbl4.setVisible(true);
 	        typenamelbl4.setLocation(column4X, yPosition);
 	        newLine();
@@ -684,7 +712,7 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
 	        typeShortnamelbl3.setText("Short name: ");
 	        typeShortnamelbl3.setVisible(true);
 	        typeShortnamelbl3.setLocation(column3X, yPosition);
-	        typeShortnamelbl4.setText(troopTypeToCompare.getUniqueShortName());
+	        typeShortnamelbl4.setText(troopTypeToCompare.getShortName());
 	        typeShortnamelbl4.setVisible(true);
 	        typeShortnamelbl4.setLocation(column4X, yPosition);
 	        newLine();
@@ -806,7 +834,7 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
 	        buildCostLbl3.setText("Build Cost: ");
 	        buildCostLbl3.setLocation(column3X, yPosition);
 	        buildCostLbl3.setVisible(true);
-	        buildCostLbl4.setText(String.valueOf(troopTypeToCompare.getCostBuild(null)));
+	        buildCostLbl4.setText(String.valueOf(TroopPureFunctions.getCostBuild(troopTypeToCompare,null)));
 	        buildCostLbl4.setLocation(column4X, yPosition);
 	        buildCostLbl4.setVisible(true);
 	        newLine();

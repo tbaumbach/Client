@@ -187,7 +187,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 					choicedObject = destObject;
 				}
 			} else if (destObject instanceof Troop) { // is Troop instance
-				if (((Troop) destObject).getUniqueName().equalsIgnoreCase(choice)) {
+				if (((Troop) destObject).getName().equalsIgnoreCase(choice)) {
 					choicedObject = destObject;
 				}
 			}
@@ -290,7 +290,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 					locStr = tempss.getShortName() + " in deep space retreating.";
 				}
 			} else { // must be on troop
-				locStr = tempVIP.getTroopLocation().getUniqueName();
+				locStr = tempVIP.getTroopLocation().getName();
 			}
 			locationLabel.setText("Location: " + locStr); // add location. can be null...
 			abilitiesLabel.setText("VIP abilities:");
@@ -412,7 +412,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 					destinationChoice.addItem("------------------   Troops   ------------------");
 					addTroopInfoText = false;
 				}
-				destinationChoice.addItem(aTroop.getUniqueName());
+				destinationChoice.addItem(aTroop.getName());
 				destinationsInChoice.add(aTroop);
 			}
 		}

@@ -1178,7 +1178,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	  
     	  if(sst.getIncEnemyOpenBonus() > 0 || sst.getIncFriendlyOpenBonus() > 0 || sst.getIncNeutralOpenBonus() > 0 || sst.getIncOwnOpenBonus() > 0){
     		  incomeOpenLbl.setText("Income Open (o/f/n/e):");
-    		  incomeOpenLbl2.setText(sst.getIncomeOpenString());
+    		  incomeOpenLbl2.setText(getIncomeOpenString(sst));
     		  incomeOpenLbl.setLocation(column1X,newLine());
     		  incomeOpenLbl2.setLocation(column2X,yPosition);
     		  incomeOpenLbl.setVisible(true);
@@ -1190,7 +1190,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	  
     	  if(sst.getIncEnemyClosedBonus() > 0 || sst.getIncFriendlyClosedBonus() > 0 || sst.getIncNeutralClosedBonus() > 0 || sst.getIncOwnClosedBonus() > 0){
     		  incomeClosedLbl.setText("Income Closed (o/f/n/e):");
-    		  incomeClosedLbl2.setText(sst.getIncomeClosedString());
+    		  incomeClosedLbl2.setText(getIncomeClosedString(sst));
     		  incomeClosedLbl.setLocation(column1X,newLine());
     		  incomeClosedLbl2.setLocation(column2X,yPosition);
     		  incomeClosedLbl.setVisible(true);
@@ -1227,7 +1227,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	  upkeepLabel2.setLocation(column2X,yPosition);
     	  
     	  buildCostLabel.setText("Build cost: ");
-    	  buildCostLabel2.setText(String.valueOf(sst.getBuildCost(null)));
+    	  buildCostLabel2.setText(String.valueOf(SpaceshipPureFunctions.getBuildCost(sst, null)));
     	  buildCostLabel.setLocation(column1X,newLine());
     	  buildCostLabel2.setLocation(column2X,yPosition);
     	  
@@ -1266,7 +1266,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
 	      */
 
     	  // description textarea
-    	  shiptypeInfoTextArea.setText(sst.getTotalDescription());
+    	  shiptypeInfoTextArea.setText(getTotalDescription(sst));
     	  shiptypeInfoTextArea.setVisible(true);
     	  scrollPane.setVisible(true);
     	  
@@ -1276,6 +1276,89 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
       
       
     }
+
+  private String getTotalDescription(SpaceshipType spaceshipType){
+    String totalDescription = "";
+
+    if(spaceshipType.getAdvantages() != null && !spaceshipType.getAdvantages().equals("")){
+      totalDescription += "Advantages: " + spaceshipType.getAdvantages() + "\n\n";
+    }
+    if(spaceshipType.getDisadvantages() != null && !spaceshipType.getDisadvantages().equals("")){
+      totalDescription += "Disadvantages: " + spaceshipType.getDisadvantages() + "\n\n";
+    }
+
+    if(spaceshipType.getShortDescription() != null && !spaceshipType.getShortDescription().equals("")){
+      totalDescription += "Short Description\n";
+      totalDescription += spaceshipType.getShortDescription() + "\n\n";
+    }
+
+    if(spaceshipType.getDescription() != null && !spaceshipType.getDescription().equals("")){
+      totalDescription +="Description\n";
+      totalDescription += spaceshipType.getDescription() + "\n\n";
+    }
+    if(spaceshipType.getHistory() != null && !spaceshipType.getHistory().equals("")){
+      totalDescription +="History\n";
+      totalDescription += spaceshipType.getHistory();
+    }
+
+    return totalDescription;
+  }
+
+  public String getIncomeOpenString(SpaceshipType spaceshipType){
+    StringBuffer sb = new StringBuffer();
+    if (spaceshipType.getIncOwnOpenBonus() > 0){
+      sb.append(spaceshipType.getIncOwnOpenBonus());
+    }else{
+      sb.append("-");
+    }
+    sb.append(" / ");
+    if (spaceshipType.getIncFriendlyOpenBonus() > 0){
+      sb.append(spaceshipType.getIncFriendlyOpenBonus());
+    }else{
+      sb.append("-");
+    }
+    sb.append(" / ");
+    if (spaceshipType.getIncNeutralOpenBonus() > 0){
+      sb.append(spaceshipType.getIncNeutralOpenBonus());
+    }else{
+      sb.append("-");
+    }
+    sb.append(" / ");
+    if (spaceshipType.getIncEnemyOpenBonus() > 0){
+      sb.append(spaceshipType.getIncEnemyOpenBonus());
+    }else{
+      sb.append("-");
+    }
+    return sb.toString();
+  }
+
+  public String getIncomeClosedString(SpaceshipType spaceshipType){
+    StringBuffer sb = new StringBuffer();
+    if (spaceshipType.getIncOwnClosedBonus() > 0){
+      sb.append(spaceshipType.getIncOwnClosedBonus());
+    }else{
+      sb.append("-");
+    }
+    sb.append(" / ");
+    if (spaceshipType.getIncFriendlyClosedBonus() > 0){
+      sb.append(spaceshipType.getIncFriendlyClosedBonus());
+    }else{
+      sb.append("-");
+    }
+    sb.append(" / ");
+    if (spaceshipType.getIncNeutralClosedBonus() > 0){
+      sb.append(spaceshipType.getIncNeutralClosedBonus());
+    }else{
+      sb.append("-");
+    }
+    sb.append(" / ");
+    if (spaceshipType.getIncEnemyClosedBonus() > 0){
+      sb.append(spaceshipType.getIncEnemyClosedBonus());
+    }else{
+      sb.append("-");
+    }
+    return sb.toString();
+  }
     
     private void showSpaceshipTypeToCompare(SpaceshipType sst){
     	
@@ -1544,7 +1627,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	  
     	  if(sst.getIncEnemyOpenBonus() > 0 || sst.getIncFriendlyOpenBonus() > 0 || sst.getIncNeutralOpenBonus() > 0 || sst.getIncOwnOpenBonus() > 0){
     		  incomeOpenLbl3.setText("Income Open (o/f/n/e):");
-    		  incomeOpenLbl4.setText(sst.getIncomeOpenString());
+    		  incomeOpenLbl4.setText(getIncomeOpenString(sst));
     		  incomeOpenLbl3.setLocation(column3X,newLine());
     		  incomeOpenLbl4.setLocation(column4X,yPosition);
     		  incomeOpenLbl3.setVisible(true);
@@ -1556,7 +1639,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	  
     	  if(sst.getIncEnemyClosedBonus() > 0 || sst.getIncFriendlyClosedBonus() > 0 || sst.getIncNeutralClosedBonus() > 0 || sst.getIncOwnClosedBonus() > 0){
     		  incomeClosedLbl3.setText("Income Closed (o/f/n/e):");
-    		  incomeClosedLbl4.setText(sst.getIncomeClosedString());
+    		  incomeClosedLbl4.setText(getIncomeClosedString(sst));
     		  incomeClosedLbl3.setLocation(column3X,newLine());
     		  incomeClosedLbl4.setLocation(column4X,yPosition);
     		  incomeClosedLbl3.setVisible(true);
@@ -1593,7 +1676,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	  upkeepLabel4.setLocation(column4X,yPosition);
     	  
     	  buildCostLabel3.setText("Build cost: ");
-    	  buildCostLabel4.setText(String.valueOf(sst.getBuildCost(null)));
+    	  buildCostLabel4.setText(String.valueOf(SpaceshipPureFunctions.getBuildCost(sst, null)));
     	  buildCostLabel3.setLocation(column3X,newLine());
     	  buildCostLabel4.setLocation(column4X,yPosition);
     
@@ -1609,9 +1692,9 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
         sb.append(" / ");
         if (sst.getWeaponsStrengthMedium() > 0){
         	sb.append(sst.getWeaponsStrengthMedium());
-        	if ((sst.getWeaponsMaxSalvoesMedium() > 0) & (sst.getWeaponsMaxSalvoesMedium() < Integer.MAX_VALUE)){
+        	if ((sst.getWeaponsMaxSalvosMedium() > 0) & (sst.getWeaponsMaxSalvosMedium() < Integer.MAX_VALUE)){
         		sb.append(" (");
-        		sb.append(sst.getWeaponsMaxSalvoesMedium());
+        		sb.append(sst.getWeaponsMaxSalvosMedium());
         		sb.append(")");
         	}
         }else{
@@ -1620,9 +1703,9 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
         sb.append(" / ");
         if (sst.getWeaponsStrengthLarge() > 0){
         	sb.append(sst.getWeaponsStrengthLarge());
-        	if ((sst.getWeaponsMaxSalvoesLarge() > 0) & (sst.getWeaponsMaxSalvoesLarge() < Integer.MAX_VALUE)){
+        	if ((sst.getWeaponsMaxSalvosLarge() > 0) & (sst.getWeaponsMaxSalvosLarge() < Integer.MAX_VALUE)){
         		sb.append(" (");
-        		sb.append(sst.getWeaponsMaxSalvoesLarge());
+        		sb.append(sst.getWeaponsMaxSalvosLarge());
         		sb.append(")");
         	}
         }else{
@@ -1631,9 +1714,9 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
         sb.append(" / ");
         if (sst.getWeaponsStrengthHuge() > 0){
         	sb.append(sst.getWeaponsStrengthHuge());
-        	if ((sst.getWeaponsMaxSalvoesHuge() > 0) & (sst.getWeaponsMaxSalvoesHuge() < Integer.MAX_VALUE)){
+        	if ((sst.getWeaponsMaxSalvosHuge() > 0) & (sst.getWeaponsMaxSalvosHuge() < Integer.MAX_VALUE)){
         		sb.append(" (");
-        		sb.append(sst.getWeaponsMaxSalvoesHuge());
+        		sb.append(sst.getWeaponsMaxSalvosHuge());
         		sb.append(")");
         	}
         }else{

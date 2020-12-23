@@ -11,6 +11,7 @@ import spaceraze.client.game.panels.planet.MiniPlanetPanel;
 import spaceraze.client.game.panels.planet.ShowPlanet;
 import spaceraze.client.game.panels.turninfo.TurnInfoPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Galaxy;
@@ -72,7 +73,7 @@ public class GameGUIPanel extends JPanel implements SRUpdateablePanel, ShowMapPl
 		map.setPlanets(p.getGalaxy().getPlanets(), p);
 		map.setSpaceships(p.getGalaxy().getPlayersSpaceships(p));
 		map.setOwnVips(p.getGalaxy().getPlayersVips(p));
-		map.setOwnTroops(p.getGalaxy().getPlayersTroops(p));
+		map.setOwnTroops(TroopPureFunctions.getPlayersTroops(p, p.getGalaxy()));
 		map.setOthersVips(p.getGalaxy().getAllVIPs());
 		map.setConnections(p.getGalaxy().getPlanetConnections(), p.getGalaxy());
 		map.computeNewOrigo();

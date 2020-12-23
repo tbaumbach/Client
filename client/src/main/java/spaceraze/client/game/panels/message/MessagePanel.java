@@ -487,6 +487,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
 	 * Perform infinite loop with pause, and update status
 	 */
 	public void run(){
+		//int messageSleepTime = 10000; // sleep for 10 sec
 		int messageSleepTime = 10000; // sleep for 10 sec
 		String messageSleepTimeProperty = null;
 		if (client.isRunAsApplication()){

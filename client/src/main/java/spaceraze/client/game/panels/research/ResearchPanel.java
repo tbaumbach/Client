@@ -370,7 +370,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 			 List<TroopType> tmpTroops = null;
 			 tmpTroops = researchAdvantage.getTroops();
 			 for (TroopType aTroopType : tmpTroops) {
-				 dlm.addElement(aTroopType.getUniqueName());
+				 dlm.addElement(aTroopType.getName());
 			 }
 			 troopsList.setLocation(columnUnitX , 259+ xpos);
 			 troopListLabel.setLocation(columnUnitX, 240+ xpos);

@@ -188,7 +188,7 @@ public class PlanetsPanel extends SRBasePanel implements SRUpdateablePanel, List
     	}else{
     		TroopInfoTextArea.setText("");
     		for (Troop aTroop : allTroops) {
-    			TroopInfoTextArea.append(aTroop.getUniqueName() + "\n");
+    			TroopInfoTextArea.append(aTroop.getName() + "\n");
 			}
     	}
     }

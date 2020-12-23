@@ -29,6 +29,7 @@ import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.player.CostPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
+import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
 import spaceraze.world.*;
@@ -64,7 +65,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 
 	public MiniTroopPanel(List<Troop> troops, Player player, SpaceRazePanel client, Planet aPlanet) {
 		this.troops = troops;
-		Collections.sort(this.troops, new TroopTypeAndBuildCostComparator());
+		Collections.sort(this.troops, new TroopTypeAndBuildCostComparator(player.getGalaxy().getGameWorld()));
 		this.player = player;
 		this.setLayout(null);
 		this.client = client;
@@ -199,16 +200,16 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			String prefix = "";
 			// add hits/ammo data
 			String dataStr = "�";
-			dataStr += Functions.getDataValue(aTroop.getCurrentDC(), aTroop.getMaxDC());
+			dataStr += Functions.getDataValue(aTroop.getCurrentDamageCapacity(), aTroop.getDamageCapacity());
 			dataStr += "�";
 			prefix += dataStr;
 			if (player.checkTroopToPlanetMove(aTroop)) {
 				prefix += "*";
-				dlm.addElement(prefix + aTroop.getUniqueName() + " (--> " + player.getTroopDestinationPlanetName(aTroop)
+				dlm.addElement(prefix + aTroop.getName() + " (--> " + player.getTroopDestinationPlanetName(aTroop)
 						+ ")");
 			} else if (player.checkTroopToCarrierMove(aTroop)) {
 				prefix += "*";
-				dlm.addElement(prefix + aTroop.getUniqueName() + " (--> "
+				dlm.addElement(prefix + aTroop.getName() + " (--> "
 						+ player.getTroopDestinationCarrierName(aTroop) + ")");
 			} else {
 				if (!aTroop.isSpaceshipTravel()) {
@@ -217,14 +218,14 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 					prefix += " ";
 				}
 				if (player.getTroopSelfDestruct(aTroop)) {
-					dlm.addElement(prefix + aTroop.getUniqueName() + " (selfdestruct)");
+					dlm.addElement(prefix + aTroop.getName() + " (selfdestruct)");
 				} else {
 					String carrierString = "";
 					Spaceship tempcarrier = aTroop.getShipLocation();
 					if (tempcarrier != null) {
 						carrierString = "(" + tempcarrier.getName() + ")";
 					}
-					dlm.addElement(prefix + aTroop.getUniqueName() + " " + carrierString);
+					dlm.addElement(prefix + aTroop.getName() + " " + carrierString);
 				}
 			}
 		}
@@ -241,7 +242,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			Logger.finer("ae.getSource() instanceof SRButton");
 
 			if (action.equalsIgnoreCase("View Details")) {
-				client.showTroopTypeDetails(currentTroop.getTroopType().getUniqueName(), "Yours");
+				client.showTroopTypeDetails(TroopPureFunctions.getTroopTypeByKey(currentTroop.getTypeKey(), player.getGalaxy().getGameWorld()).getName(), "Yours");
 			} else if (action.equalsIgnoreCase("Add to battleSim")) {
 				client.addToLandBattleSim(getTroopsAsString(), "A");
 				client.showLandBattleSim();
@@ -273,10 +274,10 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			if (semicolon) {
 				sb.append(";");
 			}
-			sb.append(aTroop.getTroopType().getUniqueName());
-			String abilities = aTroop.getBattleSimAbilities();
+			sb.append(TroopPureFunctions.getTroopTypeByKey(aTroop.getTypeKey(), player.getGalaxy().getGameWorld()).getName());
+			String abilities = getBattleSimAbilities(aTroop);
 			// append () if needed
-			String vips = player.getGalaxy().getAllBattleSimVipsOnTroop(aTroop);
+			String vips = getAllBattleSimVipsOnTroop(aTroop);
 			if (!vips.equals("")) {
 				if (!abilities.equals("")) {
 					abilities += ",";
@@ -289,6 +290,55 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 				sb.append(")");
 			}
 			semicolon = true;
+		}
+		return sb.toString();
+	}
+
+	private String getBattleSimAbilities(Troop troop){
+		StringBuffer sb = new StringBuffer();
+		if (troop.getKills() > 0){
+			sb.append("k:");
+			sb.append(String.valueOf(troop.getKills()));
+		}
+		if (troop.getTechWhenBuilt() > 0){
+			if (sb.length() > 0){
+				sb.append(",");
+			}
+			sb.append("t:");
+			sb.append(String.valueOf(troop.getTechWhenBuilt()));
+		}
+		if (troop.getCurrentDamageCapacity() < troop.getDamageCapacity()){
+			if (sb.length() > 0){
+				sb.append(",");
+			}
+			sb.append("d:");
+			double tmpDc1 = 1 - ((troop.getCurrentDamageCapacity() *1.0)/ troop.getDamageCapacity());
+			int tmpDc2 = (int)Math.round(tmpDc1*100);
+			if (tmpDc2 > 99){
+				tmpDc2 = 99;
+			}else
+			if (tmpDc2 < 1){
+				tmpDc2 = 1;
+			}
+			sb.append(String.valueOf(tmpDc2));
+		}
+		return sb.toString();
+	}
+
+	public String getAllBattleSimVipsOnTroop(Troop aTroop) {
+		StringBuffer sb = new StringBuffer();
+		List<VIP> vipsOnTroop = VipPureFunctions.findAllVIPsOnTroop(aTroop, player.getGalaxy().getAllVIPs());
+		List<VIP> battleVips = new LinkedList<VIP>();
+		for (VIP aVIP : vipsOnTroop) {
+			if (aVIP.isLandBattleVIP()) {
+				battleVips.add(aVIP);
+			}
+		}
+		for (VIP aVIP : battleVips) {
+			if (sb.length() > 0) {
+				sb.append(",");
+			}
+			sb.append(aVIP.getShortName());
 		}
 		return sb.toString();
 	}
@@ -330,7 +380,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 						if (!player.getTroopSelfDestruct(aTroop)) {
 							player.addTroopToCarrierMove(aTroop, null);
 							player.addTroopToPlanetMove(aTroop, newDestination);
-							Logger.finest("New order, add " + destinationName + " " + aTroop.getUniqueShortName());
+							Logger.finest("New order, add " + destinationName + " " + aTroop.getShortName());
 						}
 					}
 				} else {
@@ -341,7 +391,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 							player.addTroopToPlanetMove(aTroop, null);
 							player.addTroopToCarrierMove(aTroop, destinationCarrier);
 							Logger.finest("New order, add carrier move" + destinationName + " "
-									+ aTroop.getUniqueShortName());
+									+ aTroop.getShortName());
 						}
 					}
 				}
@@ -417,20 +467,20 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 
 			weaponsLabel.setVisible(true);
 			weaponsDamageLabel.setVisible(true);
-			nameLabel.setText(aTroop.getUniqueName() + " (" + aTroop.getUniqueShortName() + ")");
-			locationLabel.setText("Location: " + aTroop.getLocationString());
+			nameLabel.setText(aTroop.getName() + " (" + aTroop.getShortName() + ")");
+			locationLabel.setText("Location: " + TroopPureFunctions.getLocationString(aTroop));
 			weaponsInfantryLabel.setText("vs Infantry:");
-			weaponsInfantryLabel2.setText(String.valueOf(aTroop.getAttackInfantry()));
+			weaponsInfantryLabel2.setText(String.valueOf(TroopPureFunctions.getAttackInfantry(aTroop)));
 			weaponsArmorLabel.setText("vs Armor:");
-			weaponsArmorLabel2.setText(String.valueOf(aTroop.getAttackArmored()));
-			if (aTroop.getAttackArtillery() > 0) {
+			weaponsArmorLabel2.setText(String.valueOf(TroopPureFunctions.getAttackArmored(aTroop)));
+			if (TroopPureFunctions.getAttackArtillery(aTroop) > 0) {
 				weaponsArtilleryLabel.setText("Artillery:");
-				weaponsArtilleryLabel2.setText(String.valueOf(aTroop.getAttackArtillery()));
+				weaponsArtilleryLabel2.setText(String.valueOf(TroopPureFunctions.getAttackArtillery(aTroop)));
 			} else {
 				weaponsArtilleryLabel.setText("");
 				weaponsArtilleryLabel2.setText("");
 			}
-			dcLabel.setText("Hits: " + aTroop.getCurrentDC() + "/" + aTroop.getMaxDC());
+			dcLabel.setText("Hits: " + aTroop.getCurrentDamageCapacity() + "/" + aTroop.getDamageCapacity());
 			destinationLabel.setText("Destination: ");
 			upkeepLabel.setText("Upkeep: " + aTroop.getUpkeep());
 			killsLabel.setText("Kills: " + aTroop.getKills());
@@ -542,7 +592,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 	}
 
 	private void addVIPs() {
-		List<VIP> vipsOnTroop = player.getGalaxy().findAllVIPsOnTroop(currentTroop);
+		List<VIP> vipsOnTroop = VipPureFunctions.findAllVIPsOnTroop(currentTroop, player.getGalaxy().getAllVIPs());
 		if (vipsOnTroop.size() == 0) {
 			VIPInfoTextArea.setText("None");
 		} else {
@@ -647,7 +697,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 	 * @return
 	 */
 	private boolean playerHaveTroopsOnPlanet(Planet thePlanet) {
-		List<Troop> troopsOnPlanet = player.getGalaxy().findAllTroopsOnPlanet(planet);
+		List<Troop> troopsOnPlanet = TroopPureFunctions.findAllTroopsOnPlanet(player.getGalaxy().getTroops(), planet);
 		boolean found = false;
 		int index = 0;
 		while (!found & (index < troopsOnPlanet.size())) {

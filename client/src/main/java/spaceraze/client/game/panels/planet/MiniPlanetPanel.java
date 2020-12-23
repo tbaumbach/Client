@@ -23,6 +23,7 @@ import spaceraze.client.components.SRTextField;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.servlethelper.game.DiplomacyPureFunctions;
+import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetOrderStatusMutator;
 import spaceraze.servlethelper.game.planet.PlanetOrderStatusPureFunctions;
@@ -612,7 +613,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			if (troopMoves.size() > 0) {
 				for (TroopToPlanetMovement aTroopToPlanetMovement : troopMoves) {
 					Troop aTroop = aPlayer.getGalaxy().findTroop(aTroopToPlanetMovement.getTroopId());
-					messages.add("Can't abandon " + planet.getName() + " while " + aTroop.getUniqueName()
+					messages.add("Can't abandon " + planet.getName() + " while " + aTroop.getName()
 							+ " has a move order to the planet");
 				}
 			}
@@ -725,7 +726,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 				// show own planet CheckBoxes
 				showCheckBoxes(planet);
 
-				if (aPlayer.getGalaxy().getTroopsOnPlanet(planet, aPlayer).size() > 0) {
+				if (TroopPureFunctions.getTroopsOnPlanet(planet, aPlayer, aPlayer.getGalaxy().getTroops()).size() > 0) {
 					int cost = CostPureFunctions.getTroopsCostPlanet(aPlayer, planet, aPlayer.getGalaxy().getTroops());
 					troopsuportcost1.setText("Total troops cost: " + cost);
 					troopsuportcost1.setVisible(true);
@@ -954,7 +955,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 	}
 
 	private boolean playerAloneHaveTroopsOnPlanet(Galaxy g) {
-		List<Troop> allTroopsOnPlanet = g.findAllTroopsOnPlanet(planet);
+		List<Troop> allTroopsOnPlanet = TroopPureFunctions.findAllTroopsOnPlanet(g.getTroops(), planet);
 		boolean playerHaveTroopOnPlanet = false;
 		boolean otherPlayerHaveTroopsOnPlanet = false;
 		for (Troop aTroop : allTroopsOnPlanet) {

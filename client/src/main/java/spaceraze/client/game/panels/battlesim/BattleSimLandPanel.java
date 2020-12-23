@@ -303,7 +303,7 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
     			}
         	}
     		String tempName ="";
-			tempName = aTT.getUniqueName();
+			tempName = aTT.getName();
     		tempListNames.add(tempName);
     	}
 
@@ -350,7 +350,7 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
     	int i = 0;
     	while ((tt == null) & (i<troopTypes.size())){
     		TroopType temp = troopTypes.get(i);
-    		if (temp.getUniqueName().equalsIgnoreCase(findname)){
+    		if (temp.getName().equalsIgnoreCase(findname)){
     			tt = temp;
     		}else{
     			i++;
@@ -536,7 +536,7 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
 	    		appendString += "[" + nrTF.getText() + "]";
 	    	}
 	    	if (tt != null){
-	    		appendString += tt.getUniqueName();
+	    		appendString += tt.getName();
 	    	}
 			boolean addParanthesis = checkAddParanthesis();
 			boolean addComma = false;
