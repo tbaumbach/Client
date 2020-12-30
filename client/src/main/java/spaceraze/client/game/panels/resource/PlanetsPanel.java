@@ -202,7 +202,7 @@ public class PlanetsPanel extends SRBasePanel implements SRUpdateablePanel, List
     	}else{
     		VIPInfoTextArea.setText("");
     		for (VIP aVIP : allVIPs){
-    			VIPInfoTextArea.append(aVIP.getName() + "\n");
+    			VIPInfoTextArea.append(VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), player.getGalaxy().getGameWorld()).getName() + "\n");
     		}
     	}
     }

@@ -381,7 +381,7 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
         }
         canbuildlbl.setVisible(true);
 	        
-        costLabel.setText("Build Cost: " + buildingType.getBuildCost(null));
+        costLabel.setText("Build Cost: " + buildingType.getBuildCost(0));
 		costLabel.setVisible(true);
 		 
 		repaint();

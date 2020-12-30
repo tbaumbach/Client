@@ -25,6 +25,7 @@ import spaceraze.servlethelper.game.DiplomacyPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
+import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.map.MapPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
@@ -414,7 +415,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 							if (tempPlanet.getPlayerInControl() != null) {
 								planetOwner = tempPlanet.getPlayerInControl().getGovernorName();
 							}
-							boolean spy = (player.getGalaxy().findVIPSpy(tempPlanet, player) != null);
+							boolean spy = VipPureFunctions.findVIPSpy(tempPlanet, player, player.getGalaxy()) != null;
 							boolean shipInSystem = player.getGalaxy().playerHasShipsInSystem(player, tempPlanet);
 							boolean troopInSystem = false;
 							if (TroopPureFunctions.getTroopsOnPlanet(tempPlanet, player, player.getGalaxy().getTroops()).size() > 0) {
@@ -617,7 +618,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 										// System.out.println("tmpVips.size() = " + tmpVips.size());
 										for (Iterator<VIP> iter = tmpVips.iterator(); iter.hasNext();) {
 											VIP aVIP = iter.next();
-											tmpShipStr = tmpShipStr + aVIP.getShortName();
+											tmpShipStr = tmpShipStr + VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), player.getGalaxy().getGameWorld()).getShortName();
 											if (iter.hasNext()) {
 												tmpShipStr = tmpShipStr + ",";
 											}
@@ -682,7 +683,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 										tmpTroopStr = tmpTroopStr + " (";
 										for (Iterator<VIP> iter2 = vipsOnTroops.iterator(); iter2.hasNext();) {
 											VIP aVIP = iter2.next();
-											tmpTroopStr = tmpTroopStr + aVIP.getShortName();
+											tmpTroopStr = tmpTroopStr + VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), player.getGalaxy().getGameWorld()).getShortName();
 											if (iter2.hasNext()) {
 												tmpTroopStr = tmpTroopStr + ",";
 											}
@@ -717,7 +718,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 									if ((tempv.getBoss() == player) | (c.isOpen())) {
 										bg.setColor(ColorConverter.getColorFromHexString(
 												tempv.getBoss().getFaction().getPlanetHexColor()));
-										String tmpName = tempv.getShortName();
+										String tmpName = VipPureFunctions.getVipTypeByKey(tempv.getTypeKey(), player.getGalaxy().getGameWorld()).getShortName();
 										FontMetrics fm = g.getFontMetrics();
 										int tmpWidth = fm.stringWidth(tmpName);
 										bg.drawString(tmpName, newx - (size / 2) - 3 - tmpWidth, currenty);
@@ -864,9 +865,9 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 		}
 
 		// int counter = 0;
-		if ((player.getGalaxy().isPlayerShipAtPlanet(player, tempPlanet)) | troopInSystem
-				| (tempPlanet.getPlayerInControl() == player) | (tempPlanet.isOpen())
-				| (player.getGalaxy().findVIPSpy(tempPlanet, player) != null)) {
+		if (player.getGalaxy().isPlayerShipAtPlanet(player, tempPlanet) || troopInSystem
+				|| tempPlanet.getPlayerInControl() == player || tempPlanet.isOpen()
+				|| VipPureFunctions.findVIPSpy(tempPlanet, player, player.getGalaxy()) != null) {
 			List<Player> allp = player.getGalaxy().getPlayers();
 			// loopa igenom alla spelare och kolla efter flottor
 			for (int i = 0; i < allp.size(); i++) {
@@ -906,14 +907,14 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 		String troopString = "";
 
 		boolean surveyShip = SpaceshipPureFunctions.findSurveyShip(tempPlanet, player, player.getGalaxy().getSpaceships(), player.getGalaxy().getGameWorld()) != null;
-		boolean surveyVIP = (player.getGalaxy().findSurveyVIPonShip(tempPlanet, player) != null);
+		boolean surveyVIP = VipPureFunctions.findSurveyVIPonShip(tempPlanet, player, player.getGalaxy()) != null;
 
-		if ((tempPlanet.getPlayerInControl() == player) | (player.getGalaxy().findVIPSpy(tempPlanet, player) != null)
-				| surveyShip | surveyVIP) {
+		if (tempPlanet.getPlayerInControl() == player || VipPureFunctions.findVIPSpy(tempPlanet, player, player.getGalaxy()) != null
+				|| surveyShip || surveyVIP) {
 			List<Player> allp = player.getGalaxy().getPlayers();
 			// loopa igenom alla spelare och kolla efter flottor
 			for (int i = 0; i < allp.size(); i++) {
-				Player tempPlayer = (Player) allp.get(i);
+				Player tempPlayer = allp.get(i);
 				if (tempPlayer != player && tempPlayer != tempPlanet.getPlayerInControl()) {
 					int numberOfTroops = TroopPureFunctions.getTroopsOnPlanet(tempPlanet, tempPlayer, player.getGalaxy().getTroops()).size();
 					if (numberOfTroops > 0) {
@@ -1140,14 +1141,14 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 		Coors c;
 		for (int i = 0; i < planets.size(); i++) {
 			Planet p = (Planet) planets.get(i);
-			boolean spy = (aPlayer.getGalaxy().findVIPSpy(p, aPlayer) != null);
+			boolean spy = VipPureFunctions.findVIPSpy(p, aPlayer, aPlayer.getGalaxy()) != null;
 
 			boolean troopInSystem = false;
 			if (TroopPureFunctions.getTroopsOnPlanet(p, aPlayer, player.getGalaxy().getTroops()).size() > 0) {
 				troopInSystem = true;
 			}
 			boolean surveyShip = SpaceshipPureFunctions.findSurveyShip(p, aPlayer, aPlayer.getGalaxy().getSpaceships(), aPlayer.getGalaxy().getGameWorld()) != null;
-			boolean surveyVIP = (aPlayer.getGalaxy().findSurveyVIPonShip(p, aPlayer) != null);
+			boolean surveyVIP =  VipPureFunctions.findSurveyVIPonShip(p, aPlayer, aPlayer.getGalaxy()) != null;
 			// c = new Coors(p.getXcoor()-50, p.getYcoor()-50, p.getZcoor()-50); varf�r -50?
 			c = new Coors(p.getX(), p.getY(), p.getZ());
 			c.setName(p.getName());
@@ -1263,8 +1264,8 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 			// null));
 			// LoggingHandler.fine("VIP: " + tempv.getName() + " " +
 			// tempv.getLocationString());
-			if (tempv.getLocation() != null) {
-				foundCoor = findCoors(tempv.getLocation().getName());
+			if (VipPureFunctions.getLocation(tempv) != null) {
+				foundCoor = findCoors(VipPureFunctions.getLocation(tempv).getName());
 				if (foundCoor != null) {
 					// LoggingHandler.fine("coor found!");
 					foundCoor.addVip(tempv);
@@ -1313,12 +1314,12 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 			// null));
 			// LoggingHandler.fine("-VIP: " + tempv.getName() + " " +
 			// tempv.getLocationString());
-			if (tempv.getLocation() != null) {
-				foundCoor = findCoors(tempv.getLocation().getName());
+			if (VipPureFunctions.getLocation(tempv) != null) {
+				foundCoor = findCoors(VipPureFunctions.getLocation(tempv).getName());
 				if (foundCoor != null) {
 					if (!tempv.getBoss().isPlayer(player)) {
 						// LoggingHandler.fine("other player found!");
-						if (tempv.getShowOnOpenPlanet()) {
+						if (VipPureFunctions.getVipTypeByKey(tempv.getTypeKey(), player.getGalaxy().getGameWorld()).getShowOnOpenPlanet()) {
 							// LoggingHandler.fine("show on open planet!");
 							foundCoor.addVip(tempv);
 						}

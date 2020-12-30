@@ -16,6 +16,7 @@ import spaceraze.client.components.SRTable;
 import spaceraze.client.components.SRTableHeader;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.game.GameGUIPanel;
+import spaceraze.client.game.panels.planet.MiniShipPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
@@ -123,8 +124,8 @@ public class ShipsPanel extends SRBasePanel implements SRUpdateablePanel, ListSe
 			if (SpaceshipPureFunctions.getRange(aShip, g) == SpaceshipRange.NONE){
 				shipTable.setValueAt("-", i, 2);
 			}else
-			if (player.checkShipMove(aShip)){
-				shipTable.setValueAt(player.getShipDestinationName(aShip), i, 2);
+			if (SpaceshipPureFunctions.checkShipMove(aShip, player.getOrders())){
+				shipTable.setValueAt(MiniShipPanel.getShipDestinationName(aShip, player.getGalaxy(), player.getOrders()), i, 2);
 			}
 			Logger.finer("Scr1" + aShip.isScreened());
 			Logger.finer("Scr2" + player.getOrders().checkScreenedShip(aShip));
@@ -200,14 +201,14 @@ public class ShipsPanel extends SRBasePanel implements SRUpdateablePanel, ListSe
     	}else{
     		VIPInfoTextArea.setText("");
     		for (VIP aVIP : allVIPs){
-    			VIPInfoTextArea.append(aVIP.getName() + "\n");
+    			VIPInfoTextArea.append(VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), player.getGalaxy().getGameWorld()).getName() + "\n");
     		}
     	}
     }
 	
     private void showSpaceship(int rowIndex){
     	String shipName = (String)shipTable.getValueAt(rowIndex, 0);
-    	Spaceship ss = g.findSpaceship(shipName, player);
+    	Spaceship ss = SpaceshipPureFunctions.findSpaceship(shipName, player, g);
     	currentss = ss;
     	addTroops();
         addVIPs();

@@ -30,6 +30,7 @@ import spaceraze.client.components.SRTextField;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
+import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Faction;
@@ -222,7 +223,7 @@ public class BattleSimPanel extends SRBasePanel
 	}
 
 	private void fillVipsList() {
-		List<VIPType> tmpVipTypes = p.getGalaxy().getGameWorld().getBattleVIPtypes();
+		List<VIPType> tmpVipTypes = VipPureFunctions.getSpaceBattleVipTypes(p.getGalaxy().getGameWorld());
 		Collections.sort(tmpVipTypes, new VIPTypeComparator());
 		DefaultListModel dlm = (DefaultListModel) vipsList.getModel();
 		for (int i = 0; i < tmpVipTypes.size(); i++) {

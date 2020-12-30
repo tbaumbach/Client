@@ -36,10 +36,7 @@ import spaceraze.world.*;
 import spaceraze.world.diplomacy.DiplomacyLevel;
 import spaceraze.world.enums.SpaceShipSize;
 import spaceraze.world.enums.SpaceshipRange;
-import spaceraze.world.orders.Orders;
-import spaceraze.world.orders.PlanetNotesChange;
-import spaceraze.world.orders.TroopToPlanetMovement;
-import spaceraze.world.orders.VIPMovement;
+import spaceraze.world.orders.*;
 import spaceraze.battlehandler.spacebattle.TaskForce;
 
 public class MiniPlanetPanel extends SRBasePanel implements ActionListener, ListSelectionListener {
@@ -331,7 +328,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 				sb.append(SpaceshipPureFunctions.getSpaceshipTypeByKey(aShip.getTypeKey(), aPlayer.getGalaxy().getGameWorld()).getName());
 				String abilities = MiniShipPanel.getBattleSimAbilities(aShip);
 				// append () if needed
-				String vips = SpaceshipPureFunctions.getAllBattleSimVipsOnShip(aShip, aPlayer.getGalaxy().getAllVIPs());
+				String vips = SpaceshipPureFunctions.getAllBattleSimVipsOnShip(aShip, aPlayer.getGalaxy().getAllVIPs(), aPlayer.getGalaxy().getGameWorld());
 				if (!vips.equals("")) {
 					if (!abilities.equals("")) {
 						abilities += ",";
@@ -561,7 +558,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			if (troopsOnPlanet.size() > 0) {
 				messages.add("Planets can't be abandoned while there are troops on the planet");
 			}
-			VIP gov = aPlayer.getGalaxy().findVIPGovenor(planet, aPlayer);
+			VIP gov = findVIPGovenor(planet, aPlayer, aPlayer.getGalaxy());
 			if (gov != null) {
 				messages.add("Planets can't be abandoned while your Governor are on the planet");
 			}
@@ -576,7 +573,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 					} else {
 						Player owner = aShipOnPlanet.getOwner();
 						if (owner != null) { // check for move orders to planet
-							String destName = owner.getShipDestinationName(aShipOnPlanet);
+							String destName = MiniShipPanel.getShipDestinationName(aShipOnPlanet, owner.getGalaxy(), owner.getOrders());
 							if (destName.equals(planet.getName())) {
 								allIsSquadronsInCarrier = false;
 							}
@@ -593,26 +590,28 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			// neutrala planeter
 			List<VIP> vipsOnPlanet = VipPureFunctions.findPlayersVIPsOnPlanet(planet, aPlayer, aPlayer.getGalaxy());
 			for (VIP aVip : vipsOnPlanet) {
-				if (!aVip.canVisitEnemyPlanets() & !aVip.canVisitNeutralPlanets()) {
-					messages.add("Can't abandon " + planet.getName() + " while " + aVip.getName() + " is on the planet");
+				VIPType vipType = VipPureFunctions.getVipTypeByKey(aVip.getTypeKey(), aPlayer.getGalaxy().getGameWorld());
+				if ((!vipType.isCanVisitEnemyPlanets() && !vipType.isCanVisitNeutralPlanets()) || vipType.isGovernor()) {
+					messages.add("Can't abandon " + planet.getName() + " while " + vipType.getName() + " is on the planet");
 				}
 			}
 			// får ej finnas flyttorder för vippar som ej kan vara på neutrala
-			List<VIPMovement> vipMoves = aPlayer.getOrders().getVIPMoves(planet);
+			List<VIPMovement> vipMoves = VipPureFunctions.getVIPMoves(planet, aPlayer.getOrders());
 			if (vipMoves.size() > 0) {
 				for (VIPMovement aVIPMovement : vipMoves) {
-					VIP aVIP = aPlayer.getGalaxy().findVIP(aVIPMovement.getVIPId());
-					if (!aVIP.canVisitEnemyPlanets() | !aVIP.canVisitNeutralPlanets()) {
-						messages.add("Can't abandon " + planet.getName() + " while " + aVIP.getName()
+					VIP aVIP = VipPureFunctions.findVIP(aVIPMovement.getVipKey(), aPlayer.getGalaxy());
+					VIPType vipType = VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), aPlayer.getGalaxy().getGameWorld());
+					if ((!vipType.isCanVisitEnemyPlanets() && !vipType.isCanVisitNeutralPlanets()) || vipType.isGovernor()) {
+						messages.add("Can't abandon " + planet.getName() + " while " + vipType.getName()
 								+ " has a move order to the planet");
 					}
 				}
 			}
 			// får ej finnas moveorder på trupper till planeten
-			List<TroopToPlanetMovement> troopMoves = aPlayer.getOrders().getTroopToPlanetMoves(planet);
+			List<TroopToPlanetMovement> troopMoves = getTroopToPlanetMoves(planet, aPlayer.getOrders());
 			if (troopMoves.size() > 0) {
 				for (TroopToPlanetMovement aTroopToPlanetMovement : troopMoves) {
-					Troop aTroop = aPlayer.getGalaxy().findTroop(aTroopToPlanetMovement.getTroopId());
+					Troop aTroop = TroopPureFunctions.findTroop(aTroopToPlanetMovement.getTroopKey(),  aPlayer.getGalaxy());
 					messages.add("Can't abandon " + planet.getName() + " while " + aTroop.getName()
 							+ " has a move order to the planet");
 				}
@@ -641,6 +640,39 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			checkAbandon(false);
 			client.updateTreasuryLabel();
 		}
+	}
+
+	private VIP findVIPGovenor(Planet aPlanet, Player aPlayer, Galaxy galaxy) {
+		VIP foundVIP = null;
+		int i = 0;
+		while ((foundVIP == null) & (i < galaxy.getAllVIPs().size())) {
+			VIP tempVIP = galaxy.getAllVIPs().get(i);
+			if ((VipPureFunctions.getVipTypeByKey(tempVIP.getTypeKey(), galaxy.getGameWorld()).isGovernor()) & (tempVIP.getBoss() == aPlayer) & (tempVIP.getPlanetLocation() == aPlanet)) {
+				foundVIP = tempVIP;
+			} else {
+				i++;
+			}
+		}
+		return foundVIP;
+	}
+
+	public static Planet getDestination(Spaceship tempss, Galaxy aGalaxy, Orders orders) {
+		ShipMovement shipMovement = orders.getShipMoves().stream()
+				.filter(movement -> tempss.getKey().equalsIgnoreCase(movement.getSpaceshipKey())).findAny().orElse(null);
+
+		return shipMovement == null ? null : PlanetPureFunctions.getPlanet(shipMovement.getPlanetName(), aGalaxy);
+	}
+
+
+	// count how many troops are ordered to move to a planet
+	public List<TroopToPlanetMovement> getTroopToPlanetMoves(Planet aPlanet, Orders orders) {
+		List<TroopToPlanetMovement> troopMoves = new LinkedList<TroopToPlanetMovement>();
+		for (TroopToPlanetMovement aTroopToPlanetMove : orders.getTroopToPlanetMoves()) {
+			if (aPlanet.getName().equalsIgnoreCase(aTroopToPlanetMove.getPlanetName())) {
+				troopMoves.add(aTroopToPlanetMove);
+			}
+		}
+		return troopMoves;
 	}
 
 	private List<Spaceship> findPlayersSpaceshipsOnPlanet(Player aPlayer, Planet aPlanet, SpaceshipRange range, Galaxy galaxy) {
@@ -681,7 +713,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			} else {
 				notesTextfield.setText(PlanetPureFunctions.findPlanetInfo(planet.getName(), aPlayer.getPlanetInformations()).getNotes());
 			}
-			boolean spy = (g.findVIPSpy(planet, aPlayer) != null);
+			boolean spy = VipPureFunctions.findVIPSpy(planet, aPlayer, g) != null;
 			// visa alltid vem som kontrollerar planeten eller vem som senast n�r planeten
 			// var öppen kontrollerade planeten
 			if (planet.isRazedAndUninfected()) { // if planet is infestated with aliens it cannot be reconstructed
@@ -750,7 +782,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			} else {
 				if (planet.isOpen() | (aPlayer.getGalaxy().playerHasShipsInSystem(aPlayer, planet)) | (spy)) {
 					boolean surveyShip = SpaceshipPureFunctions.findSurveyShip(planet, aPlayer, g.getSpaceships(), g.getGameWorld()) != null;
-					boolean surveyVIP = (aPlayer.getGalaxy().findSurveyVIPonShip(planet, aPlayer) != null);
+					boolean surveyVIP = VipPureFunctions.findSurveyVIPonShip(planet, aPlayer, aPlayer.getGalaxy()) != null;
 					if (planet.isOpen() | surveyShip | surveyVIP | spy) {
 						maxProdLabel.setVisible(true);
 						maxProdLabel2.setVisible(true);
@@ -864,7 +896,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			// till byggnaden. Blir fellänkat.
 			if (aPlayer != planet.getPlayerInControl() && (((planet.isOpen() && !planet.isBesieged()) || (spy)
 					|| SpaceshipPureFunctions.findSurveyShip(planet, aPlayer, g.getSpaceships(), g.getGameWorld()) != null)
-					|| (aPlayer.getGalaxy().findSurveyVIPonShip(planet, aPlayer) != null))) {
+					|| VipPureFunctions.findSurveyVIPonShip(planet, aPlayer, aPlayer.getGalaxy()) != null)) {
 				if (allBuildings.size() > 0) {
 					List<Building> visibleBuildings = new ArrayList<Building>();
 					for (int i = 0; i < allBuildings.size(); i++) {
@@ -905,7 +937,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 				if (allVIPs.size() > 0) {
 					List<VIP> visibleVIPs = new ArrayList<VIP>();
 					for (int i = 0; i < allVIPs.size(); i++) {
-						if (allVIPs.get(i).getShowOnOpenPlanet()
+						if (VipPureFunctions.getVipTypeByKey(allVIPs.get(i).getTypeKey(), g.getGameWorld()).getShowOnOpenPlanet()
 								&& allVIPs.get(i).getBoss() == planet.getPlayerInControl()) {
 							visibleVIPs.add(allVIPs.get(i));
 						}
@@ -925,8 +957,8 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 
 						DefaultListModel dlm = (DefaultListModel) allVIPlist.getModel();
 						for (int i = 0; i < visibleVIPs.size(); i++) {
-							VIP aVIP = (VIP) visibleVIPs.get(i);
-							dlm.addElement(aVIP.getName());
+							VIP aVIP = visibleVIPs.get(i);
+							dlm.addElement(VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), aPlayer.getGalaxy().getGameWorld()).getName());
 						}
 						allVIPlist.updateScrollList();
 

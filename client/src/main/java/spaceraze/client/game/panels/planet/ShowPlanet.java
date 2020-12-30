@@ -133,7 +133,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 			panelIndex++;
 		}
 
-		if (aPlayer.getGalaxy().isPlayerVIPAtPlanet(aPlayer, aPlanet)
+		if (VipPureFunctions.isPlayerVIPAtPlanet(aPlayer, aPlanet, aPlayer.getGalaxy())
 				&& !(aPlayer.isDefeated() | aPlayer.getGalaxy().isGameOver())) {
 			tabbedPanel.addTab("VIPs", tempPanel("VIPs"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "VIPs");
@@ -160,12 +160,12 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		bg.setColor(Color.black);
 		bg.fillRect(0, 0, d.width, d.height);
 		// draw planet
-		boolean spy = aPlayer.getGalaxy().findVIPSpy(aPlanet, aPlayer) != null;
+		boolean spy = VipPureFunctions.findVIPSpy(aPlanet, aPlayer, aPlayer.getGalaxy()) != null;
 		;
 		boolean shipInSystem = aPlayer.getGalaxy().playerHasShipsInSystem(aPlayer, aPlanet);
 		boolean lastKnownRazed = PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).isRazed();
 		boolean surveyShip = SpaceshipPureFunctions.findSurveyShip(aPlanet, aPlayer, aPlayer.getGalaxy().getSpaceships(), aPlayer.getGalaxy().getGameWorld()) != null;
-		boolean surveyVIP = (aPlayer.getGalaxy().findSurveyVIPonShip(aPlanet, aPlayer) != null);
+		boolean surveyVIP = VipPureFunctions.findSurveyVIPonShip(aPlanet, aPlayer, aPlayer.getGalaxy()) != null;
 		boolean razed = aPlanet.isRazed() & (aPlanet.getPlayerInControl() == null);
 		// if player is present in system or was it razed at the last visit
 		if ((razed & (shipInSystem | spy)) | lastKnownRazed) {

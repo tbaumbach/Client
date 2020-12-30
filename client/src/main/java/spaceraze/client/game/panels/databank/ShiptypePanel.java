@@ -1227,7 +1227,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	  upkeepLabel2.setLocation(column2X,yPosition);
     	  
     	  buildCostLabel.setText("Build cost: ");
-    	  buildCostLabel2.setText(String.valueOf(SpaceshipPureFunctions.getBuildCost(sst, null)));
+    	  buildCostLabel2.setText(String.valueOf(SpaceshipPureFunctions.getBuildCost(sst, 0)));
     	  buildCostLabel.setLocation(column1X,newLine());
     	  buildCostLabel2.setLocation(column2X,yPosition);
     	  
@@ -1676,7 +1676,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	  upkeepLabel4.setLocation(column4X,yPosition);
     	  
     	  buildCostLabel3.setText("Build cost: ");
-    	  buildCostLabel4.setText(String.valueOf(SpaceshipPureFunctions.getBuildCost(sst, null)));
+    	  buildCostLabel4.setText(String.valueOf(SpaceshipPureFunctions.getBuildCost(sst, 0)));
     	  buildCostLabel3.setLocation(column3X,newLine());
     	  buildCostLabel4.setLocation(column4X,yPosition);
     

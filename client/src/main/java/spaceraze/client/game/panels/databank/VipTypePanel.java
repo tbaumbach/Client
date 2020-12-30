@@ -20,6 +20,7 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Alignment;
 import spaceraze.world.Faction;
@@ -243,7 +244,7 @@ public class VipTypePanel extends SRBasePanel implements ListSelectionListener, 
     
     private VIPType findVIPType(String findname){
         VIPType vt = null;
-        vt = p.getGalaxy().findVIPType(findname);
+        vt = VipPureFunctions.getVipTypeByName(findname, p.getGalaxy().getGameWorld());
         return vt;
       }
     
@@ -299,7 +300,7 @@ public class VipTypePanel extends SRBasePanel implements ListSelectionListener, 
       if (vt != null){
           nameLbl2.setText(vt.getName());
           shortNameLbl2.setText(vt.getShortName());
-          alignmentLbl2.setText(vt.getAlignmentString());
+          alignmentLbl2.setText(vt.getAlignment().toString());
           frequencyLbl2.setText(vt.getFrequencyString());
           /*
           if (filterChoice.getSelectedIndex() >= 1){
@@ -313,7 +314,7 @@ public class VipTypePanel extends SRBasePanel implements ListSelectionListener, 
           
           // abilities textarea
           abilitiesTextArea.setText("");
-          List<String> ablities = vt.getAbilitiesStrings();
+          List<String> ablities = VipPureFunctions.getAbilitiesStrings(vt);
           for (String anAbility : ablities) {
         	  abilitiesTextArea.append(anAbility + "\n");
           }

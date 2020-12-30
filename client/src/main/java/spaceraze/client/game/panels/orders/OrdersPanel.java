@@ -9,14 +9,13 @@ import java.util.List;
 import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.scrollable.TextAreaPanel;
+import spaceraze.client.game.panels.resource.VIPsPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.expenses.ExpensePureFunction;
-import spaceraze.world.Building;
-import spaceraze.world.Galaxy;
-import spaceraze.world.Planet;
-import spaceraze.world.Player;
-import spaceraze.world.Spaceship;
-import spaceraze.world.VIP;
+import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
+import spaceraze.servlethelper.game.troop.TroopPureFunctions;
+import spaceraze.servlethelper.game.vip.VipPureFunctions;
+import spaceraze.world.*;
 import spaceraze.world.orders.Expense;
 import spaceraze.world.orders.Orders;
 import spaceraze.world.orders.PlanetNotesChange;
@@ -80,11 +79,11 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	infoarea.append(sepLine);
     	for (int j = 0; j < shipMovements.size(); j++){
     		ShipMovement tempShipMovement = shipMovements.get(j);
-    		infoarea.append(tempShipMovement.getText(g) + "\n");
+    		infoarea.append(getText(tempShipMovement, g) + "\n");
     	}
     	List<ShipToCarrierMovement> stcmList = orders.getShipToCarrierMoves();
     	for (ShipToCarrierMovement movement : stcmList) {
-    		infoarea.append(movement.getText(g) + "\n");
+    		infoarea.append(getText(movement, g) + "\n");
     	}
     	infoarea.append("\n");
     }
@@ -97,10 +96,10 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
         	infoarea.append("Troop movements\n");
         	infoarea.append(sepLine);
         	for (TroopToCarrierMovement troopToCarrierMovement : ttcm) {
-        		infoarea.append(troopToCarrierMovement.getText(g) + "\n");
+        		infoarea.append(getText(troopToCarrierMovement, g) + "\n");
         	}
         	for (TroopToPlanetMovement troopToPlanetMovement : ttpm) {
-        		infoarea.append(troopToPlanetMovement.getText(g) + "\n");
+        		infoarea.append(getText(troopToPlanetMovement, g) + "\n");
         	}
         	infoarea.append("\n");
         }
@@ -154,7 +153,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	infoarea.append("Selfdestruct VIPs" + "\n");
     	infoarea.append(sepLine);
     	for (int v = 0; v < tempVIPs.size(); v++){
-    		VIP tempVIP = g.findVIP( tempVIPs.get(v));
+    		VIPType tempVIP = VipPureFunctions.getVipTypeByKey(tempVIPs.get(v), g.getGameWorld());
     		infoarea.append("VIP " + tempVIP.getName() + " is to be retired." + "\n");
     	}
     	infoarea.append("\n");
@@ -195,7 +194,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	infoarea.append(sepLine);
     	for (int s = 0; s < vipMovementa.size(); s++){
     		VIPMovement tempVIPMovement = vipMovementa.get(s);
-    		infoarea.append(tempVIPMovement.getText(g) + "\n");
+    		infoarea.append(getText(tempVIPMovement, g) + "\n");
     	}
     	infoarea.append("\n");
     }
@@ -243,5 +242,46 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	paintChildren(getGraphics());
     }
   }
+
+	private String getText(ShipMovement shipMovement, Galaxy aGalaxy) {
+		Spaceship spaceship = SpaceshipPureFunctions.findSpaceship(shipMovement.getSpaceshipKey(), aGalaxy);
+		return "Move " + spaceship.getName() + " from "
+				+ spaceship.getName() + " to "
+				+ shipMovement.getPlanetName() + ".";
+	}
+
+	private String getText(VIPMovement vipMovement, Galaxy aGalaxy) {
+		return "Move " + VipPureFunctions.getVipTypeByKey(VipPureFunctions.findVIP(vipMovement.getVipKey(), aGalaxy).getTypeKey(), aGalaxy.getGameWorld()).getName() + " from " + VipPureFunctions.getLocationString(VipPureFunctions.findVIP(vipMovement.getVipKey(), aGalaxy)) + " to " + VIPsPanel.getDestinationName(vipMovement, aGalaxy) + ".";
+	}
+
+	public String getText(ShipToCarrierMovement shipToCarrierMovement, Galaxy aGalaxy) {
+		Spaceship aSpaceship = SpaceshipPureFunctions.findSpaceship(shipToCarrierMovement.getSpaceShipKey(), aGalaxy);
+		Spaceship aSpaceshipCarrier = SpaceshipPureFunctions.findSpaceship(shipToCarrierMovement.getDestinationCarrierKey(), aGalaxy);
+
+		String retStr;
+		if (aSpaceship.getLocation() != null) {
+			retStr = "Move " + aSpaceship.getName() + " from " + aSpaceship.getLocation().getName() + " to " + aSpaceshipCarrier.getName() + ".";
+		} else {
+			retStr = "Move " + aSpaceship.getName() + " from " + aSpaceship.getCarrierLocation().getName() + " to " + aSpaceshipCarrier.getName() + ".";
+		}
+		return retStr;
+	}
+
+	public String getText(TroopToCarrierMovement troopToCarrierMovement, Galaxy aGalaxy){
+		Troop aTroop = TroopPureFunctions.findTroop(troopToCarrierMovement.getTroopKey(), aGalaxy);
+		Spaceship destinationCarrier = SpaceshipPureFunctions.findSpaceship(troopToCarrierMovement.getDestinationCarrierKey(), aGalaxy);
+		String retStr = null;
+		if (aTroop.getPlanetLocation() != null){
+			retStr = "Move " + aTroop.getName() + " from " + aTroop.getPlanetLocation().getName() + " to " + destinationCarrier.getName() + ".";
+		}else{ // move from ship to ship
+			retStr = "Move " + aTroop.getName() + " from " + aTroop.getShipLocation().getName() + " to " + destinationCarrier.getName() + ".";
+		}
+		return retStr;
+	}
+
+	private String getText(TroopToPlanetMovement troopToPlanetMovement, Galaxy aGalaxy) {
+		Troop aTroop = TroopPureFunctions.findTroop(troopToPlanetMovement.getTroopKey(), aGalaxy);
+		return "Move " + aTroop.getName() + " from " + aTroop.getShipLocation().getName() + " to " + troopToPlanetMovement.getDestinationName() + ".";
+	}
 
 }

@@ -627,7 +627,7 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
 	        
 	        buildCostLbl.setText("Build Cost: ");
 	        buildCostLbl.setLocation(column1X, yPosition);
-	        buildCostLbl2.setText(String.valueOf(TroopPureFunctions.getCostBuild(troopType,null)));
+	        buildCostLbl2.setText(String.valueOf(TroopPureFunctions.getCostBuild(troopType,0)));
 	        buildCostLbl2.setLocation(column2X, yPosition);
 	        newLine();
 	        
@@ -834,7 +834,7 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
 	        buildCostLbl3.setText("Build Cost: ");
 	        buildCostLbl3.setLocation(column3X, yPosition);
 	        buildCostLbl3.setVisible(true);
-	        buildCostLbl4.setText(String.valueOf(TroopPureFunctions.getCostBuild(troopTypeToCompare,null)));
+	        buildCostLbl4.setText(String.valueOf(TroopPureFunctions.getCostBuild(troopTypeToCompare,0)));
 	        buildCostLbl4.setLocation(column4X, yPosition);
 	        buildCostLbl4.setVisible(true);
 	        newLine();

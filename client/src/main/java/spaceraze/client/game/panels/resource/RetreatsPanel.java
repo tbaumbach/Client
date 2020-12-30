@@ -18,6 +18,7 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
+import spaceraze.client.game.panels.planet.MiniShipPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.Logger;
@@ -127,7 +128,7 @@ public class RetreatsPanel extends SRBasePanel implements SRUpdateablePanel, Act
     		// set up ship for destruction
     		player.addShipSelfDestruct(currentss);
     		// remove any old moveorder for that ship
-    		player.addShipMove(currentss,null);
+    		MiniShipPanel.addNewShipMove(currentss,null, player.getOrders());
     	}else{
             player.removeShipSelfDestruct(currentss);
     	}
@@ -158,7 +159,7 @@ public class RetreatsPanel extends SRBasePanel implements SRUpdateablePanel, Act
     	}else{
     		VIPInfoTextArea.setText("");
     		for (VIP aVIP : allVIPs){
-    			VIPInfoTextArea.append(aVIP.getName() + "\n");
+    			VIPInfoTextArea.append(VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), player.getGalaxy().getGameWorld()).getName() + "\n");
     		}
     	}
     }
