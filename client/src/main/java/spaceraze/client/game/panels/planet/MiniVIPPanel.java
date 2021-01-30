@@ -20,6 +20,7 @@ import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.components.scrollable.TextAreaPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.panels.resource.VIPsPanel;
+import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.player.CostPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
@@ -476,7 +477,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 			if (vipType.isCanVisitNeutralPlanets() & aPlanet.getPlayerInControl() == null) { // om VIPen kan besöka
 																								// neutrala planeter �r
 																								// ens egna
-				if (!aPlanet.isRazed()) { // razed planets are not counted as neutral
+				if (!PlanetPureFunctions.isRazed(aPlanet)) { // razed planets are not counted as neutral
 					Logger.finer("Planet is not razed");
 					ok = true;
 				}

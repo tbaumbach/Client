@@ -18,6 +18,7 @@ import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.servlethelper.game.expenses.ExpensePureFunction;
 import spaceraze.servlethelper.game.player.CostPureFunctions;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Player;
 
@@ -117,7 +118,7 @@ public class TurnInfoPanel extends SRBasePanel implements ActionListener {
 		gameInfo = "Turn: " + p.getGalaxy().turn;
 		// gameInfo += " | " + "Map: " + p.getGalaxy().getMapNameFull();
 		gameInfo += "  |  " + "Governor: " + p.getGovernorName();
-		gameInfo += "  |  " + "Faction: " + p.getFaction().getName();
+		gameInfo += "  |  " + "Faction: " + GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()).getName();
 		// gameInfo += " | " + "Game world: " +
 		// p.getGalaxy().getGameWorld().getFullName();
 		gameInfo += "  |  " + "Game: " + p.getGalaxy().getGameName();

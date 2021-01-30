@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import spaceraze.servlethelper.game.BuildingPureFunctions;
 import spaceraze.world.Building;
 import spaceraze.world.Planet;
 import spaceraze.world.Player;
@@ -232,11 +233,11 @@ public class Coors implements Serializable{
     	//	Collections.sort(li);
     		for (Iterator<Building> iter = buildings.iterator(); iter.hasNext();) {
 				Building building = iter.next();
-				boolean alwaysShow = building.getBuildingType().isVisibleOnMap();
+				boolean alwaysShow = building.isVisibleOnMap();
 				boolean ownPlanet = aPlanet.getPlayerInControl() == aPlayer;
 		//		Logger.finest(aPlanet + ", shipInSystem: " + shipInSystem);
 				if (ownPlanet | alwaysShow | spy | shipInSystem | troopInSystem){
-					retStr = retStr + building.getBuildingType().getShortName();
+					retStr = retStr + BuildingPureFunctions.getBuildingType(building.getTypeKey(), aPlayer.getGalaxy().getGameWorld()).getShortName();
 					if(iter.hasNext()){
 						retStr = retStr + ", ";
 					}

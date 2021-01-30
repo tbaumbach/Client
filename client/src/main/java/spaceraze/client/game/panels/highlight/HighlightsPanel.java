@@ -15,6 +15,7 @@ import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.ResearchPureFunctions;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.*;
@@ -271,14 +272,13 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
 			CanBeLostInSpace aLis = iter.next();
 			if (aLis.getOwner() != null){
 				Logger.finer("aLis.getOwner().getName(): " + galaxy.getPlayerByGovenorName(aLis.getOwner()).getName());
-				Logger.finer("aLis.getOwner().getFaction().getName(): " + galaxy.getPlayerByGovenorName(aLis.getOwner()).getFaction().getName());
 				Logger.finer("aFactionName: " + aFactionName);
 				if ((aFactionName == null) & (aPlayer != null)){ // only the players own LIS
 					if (galaxy.getPlayerByGovenorName(aLis.getOwner()) == aPlayer){
 						lisList.add(aLis);
 					}
 				}else
-				if (galaxy.getPlayerByGovenorName(aLis.getOwner()).getFaction().getName().equalsIgnoreCase(aFactionName) & (galaxy.getPlayerByGovenorName(aLis.getOwner()) != aPlayer)){
+				if (GameWorldHandler.getFactionByKey(galaxy.getPlayerByGovenorName(aLis.getOwner()).getFactionKey(), galaxy.getGameWorld()).getName().equalsIgnoreCase(aFactionName) & (galaxy.getPlayerByGovenorName(aLis.getOwner()) != aPlayer)){
 					lisList.add(aLis);
 				}
 			}else
@@ -296,7 +296,7 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
 	  researchLabels.clear();
 	  List<ResearchAdvantage> tmpAdvantages = null;
 	  boolean firstOnGoingResearch=true;
-	  tmpAdvantages = ResearchPureFunctions.getAllAdvantagesThatIsReadyToBeResearchOn(curPlayer, curPlayer.getFaction());
+	  tmpAdvantages = ResearchPureFunctions.getAllAdvantagesThatIsReadyToBeResearchOn(curPlayer, GameWorldHandler.getFactionByKey(curPlayer.getFactionKey(), galaxy.getGameWorld()));
 	  for(int i = 0; i < tmpAdvantages.size(); i++){
 		  if(curPlayer.getOrders().checkResearchOrder(tmpAdvantages.get(i).getName())){
 			  if(firstOnGoingResearch){

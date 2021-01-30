@@ -16,6 +16,7 @@ import spaceraze.client.components.SRTableHeader;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.game.GameGUIPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Galaxy;
@@ -91,7 +92,7 @@ public class PlanetsPanel extends SRBasePanel implements SRUpdateablePanel, List
 	}
 	
 	private void fillTableList(){
-		ships = this.g.getPlayersPlanets(player);
+		ships = PlanetPureFunctions.getPlayersPlanets(player, this.g);
 		int nrShips = ships.size();
 		shipTable = new SRTable(nrShips, 7);
 		shipTable.setAutoResizeMode(1);
@@ -118,7 +119,7 @@ public class PlanetsPanel extends SRBasePanel implements SRUpdateablePanel, List
 			shipTable.setValueAt(tmpOpen , i, 3);
 			shipTable.setValueAt(tmpBesieged, i, 4);
 			shipTable.setValueAt(aPlanet.getBuildings().size(), i, 5);
-			shipTable.setValueAt(aPlanet.hasSpacePort(), i, 6);
+			shipTable.setValueAt(PlanetPureFunctions.hasSpacePort(aPlanet), i, 6);
 		}
 		
 		

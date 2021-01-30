@@ -22,9 +22,7 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRTextField;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.BasePlanet;
-import spaceraze.world.Map;
-import spaceraze.world.PlanetConnection;
+import spaceraze.world.*;
 
 /**
  * @author WMPABOD
@@ -37,7 +35,7 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 	private SRButton updateBtn,addLongBtn,addShortBtn,removeConnBtn,removePlanetBtn,moveBtn;
 	private SRTextField planetNameTf,xTf,yTf,zTf;
 	private ListPanel connectionsList;
-	private BasePlanet selectedPlanet;
+	private MapPlanet selectedPlanet;
 	private EditorGUIPanel guiPanel;
 	private Map theMap;
 	private boolean removeConnState;
@@ -149,7 +147,7 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 		planetNameTf.requestFocus();
 	}
 	
-	public void showPlanet(BasePlanet aPlanet){
+	public void showPlanet(MapPlanet aPlanet){
 		selectedPlanet = aPlanet;
 		if (aPlanet == null){
 			ToggleShowPlanet(false);
@@ -175,10 +173,10 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 			// fill list with data
 			DefaultListModel dlm = (DefaultListModel)connectionsList.getModel();
 		    dlm.clear();
-		    List<PlanetConnection> allConnections = theMap.getConnections();
-			for (PlanetConnection aConnection : allConnections) {
-				BasePlanet p1 = aConnection.getPlanetOne();
-				BasePlanet p2 = aConnection.getPlanetTwo();
+		    List<MapPlanetConnection> allConnections = theMap.getConnections();
+			for (MapPlanetConnection aConnection : allConnections) {
+				MapPlanet p1 = aConnection.getPlanetOne();
+				MapPlanet p2 = aConnection.getPlanetTwo();
 				String rangeStr = "short";
 				if (aConnection.isLongRange()){
 					rangeStr = "long";
@@ -267,7 +265,7 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 			int index = selStr.indexOf(" (");
 			selStr = selStr.substring(0,index);
 			System.out.println("selStr: " + selStr);
-			BasePlanet aPlanet = theMap.findPlanet(selStr);
+			MapPlanet aPlanet = theMap.findPlanet(selStr);
 			theMap.deleteConnection(selectedPlanet,aPlanet);
 			guiPanel.updateMap();
 			showPlanet(selectedPlanet);

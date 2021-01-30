@@ -8,8 +8,8 @@ import java.awt.Color;
 import javax.swing.JPanel;
 
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.BasePlanet;
 import spaceraze.world.Map;
+import spaceraze.world.MapPlanet;
 
 /**
  * @author WMPABOD
@@ -37,7 +37,7 @@ public class EditorGUIPanel extends JPanel {
 	/**
 	 * Contains the planet to move
 	 */
-	private BasePlanet movePlanet =  null;
+	private MapPlanet movePlanet =  null;
 	private boolean createShortConnection,createLongConnection;
 
 	public EditorGUIPanel(MapEditorPanel mea, Map aMap){
@@ -101,7 +101,7 @@ public class EditorGUIPanel extends JPanel {
 	}
 	
 	public void createNewPlanet(int x, int y){
-		BasePlanet newPlanet = theMap.createNewPlanet(x,y);
+		MapPlanet newPlanet = theMap.createNewPlanet(x,y);
 		enableBtnsWhileMapAction(true);
 		pdp.showPlanet(newPlanet);
 		mp.setChosenPlanet(newPlanet);
@@ -121,12 +121,12 @@ public class EditorGUIPanel extends JPanel {
 		enableBtnsWhileMapAction(true);
 	}
 	
-	public void selectPlanet(BasePlanet selectedPlanet){
+	public void selectPlanet(MapPlanet selectedPlanet){
 //		System.out.println("selectPlanet: " + selectedPlanet.getName());
 		pdp.showPlanet(selectedPlanet);
 	}
 	
-	public void setMovePlanet(BasePlanet aPlanet){
+	public void setMovePlanet(MapPlanet aPlanet){
 		movePlanet = aPlanet;
 		enableBtnsWhileMapAction(false);
 		map.setMapActionText("Select;New position");
@@ -138,21 +138,21 @@ public class EditorGUIPanel extends JPanel {
 		map.setMapActionText("Place;New planet");
 	}
 
-	public void addShortConnection(BasePlanet selectedPlanet){
+	public void addShortConnection(MapPlanet selectedPlanet){
 		createShortConnection = false;
 		map.setMapActionText(null);
 		enableBtnsWhileMapAction(true);
 		pdp.showPlanet(selectedPlanet);
 	}
 
-	public void addLongConnection(BasePlanet selectedPlanet){
+	public void addLongConnection(MapPlanet selectedPlanet){
 		createLongConnection = false;
 		map.setMapActionText(null);
 		enableBtnsWhileMapAction(true);
 		pdp.showPlanet(selectedPlanet);
 	}
 
-	public void deletePlanet(BasePlanet aPlanet){
+	public void deletePlanet(MapPlanet aPlanet){
 		mp.setChosenPlanet(null);
 		theMap.removePlanet(aPlanet);
 		mp.repaint();

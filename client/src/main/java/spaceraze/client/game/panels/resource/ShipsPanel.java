@@ -96,7 +96,7 @@ public class ShipsPanel extends SRBasePanel implements SRUpdateablePanel, ListSe
 	}
 	
 	private void fillTableList(){
-		ships = this.g.getPlayersSpaceships(player);
+		ships = SpaceshipPureFunctions.getPlayersSpaceships(player, this.g);
 		int nrShips = ships.size();
 		String tempbesiged = "No";
 		shipTable = new SRTable(nrShips, 8);

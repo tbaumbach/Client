@@ -17,6 +17,7 @@ import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.TransferWrapper;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
 import spaceraze.util.properties.PropertiesHandler;
 import spaceraze.world.Faction;
@@ -141,9 +142,9 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
     dlm.addElement("Public Statement");
     originalRecipientStrings.add("Public Statement");
 	for (int i = 0; i < g.getFactions().size(); i++){
-      Faction tempFaction = (Faction)g.getFactions().get(i);
+      Faction tempFaction = g.getGameWorld().getFactions().get(i);
       int tempNr = g.getFactionLivingMemberNr(tempFaction);
-      if(tempFaction == p.getFaction()){
+      if(tempFaction.getKey().equalsIgnoreCase(p.getFactionKey())){
     	  tempNr--;
       }
       if(tempNr > 0){
@@ -152,10 +153,10 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
       }
     }
     for (int i = 0; i < g.getPlayers().size(); i++){
-      Player tempPlayer = (Player)g.getPlayers().get(i);
+      Player tempPlayer = g.getPlayers().get(i);
       if ((!tempPlayer.isDefeated()) & (tempPlayer != p)){
-      	dlm.addElement("Governor " + tempPlayer.getGovernorName() + " (" + tempPlayer.getFaction().getName() + ")");
-      	originalRecipientStrings.add("Governor " + tempPlayer.getGovernorName() + " (" + tempPlayer.getFaction().getName() + ")");
+      	dlm.addElement("Governor " + tempPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByKey(tempPlayer.getFactionKey(), p.getGalaxy().getGameWorld()).getName() + ")");
+      	originalRecipientStrings.add("Governor " + tempPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByKey(tempPlayer.getFactionKey(), p.getGalaxy().getGameWorld()).getName() + ")");
       }
     }
   }
@@ -243,7 +244,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
 	  if (firstWord.equalsIgnoreCase("All")){  // skicka till alla spelare i en viss faction
 		  Logger.finest("firstWord.equalsIgnoreCase(\"All\")");
 		  int secondSpaceIndex = selectedString.indexOf(" governors",firstSpaceIndex+1);
-		  Faction recipient = p.getGalaxy().getFaction(selectedString.substring(firstSpaceIndex+1,secondSpaceIndex));
+		  Faction recipient = GameWorldHandler.getFactionByName(selectedString.substring(firstSpaceIndex+1,secondSpaceIndex), p.getGalaxy().getGameWorld());
 		  tempMessage = new Message(messageText,recipient,p);
 	  }else
 	  if (firstWord.equalsIgnoreCase("Governor")){  // skicka till en separat spelare
@@ -410,9 +411,39 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
   private void addRecievedMessages(List<Message> inList, Galaxy aGalaxy){
 	  DefaultListModel dlm = (DefaultListModel)recievedMessagesList.getModel();
 	  for (Message aMessage : inList) {
-		  dlm.addElement(aMessage.getRecievedMessageListString(aGalaxy));
+		  dlm.addElement(getRecievedMessageListString(aMessage, aGalaxy));
 	  }
   }
+
+	private String getRecievedMessageListString(Message message, Galaxy aGalaxy){
+		StringBuffer strBuff = new StringBuffer();
+		if(!message.isRead()){
+			strBuff.append("NEW ");
+		}
+		strBuff.append("Turn " + message.getTurn());
+		if (aGalaxy.getPlayer(message.getSender()) != null){
+			strBuff.append(" from Governor " + aGalaxy.getPlayer(message.getSender()).getGovernorName());
+		}else{
+			strBuff.append(" from " + message.getSender());
+		}
+		strBuff.append(" to " + getRecipientString2(message, aGalaxy));
+		strBuff.append(": " + message.getContent());
+		return strBuff.toString();
+	}
+
+	private String getRecipientString2(Message message, Galaxy aGalaxy) {
+		String recieverString = "";
+		if (message.getType().equalsIgnoreCase("faction")){ // meddelandet skall till alla i en Faction
+			recieverString = message.getRecipientFaction() + " faction";
+		}else
+		if (message.getType().equalsIgnoreCase("private")){ // meddelandet ska till en separat spelare
+			recieverString = "Govenor " + aGalaxy.getPlayer(message.getRecipientPlayer()).getGovernorName() + " (" + GameWorldHandler.getFactionByKey(aGalaxy.getPlayer(message.getRecipientPlayer()).getFactionKey(), aGalaxy.getGameWorld()).getName() + ")";
+		}else
+		if (message.getType().equalsIgnoreCase("all")){ // meddelandet ska till en separat spelare
+			recieverString = "all governors";
+		}
+		return recieverString;
+	}
   
   /**
    * Adds all messages in sentMessages to the sentMessagesList
@@ -421,9 +452,17 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
   private void addSentMessages(){
 	  DefaultListModel dlm = (DefaultListModel)sentMessagesList.getModel();
 	  for (Message aMessage : sentMessages) {
-		  dlm.addElement(aMessage.getSentMessageListString(p.getGalaxy()));
+		  dlm.addElement(getSentMessageListString(aMessage, p.getGalaxy()));
 	  }
   }
+
+	private String getSentMessageListString(Message message, Galaxy aGalaxy){
+		StringBuffer strBuff = new StringBuffer();
+		strBuff.append("Turn " + message.getTurn());
+		strBuff.append(" to " + getRecipientString2(message, aGalaxy));
+		strBuff.append(": " + message.getContent());
+		return strBuff.toString();
+	}
 
   public String getId(){
     return id;
@@ -461,7 +500,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
   private void addMessage(Message aMessage){
 	  Logger.info("addMessage new called: ");
 	  DefaultListModel dlm = (DefaultListModel)sentMessagesList.getModel();
-	  dlm.add(0,aMessage.getSentMessageListString(p.getGalaxy()));
+	  dlm.add(0, getSentMessageListString(aMessage, p.getGalaxy()));
 	  sentMessages.add(0, aMessage);
 	  p.setLatestMessageIdFromServer(getLatestMessageIdFromServer());
 	  TransferWrapper tw = client.getResponse(p,"addMessage",null, aMessage);

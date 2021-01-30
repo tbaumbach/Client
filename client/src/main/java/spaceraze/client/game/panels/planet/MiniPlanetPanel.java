@@ -22,7 +22,11 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRTextField;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.servlethelper.game.BuildingPureFunctions;
 import spaceraze.servlethelper.game.DiplomacyPureFunctions;
+import spaceraze.servlethelper.game.expenses.ExpensePureFunction;
+import spaceraze.servlethelper.game.orders.OrderMutator;
+import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetOrderStatusMutator;
@@ -30,6 +34,7 @@ import spaceraze.servlethelper.game.planet.PlanetOrderStatusPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.player.CostPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.*;
@@ -191,7 +196,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 		maxProdLabel2.setBounds(305 + x, 261 + y, 95, 20);
 		add(maxProdLabel2);
 
-		if (planet.isOpen() && !planet.isPlayerPlanet()) {
+		if (planet.isOpen() && planet.getPlayerInControl() == null) {
 			String defenders = getNeutralSpaceshipsOnOpenPlanetString(aPlayer.getGalaxy());
 			if (defenders != null) {
 				defendersLabel = new SRLabel(defenders);
@@ -355,7 +360,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 					if (lse.getValueIsAdjusting()) {
 						if (planet.getPlayerInControl() != null) {
 							client.showBuildingTypeDetails(buildingList.getSelectedItem(),
-									planet.getPlayerInControl().getFaction().getName());
+									GameWorldHandler.getFactionByKey(planet.getPlayerInControl().getFactionKey(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getName());
 						} else {
 
 							// TODO (???) fixa när vi kan lista alla byggnader eller har info om vem som har
@@ -716,24 +721,24 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			boolean spy = VipPureFunctions.findVIPSpy(planet, aPlayer, g) != null;
 			// visa alltid vem som kontrollerar planeten eller vem som senast n�r planeten
 			// var öppen kontrollerade planeten
-			if (planet.isRazedAndUninfected()) { // if planet is infestated with aliens it cannot be reconstructed
+			if (PlanetPureFunctions.isRazedAndUninfected(planet)) { // if planet is infestated with aliens it cannot be reconstructed
 				// maybe show reconstruct checkbox
 				if (aPlayer.isCanReconstruct()) {
 					reconstructCheckbox.setText("Reconstruct (cost: " + aPlayer.getReconstructCost(planet) + ")");
-					if (aPlayer.getGalaxy().playerHasShipsInSystem(aPlayer, planet) | spy) {
+					if (PlayerPureFunctions.playerHasShipsInSystem(aPlayer, planet, aPlayer.getGalaxy()) || spy) {
 						reconstructCheckbox.setVisible(true);
 						reconstructCheckbox.setSelected(false);
 						// is the players ships alone at the planet?
 						List<TaskForce> taskforces = TaskForceHandler.getTaskForces(planet, true, g);
 						// System.out.println("taskforces.size(): " + taskforces.size());
-						if ((taskforces.size() == 1) & aPlayer.getGalaxy().playerHasShipsInSystem(aPlayer, planet)) {
+						if ((taskforces.size() == 1) && PlayerPureFunctions.playerHasShipsInSystem(aPlayer, planet, aPlayer.getGalaxy())) {
 							// should cb be enabled? Only if at least one ship has troops.
 							TaskForce playerTaskforce = TaskForceHandler.getTaskForce(aPlayer, planet, true, g);
 							if (playerTaskforce.getMaxPsychWarfare(g.getGameWorld()) > 0 || playerTaskforce.getTroopCapacity() > 0) {
 								reconstructCheckbox.setEnabled(true);
 								// fetch value (already reconstructing?)
 								Orders o = aPlayer.getOrders();
-								reconstructCheckbox.setSelected(o.alreadyReconstructing(planet));
+								reconstructCheckbox.setSelected(ExpensePureFunction.alreadyReconstructing(o, planet));
 							} else { // without troops = cannot reconstruct
 								reconstructCheckbox.setEnabled(false);
 							}
@@ -780,14 +785,14 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 				}
 
 			} else {
-				if (planet.isOpen() | (aPlayer.getGalaxy().playerHasShipsInSystem(aPlayer, planet)) | (spy)) {
+				if (planet.isOpen() || PlayerPureFunctions.playerHasShipsInSystem(aPlayer, planet, aPlayer.getGalaxy()) || spy) {
 					boolean surveyShip = SpaceshipPureFunctions.findSurveyShip(planet, aPlayer, g.getSpaceships(), g.getGameWorld()) != null;
 					boolean surveyVIP = VipPureFunctions.findSurveyVIPonShip(planet, aPlayer, aPlayer.getGalaxy()) != null;
 					if (planet.isOpen() | surveyShip | surveyVIP | spy) {
 						maxProdLabel.setVisible(true);
 						maxProdLabel2.setVisible(true);
 						maxProdLabel.setText("Max. production: ");
-						maxProdLabel2.setText(String.valueOf(planet.getMaxPopulation()));
+						maxProdLabel2.setText(String.valueOf(getMaxPopulation(planet)));
 					}
 					if (planet.getPlayerInControl() != null) {
 						// kolla om spelaren ej är allierad
@@ -810,7 +815,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 							showMaxBombChoice();
 						}
 					} else {
-						if (!planet.isRazedAndUninfected()) { // only show if not razed
+						if (!PlanetPureFunctions.isRazedAndUninfected(planet)) { // only show if not razed
 							// visa attackIfNeutral & destroyWharfs
 							// attackIfNeutralCheckbox.setSelected(aPlayer.getPlanetInfos().getAttackIfNeutral(p.getName()));
 							attackIfNeutralCheckbox
@@ -838,15 +843,15 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 								buildings = planet.getBuildings();
 							}
 						} else {
-							buildings = planet.getBuildingsInOrbit();
+							buildings = PlanetPureFunctions.getBuildings(planet, true, g.getGameWorld());
 						}
 
 						if (buildings.size() > 0) {
 							if (planet.getPlayerInControl() != null) {
 								currentBuildBuildingLabel.setForeground(ColorConverter.getColorFromHexString(
-										planet.getPlayerInControl().getFaction().getPlanetHexColor()));
+										GameWorldHandler.getFactionByKey(planet.getPlayerInControl().getFactionKey(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
 								buildingList.setForeground(ColorConverter.getColorFromHexString(
-										planet.getPlayerInControl().getFaction().getPlanetHexColor()));
+										GameWorldHandler.getFactionByKey(planet.getPlayerInControl().getFactionKey(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
 							} else {
 								currentBuildBuildingLabel.setForeground(StyleGuide.colorNeutralWhite);
 								buildingList.setForeground(StyleGuide.colorNeutralWhite);
@@ -857,7 +862,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 							// Collections.sort(allBuildings);
 							dlm.removeAllElements();
 							for (int i = 0; i < buildings.size(); i++) {
-								dlm.addElement(buildings.get(i).getBuildingType().getName());
+								dlm.addElement(BuildingPureFunctions.getBuildingType(buildings.get(i).getTypeKey(), g.getGameWorld()).getName());
 							}
 							buildingList.updateScrollList();
 
@@ -900,7 +905,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 				if (allBuildings.size() > 0) {
 					List<Building> visibleBuildings = new ArrayList<Building>();
 					for (int i = 0; i < allBuildings.size(); i++) {
-						if (allBuildings.get(i).getBuildingType().isVisibleOnMap()) {
+						if (allBuildings.get(i).isVisibleOnMap()) {
 							visibleBuildings.add(allBuildings.get(i));
 						}
 					}
@@ -908,9 +913,9 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 
 						if (planet.getPlayerInControl() != null) {
 							currentBuildBuildingLabel.setForeground(ColorConverter
-									.getColorFromHexString(planet.getPlayerInControl().getFaction().getPlanetHexColor()));
+									.getColorFromHexString(GameWorldHandler.getFactionByKey(planet.getPlayerInControl().getFactionKey(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
 							buildingList.setForeground(ColorConverter
-									.getColorFromHexString(planet.getPlayerInControl().getFaction().getPlanetHexColor()));
+									.getColorFromHexString(GameWorldHandler.getFactionByKey(planet.getPlayerInControl().getFactionKey(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
 							currentBuildBuildingLabel.setBounds(5, 180, 250, 18);
 							buildingList.setBounds(5, 200, 315, 100);
 						} else {
@@ -925,7 +930,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 						// TODO (Tobbe) hur löser vi detta? sortering av ArrayList
 						// Collections.sort(allBuildings);
 						for (int i = 0; i < visibleBuildings.size(); i++) {
-							dlm.addElement(visibleBuildings.get(i).getBuildingType().getName());
+							dlm.addElement(BuildingPureFunctions.getBuildingType(visibleBuildings.get(i).getTypeKey(), g.getGameWorld()).getName());
 						}
 						buildingList.updateScrollList();
 
@@ -947,9 +952,9 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 
 						if (planet.getPlayerInControl() != null) {
 							vipPanel.setForeground(ColorConverter
-									.getColorFromHexString(planet.getPlayerInControl().getFaction().getPlanetHexColor()));
+									.getColorFromHexString(GameWorldHandler.getFactionByKey(planet.getPlayerInControl().getFactionKey(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
 							allVIPlist.setForeground(ColorConverter
-									.getColorFromHexString(planet.getPlayerInControl().getFaction().getPlanetHexColor()));
+									.getColorFromHexString(GameWorldHandler.getFactionByKey(planet.getPlayerInControl().getFactionKey(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
 						} else {
 							vipPanel.setForeground(StyleGuide.colorNeutralWhite);
 							allVIPlist.setForeground(StyleGuide.colorNeutralWhite);
@@ -1000,9 +1005,13 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 		return playerHaveTroopOnPlanet & !otherPlayerHaveTroopsOnPlanet;
 	}
 
+	private int getMaxPopulation(Planet planet){
+		return planet.getBasePopulation() *2;
+	}
+
 	private void checkAbandon(boolean state) {
 		if (state) { // abandon is checked
-			if (planet.getPopulation() < planet.getMaxPopulation()) {
+			if (planet.getPopulation() < getMaxPopulation(planet)) {
 				upgradepopcb.setEnabled(false);
 				if (upgradepopcb.isSelected()) {
 					upgradepopcb.setSelected(false);
@@ -1024,16 +1033,16 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			// ta bort ev. byggorder, både nya byggnadr, ships, troops & vips
 			aPlayer.removeNewBuilding(planet);
 			for (Building aBuilding : planet.getBuildings()) {
-				if (aBuilding.getBuildingType().isShipBuilder()) {
-					aPlayer.getOrders().removeAllBuildShip(aBuilding, aPlayer.getGalaxy());
-				} else if (aBuilding.getBuildingType().isTroopBuilder()) {
-					aPlayer.getOrders().removeAllBuildTroop(aBuilding, aPlayer.getGalaxy());
-				} else if (aBuilding.getBuildingType().isVIPBuilder()) {
-					aPlayer.getOrders().removeBuildVIP(aBuilding, aPlayer.getGalaxy());
+				if (aBuilding.getWharfSize() > 0) {
+					OrderMutator.removeAllBuildShip(aBuilding, aPlayer.getOrders());
+				} else if (BuildingPureFunctions.getBuildingType(aBuilding.getTypeKey(), aPlayer.getGalaxy().getGameWorld()).getTypeOfTroop().size() > 0) {
+					OrderMutator.removeAllBuildTroop(aBuilding, aPlayer.getOrders());
+				} else if (BuildingPureFunctions.getBuildingType(aBuilding.getTypeKey(), aPlayer.getGalaxy().getGameWorld()).getBuildVIPTypes().size() > 0) {
+					OrderMutator.removeBuildVIP(aBuilding, aPlayer.getOrders());
 				}
 			}
 		} else { // abandon is not checked
-			if (planet.getPopulation() < planet.getMaxPopulation()) {
+			if (planet.getPopulation() < getMaxPopulation(planet)) {
 				upgradepopcb.setEnabled(true);
 			}
 			upgraderescb.setEnabled(true);
@@ -1042,7 +1051,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 	}
 
 	private void showMaxBombChoice() {
-		if (!aPlayer.isAlien()) {
+		if (!GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), aPlayer.getGalaxy().getGameWorld()).isAlien()) {
 			maxBombLabel.setText("Max bombardement:");
 			maxBombLabel.setVisible(true);
 			// int maxBombTemp = aPlayer.getPlanetInfos().getMaxBombardment(p.getName());
@@ -1064,13 +1073,13 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 		maxProdLabel.setVisible(true);
 		maxProdLabel2.setVisible(true);
 		maxProdLabel.setText("Max. production: ");
-		maxProdLabel2.setText(String.valueOf(p.getMaxPopulation()));
+		maxProdLabel2.setText(String.valueOf(getMaxPopulation(p)));
 		// compute costs/bonuses
 		int upgradePopCost = p.getPopulation();
 		int upgradeResCost = p.getResistance();
 		int openBonus = 2 + aPlayer.getOpenPlanetBonus() - aPlayer.getClosedPlanetBonus();
 
-		if ((p.getPopulation() < p.getMaxPopulation()) & !aPlayer.isAlien()) {
+		if ((p.getPopulation() < getMaxPopulation(p)) & !GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), aPlayer.getGalaxy().getGameWorld()).isAlien()) {
 			upgradepopcb.setVisible(true);
 			upgradepopcb.setText("Upgrade production (cost: " + upgradePopCost + ")");
 		}

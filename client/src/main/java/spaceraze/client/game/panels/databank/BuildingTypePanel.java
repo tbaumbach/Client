@@ -24,6 +24,7 @@ import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.BuildingPureFunctions;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
@@ -262,8 +263,8 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 			 nextBuildingTypes = BuildingPureFunctions.getNextBuildingSteps(buildingType, PlayerPureFunctions.getBuildingTypes(p));
 		 }
 		 else{
-			 buildingType = p.getGalaxy().getFaction(filterChoice.getSelectedItem()).getBuildingType(buildingName);
-			 nextBuildingTypes = BuildingPureFunctions.getNextBuildingSteps(buildingType, p.getGalaxy().getFaction(filterChoice.getSelectedItem()).getBuildings());
+			 buildingType = GameWorldHandler.getFactionByName(filterChoice.getSelectedItem(), p.getGalaxy().getGameWorld()).getBuildingType(buildingName);
+			 nextBuildingTypes = BuildingPureFunctions.getNextBuildingSteps(buildingType, GameWorldHandler.getFactionByName(filterChoice.getSelectedItem(), p.getGalaxy().getGameWorld()).getBuildings());
 		 }
 		 
     	
@@ -369,7 +370,7 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 		 tmpY += 19;
 		 scrollPaneDetails.setLocation(column1X,tmpY);
 		 
-		 List<String> allStrings = buildingType.getAbilitiesStrings();
+		 List<String> allStrings = BuildingPureFunctions.getAbilitiesStrings(buildingType);
 	        for (int i = 0; i < allStrings.size(); i++){
 	        	detailsArea.append(allStrings.get(i) + "\n");
 	        }
@@ -381,7 +382,7 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
         }
         canbuildlbl.setVisible(true);
 	        
-        costLabel.setText("Build Cost: " + buildingType.getBuildCost(0));
+        costLabel.setText("Build Cost: " + BuildingPureFunctions.getBuildCost(buildingType, 0));
 		costLabel.setVisible(true);
 		 
 		repaint();

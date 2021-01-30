@@ -14,6 +14,7 @@ import spaceraze.client.components.SRButton;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
 import spaceraze.world.Player;
 
@@ -74,7 +75,7 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
 		  Player tempPlayer = (Player)players.get(i);
 		  if (tempPlayer != p){ // can not give money to himself
 			  int giftSum = p.getOrders().findGift(tempPlayer);
-			  String rowText = tempPlayer.getGovernorName() + " (" + tempPlayer.getFaction().getName() + ")";
+			  String rowText = tempPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByKey(tempPlayer.getFactionKey(), p.getGalaxy().getGameWorld()).getName() + ")";
 			  if (giftSum > 0){
 				  rowText += ", give:" + giftSum;
 			  }

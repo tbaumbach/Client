@@ -694,7 +694,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			planetMoveOk = false;
 		} else
 		// else if planet is razed, planet move may not be ok
-		if (planet.isRazed()) {
+		if (PlanetPureFunctions.isRazed(planet)) {
 			// if the player is alone at the razed planet move is ok
 			if (!playerIsAloneAtPlanet(planet)) {
 				// if the player already have troops at the planet move is ok

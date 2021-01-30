@@ -11,6 +11,7 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.scrollable.TextAreaPanel;
 import spaceraze.client.game.panels.resource.VIPsPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.BuildingPureFunctions;
 import spaceraze.servlethelper.game.expenses.ExpensePureFunction;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
@@ -160,13 +161,13 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     }
 
     // add ships do be selfdestroyed
-	List<Integer> tempBuildings = orders.getBuildingSelfDestructs();
+	List<String> tempBuildings = orders.getBuildingSelfDestructs();
     if (tempBuildings.size() > 0){
     	infoarea.append("Selfdestruct Buildings" + "\n");
     	infoarea.append(sepLine);
     	for (int n = 0; n < tempBuildings.size(); n++){
-    		Building tempBuilding = g.findBuilding(tempBuildings.get(n), aPlayer);
-    		infoarea.append("Building " + tempBuilding.getBuildingType().getName() + " at " + tempBuilding.getLocation().getName() + " is to be destroyed." + "\n");
+    		Building tempBuilding = BuildingPureFunctions.findBuilding(tempBuildings.get(n), aPlayer, g);
+    		infoarea.append("Building " + BuildingPureFunctions.getBuildingType(tempBuilding.getTypeKey(), g.getGameWorld()).getName() + " at " + tempBuilding.getLocation().getName() + " is to be destroyed." + "\n");
     	}
     	infoarea.append("\n");
     }

@@ -5,6 +5,8 @@ package spaceraze.client.game.panels.resource;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -20,8 +22,11 @@ import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.panels.planet.MiniShipPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.player.PlayerPureFunctions;
+import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.Logger;
+import spaceraze.world.Galaxy;
 import spaceraze.world.Player;
 import spaceraze.world.Spaceship;
 import spaceraze.world.VIP;
@@ -48,7 +53,7 @@ public class RetreatsPanel extends SRBasePanel implements SRUpdateablePanel, Act
 	    this.id = id;
 	    this.setLayout(null);
 	    player = p;
-	    retreatingShips = p.getGalaxy().getRetreatingShips(p);
+	    retreatingShips = getRetreatingShips(p, p.getGalaxy());
 	    
 	    title = new SRLabel("Retreating spaceships");
 	    title.setBounds(10,10,200,15);
@@ -104,6 +109,19 @@ public class RetreatsPanel extends SRBasePanel implements SRUpdateablePanel, Act
         }
         shiplist.updateScrollList();
     }
+
+	private List<Spaceship> getRetreatingShips(Player aPlayer, Galaxy galaxy) {
+		List<Spaceship> allShips = SpaceshipPureFunctions.getPlayersSpaceships(aPlayer, galaxy);
+		List<Spaceship> rShips = new ArrayList<Spaceship>();
+		for (Iterator<Spaceship> iter = allShips.iterator(); iter.hasNext();) {
+			Spaceship tmpss = iter.next();
+			// if (tmpss.getRetreatingTo() != null){
+			if (tmpss.isRetreating()) {
+				rShips.add(tmpss);
+			}
+		}
+		return rShips;
+	}
 
     public void valueChanged(ListSelectionEvent lse){
     	if (lse.getSource() instanceof ListPanel){

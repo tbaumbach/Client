@@ -14,6 +14,8 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRTextField;
 import spaceraze.client.game.ShowMapPlanet;
 import spaceraze.client.game.map.MapCanvas;
+import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
+import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.world.BlackMarketBid;
@@ -87,7 +89,7 @@ public class BlackMarketPopupPanel extends BasicPopupPanel implements ActionList
 
 	    	mapCanvas = new MapCanvas(p,this,true);
 	        mapCanvas.setPlanets(p.getGalaxy().getPlanets(),p);
-	        mapCanvas.setSpaceships(p.getGalaxy().getPlayersSpaceships(p));
+	        mapCanvas.setSpaceships(SpaceshipPureFunctions.getPlayersSpaceships(p, p.getGalaxy()));
 	        mapCanvas.setOwnVips(p.getGalaxy().getPlayersVips(p));
 	        mapCanvas.setOwnTroops(TroopPureFunctions.getPlayersTroops(p, p.getGalaxy()));
 	        mapCanvas.setOthersVips(p.getGalaxy().getAllVIPs());
@@ -108,7 +110,7 @@ public class BlackMarketPopupPanel extends BasicPopupPanel implements ActionList
 	
 	private void addDestinations(){
 		offerDestinationChoice.addItem("None");
-		List<Planet> playersPlanets = player.getGalaxy().getPlayersPlanets(player);
+		List<Planet> playersPlanets = PlanetPureFunctions.getPlayersPlanets(player, player.getGalaxy());
 		Collections.sort(playersPlanets,new PlanetNameComparator<Planet>());
 		for (Planet aPlanet : playersPlanets) {
 			if (!aPlanet.isBesieged()){

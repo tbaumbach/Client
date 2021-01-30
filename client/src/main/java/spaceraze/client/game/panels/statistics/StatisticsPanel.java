@@ -3,6 +3,7 @@ package spaceraze.client.game.panels.statistics;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -16,14 +17,10 @@ import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Galaxy;
-import spaceraze.world.Planet;
-import spaceraze.world.Player;
-import spaceraze.world.Spaceship;
-import spaceraze.world.StatisticGameType;
-import spaceraze.world.StatisticType;
+import spaceraze.world.*;
 import spaceraze.world.enums.DiplomacyGameType;
 
 /**
@@ -64,7 +61,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     		strGov.setBounds(10,70,90,20);
     		add(strGov);
 
-    		mostKills = new SRLabel(getMostKills().getOwner().getGovernorName() + " have a ship ("+ getMostKills().getName()  +") with most kills in the Galaxy ( " + getMostKills().getKills() + " Kills)." , ColorConverter.getColorFromHexString(getMostKills().getOwner().getFaction().getPlanetHexColor()));
+    		mostKills = new SRLabel(getMostKills().getOwner().getGovernorName() + " have a ship ("+ getMostKills().getName()  +") with most kills in the Galaxy ( " + getMostKills().getKills() + " Kills)." , ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(getMostKills().getOwner().getFactionKey(), getMostKills().getOwner().getGalaxy().getGameWorld()).getPlanetHexColor()));
     		mostKills.setBounds(70,70,500,20);
     		add(mostKills);
     	}
@@ -164,7 +161,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
   
     private void fillTypesList(){
     	DefaultListModel dlm = (DefaultListModel)statisticTypesList.getModel();
-		boolean includeFactionProduction = g.getFactionGame() & (g.getDiplomacyGameType() == DiplomacyGameType.FACTION);
+		boolean includeFactionProduction = getFactionGame(g) && g.getDiplomacyGameType() == DiplomacyGameType.FACTION;
     	if (!g.isGameOver() && g.getStatisticGameType() == StatisticGameType.PRODUCTION_ONLY){
 			dlm.addElement(StatisticType.PRODUCTION_PLAYER.getText());
 			if (includeFactionProduction){
@@ -190,30 +187,32 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     	statisticTypesList.updateScrollList();
     }
 
+	private boolean getFactionGame(Galaxy galaxy) {
+		boolean factionGame = false; // if any faction have more than one player
+		List<Faction> foundFactions = new LinkedList<Faction>();
+		for (Player aPlayer : galaxy.getPlayers()) {
+			if (foundFactions.contains(GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), galaxy.getGameWorld()))) {
+				factionGame = true;
+			} else {
+				foundFactions.add(GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), galaxy.getGameWorld()));
+			}
+		}
+		return factionGame;
+	}
+
     private void fillPlayerList(){
     	highlightPlayerChoice.addItem("None");
     	for (Player aPlayer : g.getPlayers()) {
-    		highlightPlayerChoice.addItem(aPlayer.getGovernorName() + " (" + aPlayer.getFaction().getName() + ")");
+    		highlightPlayerChoice.addItem(aPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), aPlayer.getGalaxy().getGameWorld()).getName() + ")");
     	}
     }
 
     private String getProdPercentageALL(Galaxy g){
-    	String largestFaction ="";
-    	int largestProd = 0;
-    	int tempLargest = 0;
     	Logger.fine("getProdPercentageALL");
 
-    	List<Player> players = g.getPlayers();
-    	for (Player aPlayer : players) {
-    		tempLargest = aPlayer.getFaction().getTotalPop();
-    		if (largestProd < tempLargest)
-    		{  
-    			largestProd = tempLargest;
-    			largestFaction = aPlayer.getFaction().getName();
-    			tempColor = ColorConverter.getColorFromHexString(aPlayer.getFaction().getPlanetHexColor());
-    		}
-    	}
-    	return largestFaction;
+    	Faction greatestFaction = GameWorldHandler.getGreatestFactions(g).get(0);
+		tempColor = ColorConverter.getColorFromHexString(greatestFaction.getPlanetHexColor());
+		return greatestFaction.getName();
     }
 
     private int getProdPercentage(Player p, Galaxy g){
@@ -224,7 +223,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     	List<Planet> planets = g.getPlanets();
     	for (Planet aPlanet : planets) {
     		if (aPlanet.getPlayerInControl() == p){
-    			if (aPlanet.getPlayerInControl().isAlien()){
+    			if (GameWorldHandler.getFactionByKey(aPlanet.getPlayerInControl().getFactionKey(), g.getGameWorld()).isAlien()){
     				playerProd += aPlanet.getResistance();
     			}else{
     				playerProd += aPlanet.getPopulation();
@@ -233,7 +232,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     			if (aPlanet.getPlayerInControl() == null){
     				totalPop += aPlanet.getResistance();
     			}else{
-    				if (aPlanet.getPlayerInControl().isAlien()){
+    				if (GameWorldHandler.getFactionByKey(aPlanet.getPlayerInControl().getFactionKey(), g.getGameWorld()).isAlien()){
     					totalPop += aPlanet.getResistance();
     				}else{
     					totalPop += aPlanet.getPopulation();

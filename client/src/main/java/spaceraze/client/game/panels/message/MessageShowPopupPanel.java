@@ -11,6 +11,7 @@ import spaceraze.client.components.BasicPopupPanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.world.Galaxy;
 import spaceraze.world.Message;
 
@@ -58,7 +59,7 @@ public class MessageShowPopupPanel extends BasicPopupPanel {
 	    messageRecipientLabel.setBounds(10,100,100,20);
 	    add(messageRecipientLabel);
 
-	    messageRecipientNameLabel = new SRLabel(aMessage.getRecipientString(aGalaxy));
+	    messageRecipientNameLabel = new SRLabel(getRecipientString(aMessage, aGalaxy));
 	    messageRecipientNameLabel.setBounds(130,100,300,20);
 	    add(messageRecipientNameLabel);
 
@@ -80,6 +81,20 @@ public class MessageShowPopupPanel extends BasicPopupPanel {
 
 	public void setButtonLocation(){
 		okBtn.setLocation(560,620);
+	}
+
+	private String getRecipientString(Message message, Galaxy aGalaxy) {
+		String recieverString = "";
+		if (message.getType().equalsIgnoreCase("faction")){ // meddelandet skall till alla i en Faction
+			recieverString = "Faction: " + message.getRecipientFaction();
+		}else
+		if (message.getType().equalsIgnoreCase("private")){ // meddelandet ska till en separat spelare
+			recieverString = "Govenor: " + aGalaxy.getPlayer(message.getRecipientPlayer()).getGovernorName() + " (" + GameWorldHandler.getFactionByKey(aGalaxy.getPlayer(message.getRecipientPlayer()).getFactionKey(), aGalaxy.getGameWorld()).getName() + ")";
+		}else
+		if (message.getType().equalsIgnoreCase("all")){ // meddelandet ska till en separat spelare
+			recieverString = "Public message";
+		}
+		return recieverString;
 	}
 	
 }

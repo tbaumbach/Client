@@ -24,6 +24,7 @@ import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.ResearchPureFunctions;
 import spaceraze.servlethelper.game.player.IncomePureFunctions;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.*;
@@ -273,7 +274,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 			 }
 			 
 		 }else{
-			 tmpAdvantages = ResearchPureFunctions.getAllAdvantagesThatIsReadyToBeResearchOn(p, p.getFaction());
+			 tmpAdvantages = ResearchPureFunctions.getAllAdvantagesThatIsReadyToBeResearchOn(p, GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()));
 			 boolean developedFound = false;
 			 dlm.add(0,"-Ready For Research-");
 			 for(int i = 0; i < tmpAdvantages.size(); i++){				 
@@ -332,11 +333,11 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 		 
 		 Logger.fine("showResearchAdvantage(String researchAdvantagename) " + researchAdvantagename);
 		 if(treeChoice.getSelectedIndex() == 0){
-			 researchAdvantage = ResearchPureFunctions.getAdvantage(p.getFaction(), researchAdvantagename);
+			 researchAdvantage = ResearchPureFunctions.getAdvantage(GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()), researchAdvantagename);
 			 Logger.fine("p.getResearch().getAdvantage(researchAdvantagename) (own) " + researchAdvantage.getName());
 		 }
 		 else{
-			 researchAdvantage = ResearchPureFunctions.getAdvantage(p.getGalaxy().getFaction(treeChoice.getSelectedItem()), researchAdvantagename);
+			 researchAdvantage = ResearchPureFunctions.getAdvantage(GameWorldHandler.getFactionByName(treeChoice.getSelectedItem(), p.getGalaxy().getGameWorld()), researchAdvantagename);
 			 Logger.fine("ReserachPanel Faction " + researchAdvantage.getName());
 		 }
 		 
@@ -655,7 +656,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 				}*/
 				Logger.fine("(ResearchPanel.java) Cancel the research p.getOrders().getResearchOrders().size()" + p.getOrders().getResearchOrders().size());
 			}else{
-				if(p.getFaction().getNumberOfSimultaneouslyResearchAdvantages() == 1){
+				if(GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()).getNumberOfSimultaneouslyResearchAdvantages() == 1){
 				//	p.getResearch().removeAllOnGoingResearchedAdvantage();
 					if(p.getOrders().getResearchOrders().size() > 0){
 						p.getOrders().getResearchOrders().remove(0);
@@ -666,18 +667,18 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 					//p.getResearch().setOnGoingResearchedAdvantage(p.getResearch().getAdvantage(name2.getText()));
 //					TODO (Tobbe) add Order text in Order Panel
 					
-					int cost = countCost(ResearchPureFunctions.getAdvantage(p.getFaction(), name2.getText()));
+					int cost = countCost(ResearchPureFunctions.getAdvantage(GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()), name2.getText()));
 					
 					Logger.fine("ResearchPanel cost " + cost);
 					p.getOrders().addResearchOrder(new ResearchOrder(name2.getText(), cost),p);
 					//ResearchOrder researchOrder, Player p, int sum)
 				}
 				else{
-					int tempNumberOfSimultaneouslyResearchAdvantages = p.getFaction().getNumberOfSimultaneouslyResearchAdvantages();
+					int tempNumberOfSimultaneouslyResearchAdvantages = GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()).getNumberOfSimultaneouslyResearchAdvantages();
 					int tempNumbersOfResearchOrders =  p.getOrders().getResearchOrders().size();
 					
 					if(tempNumbersOfResearchOrders < tempNumberOfSimultaneouslyResearchAdvantages){
-						int cost = countCost(ResearchPureFunctions.getAdvantage( p.getFaction(), name2.getText()));
+						int cost = countCost(ResearchPureFunctions.getAdvantage( GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()), name2.getText()));
 						Logger.fine("ResearchPanel cost " + cost);
 						p.getOrders().addResearchOrder(new ResearchOrder(name2.getText(),cost),p);
 						//p.getOrders().addResearchOrder(new ResearchOrder(name2.getText()));

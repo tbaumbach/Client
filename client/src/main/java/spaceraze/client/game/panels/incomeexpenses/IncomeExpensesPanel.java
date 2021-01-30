@@ -60,7 +60,7 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
     add(supportTitleLabel);
     
     
-    int freeUpkeep = CostPureFunctions.getPlayerFreeUpkeepWithoutCorruption(p, p.getGalaxy().getPlanets());
+    int freeUpkeep = CostPureFunctions.getPlayerFreeUpkeepWithoutCorruption(p, p.getGalaxy().getPlanets(), p.getGalaxy().getGameWorld());
     freeUpkeepLabel = new SRLabel("Free upkeep:");
     freeUpkeepLabel.setBounds(10,40,col1width,20);
     add(freeUpkeepLabel);
@@ -86,7 +86,7 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
     totalUpkeepShipsLabel = new SRLabel("Total upkeep cost:");
     totalUpkeepShipsLabel.setBounds(10,130,col1width,20);
     add(totalUpkeepShipsLabel);
-    totalUpkeepShipsValueLabel = new SRLabel("-" + CostPureFunctions.getPlayerUpkeepShips(p, p.getGalaxy().getPlanets(), p.getGalaxy().getSpaceships()));
+    totalUpkeepShipsValueLabel = new SRLabel("-" + CostPureFunctions.getPlayerUpkeepShips(p, p.getGalaxy().getPlanets(), p.getGalaxy().getSpaceships(), p.getGalaxy().getGameWorld()));
     totalUpkeepShipsValueLabel.setBounds(col1width+10,130,250,20);
     add(totalUpkeepShipsValueLabel);
 
@@ -122,7 +122,7 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
     totalUpkeepShipsLabel = new SRLabel("Spaceships upkeep cost:");
     totalUpkeepShipsLabel.setBounds(x,130,col1width,20);
     add(totalUpkeepShipsLabel);
-    totalUpkeepShipsValueLabel = new SRLabel("-" +CostPureFunctions.getPlayerUpkeepShips(p, p.getGalaxy().getPlanets(), p.getGalaxy().getSpaceships()));
+    totalUpkeepShipsValueLabel = new SRLabel("-" +CostPureFunctions.getPlayerUpkeepShips(p, p.getGalaxy().getPlanets(), p.getGalaxy().getSpaceships(), p.getGalaxy().getGameWorld()));
     totalUpkeepShipsValueLabel.setBounds(col1width+x,130,250,20);
     add(totalUpkeepShipsValueLabel);
 

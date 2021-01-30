@@ -3,6 +3,7 @@ package spaceraze.client.game;
 import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.GameWorld;
 import spaceraze.world.Player;
@@ -102,7 +103,7 @@ public class GamePanel extends SRBasePanel implements SRUpdateablePanel{
     	govNameLbl2.setText(p.getGovernorName());
     	gameWorldLbl2.setText(gw.getFullName());
     	mapNameLbl2.setText(p.getGalaxy().getMapNameFull());
-    	factionNameLbl2.setText(p.getFaction().getName());
+    	factionNameLbl2.setText(GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()).getName());
     	gameNameLbl2.setText(p.getGalaxy().getGameName());
     	maxTurnsLbl2.setText(maxTurns);
     	factionWinLbl2.setText(p.getGalaxy().getFactionVictory() + "%");

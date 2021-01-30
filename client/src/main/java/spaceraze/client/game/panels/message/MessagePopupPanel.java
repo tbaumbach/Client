@@ -12,6 +12,7 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.game.ShowMapPlanet;
 import spaceraze.client.game.map.MapCanvas;
+import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Player;
@@ -57,7 +58,7 @@ public class MessagePopupPanel extends BasicPopupPanel implements ShowMapPlanet,
 
     	mapCanvas = new MapCanvas(p,this,true);
         mapCanvas.setPlanets(p.getGalaxy().getPlanets(),p);
-        mapCanvas.setSpaceships(p.getGalaxy().getPlayersSpaceships(p));
+        mapCanvas.setSpaceships(SpaceshipPureFunctions.getPlayersSpaceships(p, p.getGalaxy()));
         mapCanvas.setOwnVips(p.getGalaxy().getPlayersVips(p));
         mapCanvas.setOwnTroops(TroopPureFunctions.getPlayersTroops(p, p.getGalaxy()));
         mapCanvas.setOthersVips(p.getGalaxy().getAllVIPs());

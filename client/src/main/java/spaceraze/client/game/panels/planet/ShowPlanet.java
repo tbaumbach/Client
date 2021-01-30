@@ -17,16 +17,15 @@ import spaceraze.client.components.SRTabbedPane;
 import spaceraze.client.components.SRTabbedPaneUI;
 import spaceraze.client.game.ImageHandler;
 import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Faction;
-import spaceraze.world.Planet;
-import spaceraze.world.Player;
-import spaceraze.world.Spaceship;
+import spaceraze.world.*;
 
 /**
  * Base panel for the right part of the game gui, which can show the mini
@@ -112,7 +111,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		tabbedPanel.setToolTipTextAt(panelIndex, "Planet");
 		panelIndex++;
 
-		if (aPlanet.isPlanetOwner(aPlayer) && !aPlanet.isRazedAndUninfected()
+		if (PlanetPureFunctions.isPlanetOwner(aPlanet, aPlayer) && !PlanetPureFunctions.isRazedAndUninfected(aPlanet)
 				&& !(aPlayer.isDefeated() | aPlayer.getGalaxy().isGameOver())) {
 			tabbedPanel.addTab("Buildings", tempPanel("Buildings"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "Buildings");
@@ -162,11 +161,11 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		// draw planet
 		boolean spy = VipPureFunctions.findVIPSpy(aPlanet, aPlayer, aPlayer.getGalaxy()) != null;
 		;
-		boolean shipInSystem = aPlayer.getGalaxy().playerHasShipsInSystem(aPlayer, aPlanet);
+		boolean shipInSystem = PlayerPureFunctions.playerHasShipsInSystem(aPlayer, aPlanet, aPlayer.getGalaxy());
 		boolean lastKnownRazed = PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).isRazed();
 		boolean surveyShip = SpaceshipPureFunctions.findSurveyShip(aPlanet, aPlayer, aPlayer.getGalaxy().getSpaceships(), aPlayer.getGalaxy().getGameWorld()) != null;
 		boolean surveyVIP = VipPureFunctions.findSurveyVIPonShip(aPlanet, aPlayer, aPlayer.getGalaxy()) != null;
-		boolean razed = aPlanet.isRazed() & (aPlanet.getPlayerInControl() == null);
+		boolean razed = PlanetPureFunctions.isRazed(aPlanet) & (aPlanet.getPlayerInControl() == null);
 		// if player is present in system or was it razed at the last visit
 		if ((razed & (shipInSystem | spy)) | lastKnownRazed) {
 			bg.drawImage(planetRazed, 1, 1, client);
@@ -245,10 +244,10 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		}
 		// print owner / razed status
 		if (aPlanet.getPlayerInControl() == aPlayer) {
-			bg.setColor(ColorConverter.getColorFromHexString(aPlayer.getFaction().getPlanetHexColor()));
+			bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), aPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
 			bg.drawString("Planet is under your control", textX, 54);
 		} else if (aPlanet.isOpen() | spy | shipInSystem) {
-			if (aPlanet.isRazed() & (aPlanet.getPlayerInControl() == null)) {
+			if (PlanetPureFunctions.isRazed(aPlanet) & (aPlanet.getPlayerInControl() == null)) {
 				bg.setColor(StyleGuide.colorNeutralWhite);
 				bg.drawString("Planet is Razed", textX, 54);
 			} else {
@@ -257,11 +256,11 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 					bg.setColor(StyleGuide.colorNeutralWhite);
 					bg.drawString("Neutral", textX, 54);
 				} else {
-					String tmpOwner = aPlanet.getPlayerInControl().getFaction().getName();
+					String tmpOwner = GameWorldHandler.getFactionByKey(aPlanet.getPlayerInControl().getFactionKey(), aPlanet.getPlayerInControl().getGalaxy().getGameWorld()).getName();
 					tmpOwner = tmpOwner + " (" + aPlanet.getPlayerInControl().getGovernorName() + ")";
 					// planet belonging to other player
 					bg.setColor(ColorConverter
-							.getColorFromHexString(aPlanet.getPlayerInControl().getFaction().getPlanetHexColor()));
+							.getColorFromHexString(GameWorldHandler.getFactionByKey(aPlanet.getPlayerInControl().getFactionKey(), aPlanet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
 					bg.drawString(tmpOwner, textX, 54);
 				}
 			}
@@ -274,10 +273,10 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 				bg.setColor(StyleGuide.colorNeutralWhite);
 				bg.drawString("Neutral? (info from turn " + PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getLastInfoTurn() + ")", textX, 54);
 			} else {
-				Faction lastKnownFaction = aPlayer.getGalaxy().findPlayerFaction(lastKnownOwner);
+				Faction lastKnownFaction =  findPlayerFaction(lastKnownOwner, aPlayer.getGalaxy());
 				// bg.setColor(aPlanet.getPlayerInControl().getFaction().getPlanetColor());
 				bg.setColor(ColorConverter.getColorFromHexString(lastKnownFaction.getPlanetHexColor()));
-				bg.drawString(aPlayer.getGalaxy().findPlayerFaction(PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getLastKnownOwner()).getName()
+				bg.drawString(findPlayerFaction(PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getLastKnownOwner(), aPlayer.getGalaxy()).getName()
 						+ "? (info from turn " + PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getLastInfoTurn() + ")", textX, 54);
 			}
 		}
@@ -285,6 +284,22 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		g.drawImage(buffer, 1, 1, this);
 		paintChildren(g);
 	}
+
+	private Faction findPlayerFaction(String playerName, Galaxy galaxy) {
+		Faction foundFaction = null;
+		int i = 0;
+		while ((i < galaxy.getPlayers().size()) & (foundFaction == null)) {
+			Player tempPlayer = galaxy.getPlayers().get(i);
+			if (tempPlayer.getName().equalsIgnoreCase(playerName)) {
+				foundFaction = GameWorldHandler.getFactionByKey(tempPlayer.getFactionKey(), galaxy.getGameWorld());
+			} else {
+				i++;
+			}
+		}
+		return foundFaction;
+	}
+
+
 
 	private void removOldMiniPanel() {
 		Logger.fine("removOldMiniPanel");

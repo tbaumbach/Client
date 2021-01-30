@@ -7,6 +7,7 @@ import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Faction;
@@ -172,7 +173,7 @@ public class FactionDetailInfoPanel extends SRBasePanel {
 
 		if (f != null) {
 			nameLbl2.setText(String.valueOf(f.getName()));
-			nameLbl2.setForeground(ColorConverter.getColorFromHexString(p.getFaction().getPlanetHexColor()));
+			nameLbl2.setForeground(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()).getPlanetHexColor()));
 			openPlanetBonusLbl2.setText(String.valueOf(p.getOpenPlanetBonus()));
 			closedPlanetBonusLbl2.setText(String.valueOf(p.getClosedPlanetBonus()));
 			resistanceBonusLbl2.setText(String.valueOf(p.getResistanceBonus()));

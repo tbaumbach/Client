@@ -16,6 +16,7 @@ import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.panels.login.FactionDetailInfoPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.BuildingType;
 import spaceraze.world.Faction;
@@ -152,7 +153,7 @@ public class FactionPanel extends SRBasePanel implements ListSelectionListener, 
     public void showFaction(String name){
     	Faction f;
     	if(name.equals(playerListText)){
-    		f = findFaction(p.getFaction().getName());
+    		f = findFaction(GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()).getName());
     	}else{
     		f = findFaction(name);
     	}

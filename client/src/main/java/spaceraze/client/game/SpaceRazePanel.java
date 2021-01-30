@@ -31,6 +31,7 @@ import spaceraze.client.game.panels.login.PlayerCreatedMessagePanel;
 import spaceraze.client.game.panels.login.PlayerSavedPanel;
 import spaceraze.client.panels.GeneralMessagePanel;
 import spaceraze.servlethelper.game.TransferWrapper;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.util.properties.PropertiesHandler;
@@ -349,7 +350,7 @@ public class SpaceRazePanel extends SRBasePanel {
 	}
 
 	private void setFactionColor() {
-		StyleGuide.colorCurrent = ColorConverter.getColorFromHexString(p.getFaction().getPlanetHexColor());
+		StyleGuide.colorCurrent = ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()).getPlanetHexColor());
 	}
 
 	// Används bara för drag 0

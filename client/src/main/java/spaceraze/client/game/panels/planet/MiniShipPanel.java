@@ -22,10 +22,12 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.game.player.CostPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.servlethelper.map.MapPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
@@ -867,9 +869,9 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 						Planet destanationPlanet = player.getGalaxy().getPlanets().get(i);
 						if (destanationPlanet.getName().equalsIgnoreCase(getShipDestinationName(ss, player.getGalaxy(), player.getOrders()))) {
 							boolean spy = VipPureFunctions.findVIPSpy(destanationPlanet, player, player.getGalaxy()) != null;
-							if (destanationPlanet.isFactionPlanet(player.getFaction())) {
-								if (destanationPlanet.isPlayerPlanet() || destanationPlanet.isOpen()
-										|| (player.getGalaxy().playerHasShipsInSystem(player, planet)) || spy) {
+							if (isFactionPlanet(destanationPlanet, GameWorldHandler.getFactionByKey(player.getFactionKey(), player.getGalaxy().getGameWorld()))) {
+								if (destanationPlanet.getPlayerInControl() != null || destanationPlanet.isOpen()
+										|| PlayerPureFunctions.playerHasShipsInSystem(player, planet, player.getGalaxy()) || spy) {
 									motherShipInfo.setText("Will be supplyed by planet");
 									motherShipInfo.setToolTipText("A sqd needs supply to survive");
 									motherShipInfo2.setText(getShipDestinationName(ss, player.getGalaxy(), player.getOrders()));
@@ -883,7 +885,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 
 							} else {
 								if (destanationPlanet.isOpen()
-										|| (player.getGalaxy().playerHasShipsInSystem(player, planet)) || spy) {
+										|| PlayerPureFunctions.playerHasShipsInSystem(player, planet, player.getGalaxy()) || spy) {
 									motherShipInfo.setText("Will lost supply!");
 									motherShipInfo.setToolTipText(
 											"Be sure to take the planet or to have a free slot in a carrier");
@@ -915,7 +917,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 					motherShipInfo2.setVisible(true);
 
 				} else {// No orders and on the planet.
-					if (planet.isFactionPlanet(player.getFaction())) {
+					if (isFactionPlanet(planet, GameWorldHandler.getFactionByKey(player.getFactionKey(), player.getGalaxy().getGameWorld()))) {
 						motherShipInfo.setText("Supplyed by planet.");
 						motherShipInfo.setToolTipText("A sqd needs supply to survive");
 						motherShipInfo.setVisible(true);
@@ -1023,6 +1025,16 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 		}
 		repaint();
 		// paint(getGraphics());
+	}
+
+	private boolean isFactionPlanet(Planet planet, Faction aFaction){
+		boolean sameFaction = false;
+		if (planet.getPlayerInControl() != null){
+			if (planet.getPlayerInControl().getFactionKey().equalsIgnoreCase(aFaction.getKey())){
+				sameFaction = true;
+			}
+		}
+		return sameFaction;
 	}
 
 	private SpaceshipRange getShortestRange(List<Integer> selectedSpaceships) {
