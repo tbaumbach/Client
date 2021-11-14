@@ -126,7 +126,7 @@ public class MapEditorPanel extends SRBasePanel {
 	    	theMap = new Map();
 			SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
 			theMap.setCreatedDate(sdf.format(new Date()));
-	    	theMap.setAuthorLogin(userLogin);
+	    	theMap.setAuthor(userLogin);
 	    }
 
 	    showGUI();
