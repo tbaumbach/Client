@@ -259,11 +259,11 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 	    	
 		 Logger.fine("showBuilding(String BuildingName) " + buildingName);
 		 if(filterChoice.getSelectedIndex() == 0){
-			 buildingType = PlayerPureFunctions.findOwnBuildingType(buildingName, p);
+			 buildingType = PlayerPureFunctions.findOwnBuildingTypeByUuid(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()).getBuildingTypeByName(buildingName).getUuid(), p);
 			 nextBuildingTypes = BuildingPureFunctions.getNextBuildingSteps(buildingType, PlayerPureFunctions.getBuildingTypes(p));
 		 }
 		 else{
-			 buildingType = GameWorldHandler.getFactionByName(filterChoice.getSelectedItem(), p.getGalaxy().getGameWorld()).getBuildingType(buildingName);
+			 buildingType = GameWorldHandler.getFactionByName(filterChoice.getSelectedItem(), p.getGalaxy().getGameWorld()).getBuildingTypeByName(buildingName);
 			 nextBuildingTypes = BuildingPureFunctions.getNextBuildingSteps(buildingType, GameWorldHandler.getFactionByName(filterChoice.getSelectedItem(), p.getGalaxy().getGameWorld()).getBuildings());
 		 }
 		 

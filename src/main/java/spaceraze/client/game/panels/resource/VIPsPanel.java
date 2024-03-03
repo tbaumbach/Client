@@ -64,7 +64,7 @@ public class VIPsPanel extends SRBasePanel implements SRUpdateablePanel, ListSel
 		
 		int i = 0;
 		for (VIP aVIP : VIPs) {
-			vipsTable.setValueAt(VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), player.getGalaxy().getGameWorld()).getName(), i, 0);
+			vipsTable.setValueAt(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getName(), i, 0);
 			vipsTable.setValueAt(VipPureFunctions.getLocationString(aVIP), i, 1);
 	        String tempDest = getDestinationName(aVIP, player.getGalaxy(), player.getOrders().getVIPMoves());
 			vipsTable.setValueAt(tempDest, i, 2);
@@ -133,7 +133,7 @@ public class VIPsPanel extends SRBasePanel implements SRUpdateablePanel, ListSel
 		VIPMovement tempVIPMove = null;
 		while ((i < VIPMoves.size()) & !found) {
 			tempVIPMove = VIPMoves.get(i);
-			if (tempVIP.getKey().equalsIgnoreCase(tempVIPMove.getVipKey())) {
+			if (tempVIP.getUuid().equalsIgnoreCase(tempVIPMove.getVipKey())) {
 				found = true;
 			} else {
 				i++;

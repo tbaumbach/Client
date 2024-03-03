@@ -326,11 +326,11 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 		List<Spaceship> selectedShips = SpaceshipPureFunctions.getShipAtPlanetNextTurn(aPlayer, planet);
 		boolean semicolon = false;
 		for (Spaceship aShip : selectedShips) {
-			if (!SpaceshipPureFunctions.getSpaceshipTypeByKey(aShip.getTypeKey(), aPlayer.getGalaxy().getGameWorld()).isCivilian()) {
+			if (!SpaceshipPureFunctions.getSpaceshipTypeByUuid(aShip.getTypeUuid(), aPlayer.getGalaxy().getGameWorld()).isCivilian()) {
 				if (semicolon) {
 					sb.append(";");
 				}
-				sb.append(SpaceshipPureFunctions.getSpaceshipTypeByKey(aShip.getTypeKey(), aPlayer.getGalaxy().getGameWorld()).getName());
+				sb.append(SpaceshipPureFunctions.getSpaceshipTypeByUuid(aShip.getTypeUuid(), aPlayer.getGalaxy().getGameWorld()).getName());
 				String abilities = MiniShipPanel.getBattleSimAbilities(aShip);
 				// append () if needed
 				String vips = SpaceshipPureFunctions.getAllBattleSimVipsOnShip(aShip, aPlayer.getGalaxy().getAllVIPs(), aPlayer.getGalaxy().getGameWorld());
@@ -360,7 +360,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 					if (lse.getValueIsAdjusting()) {
 						if (planet.getPlayerInControl() != null) {
 							client.showBuildingTypeDetails(buildingList.getSelectedItem(),
-									GameWorldHandler.getFactionByKey(planet.getPlayerInControl().getFactionKey(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getName());
+									GameWorldHandler.getFactionByUuid(planet.getPlayerInControl().getFactionUuid(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getName());
 						} else {
 
 							// TODO (???) fixa när vi kan lista alla byggnader eller har info om vem som har
@@ -391,7 +391,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			for (int i = 0; i < tempList.size(); i++){
 				Spaceship tempss = tempList.get(i);
 				if ((tempss.getOwner() == null) & (tempss.getLocation() == planet)){
-					aType = SpaceshipPureFunctions.getSpaceshipTypeByKey(tempss.getTypeKey(), aGalaxy.getGameWorld());
+					aType = SpaceshipPureFunctions.getSpaceshipTypeByUuid(tempss.getTypeUuid(), aGalaxy.getGameWorld());
 					break;
 				}
 			}
@@ -420,7 +420,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 	}
 
 	/**
-	 * Return a string on posible neutral defender on open planet.
+	 * Return a string on possible neutral defender on open planet.
 	 * @param aGalaxy
 	 * @return
 	 */
@@ -433,7 +433,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			for (int i = 0; i < tempList.size(); i++){
 				Spaceship tempss = tempList.get(i);
 				if ((tempss.getOwner() == null) & (tempss.getLocation() == planet)){
-					aType = SpaceshipPureFunctions.getSpaceshipTypeByKey(tempss.getTypeKey(), aGalaxy.getGameWorld());
+					aType = SpaceshipPureFunctions.getSpaceshipTypeByUuid(tempss.getTypeUuid(), aGalaxy.getGameWorld());
 					break;
 				}
 			}
@@ -595,7 +595,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			// neutrala planeter
 			List<VIP> vipsOnPlanet = VipPureFunctions.findPlayersVIPsOnPlanet(planet, aPlayer, aPlayer.getGalaxy());
 			for (VIP aVip : vipsOnPlanet) {
-				VIPType vipType = VipPureFunctions.getVipTypeByKey(aVip.getTypeKey(), aPlayer.getGalaxy().getGameWorld());
+				VIPType vipType = VipPureFunctions.getVipTypeByUuid(aVip.getTypeUuid(), aPlayer.getGalaxy().getGameWorld());
 				if ((!vipType.isCanVisitEnemyPlanets() && !vipType.isCanVisitNeutralPlanets()) || vipType.isGovernor()) {
 					messages.add("Can't abandon " + planet.getName() + " while " + vipType.getName() + " is on the planet");
 				}
@@ -605,7 +605,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			if (vipMoves.size() > 0) {
 				for (VIPMovement aVIPMovement : vipMoves) {
 					VIP aVIP = VipPureFunctions.findVIP(aVIPMovement.getVipKey(), aPlayer.getGalaxy());
-					VIPType vipType = VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), aPlayer.getGalaxy().getGameWorld());
+					VIPType vipType = VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), aPlayer.getGalaxy().getGameWorld());
 					if ((!vipType.isCanVisitEnemyPlanets() && !vipType.isCanVisitNeutralPlanets()) || vipType.isGovernor()) {
 						messages.add("Can't abandon " + planet.getName() + " while " + vipType.getName()
 								+ " has a move order to the planet");
@@ -652,7 +652,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 		int i = 0;
 		while ((foundVIP == null) & (i < galaxy.getAllVIPs().size())) {
 			VIP tempVIP = galaxy.getAllVIPs().get(i);
-			if ((VipPureFunctions.getVipTypeByKey(tempVIP.getTypeKey(), galaxy.getGameWorld()).isGovernor()) & (tempVIP.getBoss() == aPlayer) & (tempVIP.getPlanetLocation() == aPlanet)) {
+			if ((VipPureFunctions.getVipTypeByUuid(tempVIP.getTypeUuid(), galaxy.getGameWorld()).isGovernor()) & (tempVIP.getBoss() == aPlayer) & (tempVIP.getPlanetLocation() == aPlanet)) {
 				foundVIP = tempVIP;
 			} else {
 				i++;
@@ -663,7 +663,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 
 	public static Planet getDestination(Spaceship tempss, Galaxy aGalaxy, Orders orders) {
 		ShipMovement shipMovement = orders.getShipMoves().stream()
-				.filter(movement -> tempss.getKey().equalsIgnoreCase(movement.getSpaceshipKey())).findAny().orElse(null);
+				.filter(movement -> tempss.getUuid().equalsIgnoreCase(movement.getSpaceshipKey())).findAny().orElse(null);
 
 		return shipMovement == null ? null : PlanetPureFunctions.getPlanet(shipMovement.getPlanetName(), aGalaxy);
 	}
@@ -849,9 +849,9 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 						if (buildings.size() > 0) {
 							if (planet.getPlayerInControl() != null) {
 								currentBuildBuildingLabel.setForeground(ColorConverter.getColorFromHexString(
-										GameWorldHandler.getFactionByKey(planet.getPlayerInControl().getFactionKey(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
+										GameWorldHandler.getFactionByUuid(planet.getPlayerInControl().getFactionUuid(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
 								buildingList.setForeground(ColorConverter.getColorFromHexString(
-										GameWorldHandler.getFactionByKey(planet.getPlayerInControl().getFactionKey(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
+										GameWorldHandler.getFactionByUuid(planet.getPlayerInControl().getFactionUuid(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
 							} else {
 								currentBuildBuildingLabel.setForeground(StyleGuide.colorNeutralWhite);
 								buildingList.setForeground(StyleGuide.colorNeutralWhite);
@@ -862,7 +862,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 							// Collections.sort(allBuildings);
 							dlm.removeAllElements();
 							for (int i = 0; i < buildings.size(); i++) {
-								dlm.addElement(BuildingPureFunctions.getBuildingType(buildings.get(i).getTypeKey(), g.getGameWorld()).getName());
+								dlm.addElement(BuildingPureFunctions.getBuildingTypeByUuid(buildings.get(i).getTypeUuid(), g.getGameWorld()).getName());
 							}
 							buildingList.updateScrollList();
 
@@ -913,9 +913,9 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 
 						if (planet.getPlayerInControl() != null) {
 							currentBuildBuildingLabel.setForeground(ColorConverter
-									.getColorFromHexString(GameWorldHandler.getFactionByKey(planet.getPlayerInControl().getFactionKey(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
+									.getColorFromHexString(GameWorldHandler.getFactionByUuid(planet.getPlayerInControl().getFactionUuid(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
 							buildingList.setForeground(ColorConverter
-									.getColorFromHexString(GameWorldHandler.getFactionByKey(planet.getPlayerInControl().getFactionKey(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
+									.getColorFromHexString(GameWorldHandler.getFactionByUuid(planet.getPlayerInControl().getFactionUuid(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
 							currentBuildBuildingLabel.setBounds(5, 180, 250, 18);
 							buildingList.setBounds(5, 200, 315, 100);
 						} else {
@@ -930,7 +930,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 						// TODO (Tobbe) hur löser vi detta? sortering av ArrayList
 						// Collections.sort(allBuildings);
 						for (int i = 0; i < visibleBuildings.size(); i++) {
-							dlm.addElement(BuildingPureFunctions.getBuildingType(visibleBuildings.get(i).getTypeKey(), g.getGameWorld()).getName());
+							dlm.addElement(BuildingPureFunctions.getBuildingTypeByUuid(visibleBuildings.get(i).getTypeUuid(), g.getGameWorld()).getName());
 						}
 						buildingList.updateScrollList();
 
@@ -942,7 +942,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 				if (allVIPs.size() > 0) {
 					List<VIP> visibleVIPs = new ArrayList<VIP>();
 					for (int i = 0; i < allVIPs.size(); i++) {
-						if (VipPureFunctions.getVipTypeByKey(allVIPs.get(i).getTypeKey(), g.getGameWorld()).getShowOnOpenPlanet()
+						if (VipPureFunctions.getVipTypeByUuid(allVIPs.get(i).getTypeUuid(), g.getGameWorld()).getShowOnOpenPlanet()
 								&& allVIPs.get(i).getBoss() == planet.getPlayerInControl()) {
 							visibleVIPs.add(allVIPs.get(i));
 						}
@@ -952,9 +952,9 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 
 						if (planet.getPlayerInControl() != null) {
 							vipPanel.setForeground(ColorConverter
-									.getColorFromHexString(GameWorldHandler.getFactionByKey(planet.getPlayerInControl().getFactionKey(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
+									.getColorFromHexString(GameWorldHandler.getFactionByUuid(planet.getPlayerInControl().getFactionUuid(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
 							allVIPlist.setForeground(ColorConverter
-									.getColorFromHexString(GameWorldHandler.getFactionByKey(planet.getPlayerInControl().getFactionKey(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
+									.getColorFromHexString(GameWorldHandler.getFactionByUuid(planet.getPlayerInControl().getFactionUuid(), planet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
 						} else {
 							vipPanel.setForeground(StyleGuide.colorNeutralWhite);
 							allVIPlist.setForeground(StyleGuide.colorNeutralWhite);
@@ -963,7 +963,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 						DefaultListModel dlm = (DefaultListModel) allVIPlist.getModel();
 						for (int i = 0; i < visibleVIPs.size(); i++) {
 							VIP aVIP = visibleVIPs.get(i);
-							dlm.addElement(VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), aPlayer.getGalaxy().getGameWorld()).getName());
+							dlm.addElement(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), aPlayer.getGalaxy().getGameWorld()).getName());
 						}
 						allVIPlist.updateScrollList();
 
@@ -1035,9 +1035,9 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			for (Building aBuilding : planet.getBuildings()) {
 				if (aBuilding.getWharfSize() > 0) {
 					OrderMutator.removeAllBuildShip(aBuilding, aPlayer.getOrders());
-				} else if (BuildingPureFunctions.getBuildingType(aBuilding.getTypeKey(), aPlayer.getGalaxy().getGameWorld()).getTypeOfTroop().size() > 0) {
+				} else if (BuildingPureFunctions.getBuildingTypeByUuid(aBuilding.getTypeUuid(), aPlayer.getGalaxy().getGameWorld()).getTypeOfTroop().size() > 0) {
 					OrderMutator.removeAllBuildTroop(aBuilding, aPlayer.getOrders());
-				} else if (BuildingPureFunctions.getBuildingType(aBuilding.getTypeKey(), aPlayer.getGalaxy().getGameWorld()).getBuildVIPTypes().size() > 0) {
+				} else if (BuildingPureFunctions.getBuildingTypeByUuid(aBuilding.getTypeUuid(), aPlayer.getGalaxy().getGameWorld()).getBuildVIPTypes().size() > 0) {
 					OrderMutator.removeBuildVIP(aBuilding, aPlayer.getOrders());
 				}
 			}
@@ -1051,7 +1051,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 	}
 
 	private void showMaxBombChoice() {
-		if (!GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), aPlayer.getGalaxy().getGameWorld()).isAlien()) {
+		if (!GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), aPlayer.getGalaxy().getGameWorld()).isAlien()) {
 			maxBombLabel.setText("Max bombardement:");
 			maxBombLabel.setVisible(true);
 			// int maxBombTemp = aPlayer.getPlanetInfos().getMaxBombardment(p.getName());
@@ -1079,7 +1079,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 		int upgradeResCost = p.getResistance();
 		int openBonus = 2 + aPlayer.getOpenPlanetBonus() - aPlayer.getClosedPlanetBonus();
 
-		if ((p.getPopulation() < getMaxPopulation(p)) & !GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), aPlayer.getGalaxy().getGameWorld()).isAlien()) {
+		if ((p.getPopulation() < getMaxPopulation(p)) & !GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), aPlayer.getGalaxy().getGameWorld()).isAlien()) {
 			upgradepopcb.setVisible(true);
 			upgradepopcb.setText("Upgrade production (cost: " + upgradePopCost + ")");
 		}

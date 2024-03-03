@@ -244,7 +244,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		}
 		// print owner / razed status
 		if (aPlanet.getPlayerInControl() == aPlayer) {
-			bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), aPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
+			bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), aPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
 			bg.drawString("Planet is under your control", textX, 54);
 		} else if (aPlanet.isOpen() | spy | shipInSystem) {
 			if (PlanetPureFunctions.isRazed(aPlanet) & (aPlanet.getPlayerInControl() == null)) {
@@ -256,11 +256,11 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 					bg.setColor(StyleGuide.colorNeutralWhite);
 					bg.drawString("Neutral", textX, 54);
 				} else {
-					String tmpOwner = GameWorldHandler.getFactionByKey(aPlanet.getPlayerInControl().getFactionKey(), aPlanet.getPlayerInControl().getGalaxy().getGameWorld()).getName();
+					String tmpOwner = GameWorldHandler.getFactionByUuid(aPlanet.getPlayerInControl().getFactionUuid(), aPlanet.getPlayerInControl().getGalaxy().getGameWorld()).getName();
 					tmpOwner = tmpOwner + " (" + aPlanet.getPlayerInControl().getGovernorName() + ")";
 					// planet belonging to other player
 					bg.setColor(ColorConverter
-							.getColorFromHexString(GameWorldHandler.getFactionByKey(aPlanet.getPlayerInControl().getFactionKey(), aPlanet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
+							.getColorFromHexString(GameWorldHandler.getFactionByUuid(aPlanet.getPlayerInControl().getFactionUuid(), aPlanet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
 					bg.drawString(tmpOwner, textX, 54);
 				}
 			}
@@ -291,7 +291,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		while ((i < galaxy.getPlayers().size()) & (foundFaction == null)) {
 			Player tempPlayer = galaxy.getPlayers().get(i);
 			if (tempPlayer.getName().equalsIgnoreCase(playerName)) {
-				foundFaction = GameWorldHandler.getFactionByKey(tempPlayer.getFactionKey(), galaxy.getGameWorld());
+				foundFaction = GameWorldHandler.getFactionByUuid(tempPlayer.getFactionUuid(), galaxy.getGameWorld());
 			} else {
 				i++;
 			}

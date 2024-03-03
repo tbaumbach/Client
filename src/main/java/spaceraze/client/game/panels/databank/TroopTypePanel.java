@@ -23,6 +23,7 @@ import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
+import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Faction;
@@ -385,7 +386,7 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
     	if (filterChoice.getSelectedIndex() > 2){
     		// get faction to show ships from
     		Faction showOnlyFaction = factions.get(filterChoice.getSelectedIndex() - 3);
-    		tempTtList = showOnlyFaction.getTroopTypes(); // borde funka som == 2 nedan
+    		tempTtList = showOnlyFaction.getTroopTypes().stream().map(uuid -> TroopPureFunctions.getTroopTypeByUuid(uuid, p.getGalaxy().getGameWorld())).collect(Collectors.toList()); // borde funka som == 2 nedan
     	}else 
     	if(filterChoice.getSelectedIndex() == 2){
     		tempTtList = PlayerPureFunctions.getTroopTypes(p.getGalaxy(), p);
@@ -471,11 +472,10 @@ public class TroopTypePanel extends SRBasePanel implements ListSelectionListener
       TroopType tt = null;
       int i = 0;
       if(filterChoice.getSelectedIndex() == 2){
-    	  tt = PlayerPureFunctions.findOwnTroopType(findname, p, p.getGalaxy());
+          tt = PlayerPureFunctions.findOwnTroopType(TroopPureFunctions.getTroopTypeByName(findname, p.getGalaxy().getGameWorld()).getUuid(), p, p.getGalaxy());
       }else
       if(filterChoice.getSelectedIndex() > 2){
-    	  Faction aFaction = factions.get(filterChoice.getSelectedIndex() - 3);
-    	  tt = aFaction.getTroopTypeByName(findname);
+    	  tt = TroopPureFunctions.getTroopTypeByName(findname, p.getGalaxy().getGameWorld());
 //    	  tt = p.getFaction().getTroopTypeByName(findname);
       }else{
 	      while ((tt == null) & (i < troopTypes.size())){

@@ -139,7 +139,7 @@ public class StatisticsGraph extends SRBasePanel{
 					}
 				}else{
 					for (Player aPlayer : galaxy.getPlayers()) {
-						bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), aPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
+						bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), aPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
 						List<Integer> values = StatisticsHandler.findPost(aPlayer.getName(), currentStatistics).getValues();
 						int value = values.get(0);
 						int valueCoor = getHeight()-bottomBorder-(value*valueInterval);
@@ -147,7 +147,7 @@ public class StatisticsGraph extends SRBasePanel{
 						if (aPlayer.getName().equals(highlightedPlayerName)){
 							bg.drawLine(leftBorder,valueCoor+1,getWidth()-rightBorder,valueCoor+1);
 							bg.drawLine(leftBorder,valueCoor-1,getWidth()-rightBorder,valueCoor-1);
-							bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), aPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()).darker());
+							bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), aPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()).darker());
 							bg.drawLine(leftBorder,valueCoor+2,getWidth()-rightBorder,valueCoor+2);
 							bg.drawLine(leftBorder,valueCoor-2,getWidth()-rightBorder,valueCoor-2);
 						}
@@ -181,7 +181,7 @@ public class StatisticsGraph extends SRBasePanel{
 					}
 				}else{
 					for (Player aPlayer : galaxy.getPlayers()) {
-						bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), aPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
+						bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), aPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
 						List<Integer> values = StatisticsHandler.findPost(aPlayer.getName(), currentStatistics).getValues();
 						int lastValue = values.get(0);
 						int lastValueCoor = getHeight()-bottomBorder-(lastValue*valueInterval);
@@ -194,10 +194,10 @@ public class StatisticsGraph extends SRBasePanel{
 							if (aPlayer.getName().equals(highlightedPlayerName)){
 								bg.drawLine(lastTurnCoor,lastValueCoor+1,aTurnCoor,aValueCoor+1);
 								bg.drawLine(lastTurnCoor,lastValueCoor-1,aTurnCoor,aValueCoor-1);							
-								bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), aPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()).darker());
+								bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), aPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()).darker());
 								bg.drawLine(lastTurnCoor,lastValueCoor+2,aTurnCoor,aValueCoor+2);
 								bg.drawLine(lastTurnCoor,lastValueCoor-2,aTurnCoor,aValueCoor-2);							
-								bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), aPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
+								bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), aPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
 							}
 							lastValueCoor = aValueCoor;
 							lastTurnCoor = aTurnCoor;

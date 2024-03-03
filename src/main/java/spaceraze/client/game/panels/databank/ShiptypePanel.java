@@ -739,7 +739,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	if (filterChoice.getSelectedIndex() > 2){
     		// get faction to show ships from
     		Faction showOnlyFaction = factions.get(filterChoice.getSelectedIndex() - 3);
-    		tempSstList = showOnlyFaction.getSpaceshipTypes();
+    		tempSstList = showOnlyFaction.getSpaceshipTypes().stream().map(uuid -> SpaceshipPureFunctions.getSpaceshipTypeByUuid(uuid, p.getGalaxy().getGameWorld())).collect(Collectors.toList());
     	}else if(filterChoice.getSelectedIndex() == 2){
     		tempSstList = PlayerPureFunctions.getSpaceshipTypes(p.getGalaxy(), p);
     	}
@@ -834,14 +834,14 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
       SpaceshipType sst = null;
       int i = 0;
       if(filterChoice.getSelectedIndex() == 2){
-    	  sst = PlayerPureFunctions.findOwnSpaceshipType(findname, p, p.getGalaxy());
+    	  sst = PlayerPureFunctions.findOwnSpaceshipType(SpaceshipPureFunctions.getSpaceshipTypeByName(findname, p.getGalaxy().getGameWorld()).getUuid(), p, p.getGalaxy());
       }else
       if (filterChoice.getSelectedIndex() > 2){
-  		Faction aFaction = factions.get(filterChoice.getSelectedIndex() - 3);
-  		sst = aFaction.getSpaceshipTypeByName(findname);
+  		//Faction aFaction = factions.get(filterChoice.getSelectedIndex() - 3);
+  		sst = SpaceshipPureFunctions.getSpaceshipTypeByName(findname, p.getGalaxy().getGameWorld());
       }else{
 	      while ((sst == null) & (i<spaceshiptypes.size())){
-	        SpaceshipType temp = (SpaceshipType)spaceshiptypes.get(i);
+	        SpaceshipType temp = spaceshiptypes.get(i);
 	        if (temp.getName().equalsIgnoreCase(findname)){
 	          sst = temp;
 	        }

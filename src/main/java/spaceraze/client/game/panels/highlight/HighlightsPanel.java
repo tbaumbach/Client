@@ -278,7 +278,7 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
 						lisList.add(aLis);
 					}
 				}else
-				if (GameWorldHandler.getFactionByKey(galaxy.getPlayerByGovenorName(aLis.getOwner()).getFactionKey(), galaxy.getGameWorld()).getName().equalsIgnoreCase(aFactionName) & (galaxy.getPlayerByGovenorName(aLis.getOwner()) != aPlayer)){
+				if (GameWorldHandler.getFactionByUuid(galaxy.getPlayerByGovenorName(aLis.getOwner()).getFactionUuid(), galaxy.getGameWorld()).getName().equalsIgnoreCase(aFactionName) & (galaxy.getPlayerByGovenorName(aLis.getOwner()) != aPlayer)){
 					lisList.add(aLis);
 				}
 			}else
@@ -296,7 +296,7 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
 	  researchLabels.clear();
 	  List<ResearchAdvantage> tmpAdvantages = null;
 	  boolean firstOnGoingResearch=true;
-	  tmpAdvantages = ResearchPureFunctions.getAllAdvantagesThatIsReadyToBeResearchOn(curPlayer, GameWorldHandler.getFactionByKey(curPlayer.getFactionKey(), galaxy.getGameWorld()));
+	  tmpAdvantages = ResearchPureFunctions.getAllAdvantagesThatIsReadyToBeResearchOn(curPlayer, GameWorldHandler.getFactionByUuid(curPlayer.getFactionUuid(), galaxy.getGameWorld()));
 	  for(int i = 0; i < tmpAdvantages.size(); i++){
 		  if(curPlayer.getOrders().checkResearchOrder(tmpAdvantages.get(i).getName())){
 			  if(firstOnGoingResearch){

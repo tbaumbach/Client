@@ -61,7 +61,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     		strGov.setBounds(10,70,90,20);
     		add(strGov);
 
-    		mostKills = new SRLabel(getMostKills().getOwner().getGovernorName() + " have a ship ("+ getMostKills().getName()  +") with most kills in the Galaxy ( " + getMostKills().getKills() + " Kills)." , ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(getMostKills().getOwner().getFactionKey(), getMostKills().getOwner().getGalaxy().getGameWorld()).getPlanetHexColor()));
+    		mostKills = new SRLabel(getMostKills().getOwner().getGovernorName() + " have a ship ("+ getMostKills().getName()  +") with most kills in the Galaxy ( " + getMostKills().getKills() + " Kills)." , ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(getMostKills().getOwner().getFactionUuid(), getMostKills().getOwner().getGalaxy().getGameWorld()).getPlanetHexColor()));
     		mostKills.setBounds(70,70,500,20);
     		add(mostKills);
     	}
@@ -191,10 +191,10 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
 		boolean factionGame = false; // if any faction have more than one player
 		List<Faction> foundFactions = new LinkedList<Faction>();
 		for (Player aPlayer : galaxy.getPlayers()) {
-			if (foundFactions.contains(GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), galaxy.getGameWorld()))) {
+			if (foundFactions.contains(GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), galaxy.getGameWorld()))) {
 				factionGame = true;
 			} else {
-				foundFactions.add(GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), galaxy.getGameWorld()));
+				foundFactions.add(GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), galaxy.getGameWorld()));
 			}
 		}
 		return factionGame;
@@ -203,7 +203,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     private void fillPlayerList(){
     	highlightPlayerChoice.addItem("None");
     	for (Player aPlayer : g.getPlayers()) {
-    		highlightPlayerChoice.addItem(aPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByKey(aPlayer.getFactionKey(), aPlayer.getGalaxy().getGameWorld()).getName() + ")");
+    		highlightPlayerChoice.addItem(aPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), aPlayer.getGalaxy().getGameWorld()).getName() + ")");
     	}
     }
 
@@ -223,7 +223,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     	List<Planet> planets = g.getPlanets();
     	for (Planet aPlanet : planets) {
     		if (aPlanet.getPlayerInControl() == p){
-    			if (GameWorldHandler.getFactionByKey(aPlanet.getPlayerInControl().getFactionKey(), g.getGameWorld()).isAlien()){
+    			if (GameWorldHandler.getFactionByUuid(aPlanet.getPlayerInControl().getFactionUuid(), g.getGameWorld()).isAlien()){
     				playerProd += aPlanet.getResistance();
     			}else{
     				playerProd += aPlanet.getPopulation();
@@ -232,7 +232,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     			if (aPlanet.getPlayerInControl() == null){
     				totalPop += aPlanet.getResistance();
     			}else{
-    				if (GameWorldHandler.getFactionByKey(aPlanet.getPlayerInControl().getFactionKey(), g.getGameWorld()).isAlien()){
+    				if (GameWorldHandler.getFactionByUuid(aPlanet.getPlayerInControl().getFactionUuid(), g.getGameWorld()).isAlien()){
     					totalPop += aPlanet.getResistance();
     				}else{
     					totalPop += aPlanet.getPopulation();

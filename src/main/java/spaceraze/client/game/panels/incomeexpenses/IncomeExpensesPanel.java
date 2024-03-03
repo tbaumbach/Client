@@ -182,7 +182,7 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
 		for (IncomeReportRow aRow : rows) {
 			incomeReportTable.setValueAt(aRow.getCounter(), rowCounter, 0);
 			incomeReportTable.setValueAt(aRow.getType().getDesc(), rowCounter, 1);
-			incomeReportTable.setValueAt(aRow.getDesc(), rowCounter, 2);
+			incomeReportTable.setValueAt(aRow.getDescription(), rowCounter, 2);
 			incomeReportTable.setValueAt(aRow.getLocation(), rowCounter, 3);
 			incomeReportTable.setValueAt(aRow.getValue(), rowCounter, 4);
 			rowCounter++;

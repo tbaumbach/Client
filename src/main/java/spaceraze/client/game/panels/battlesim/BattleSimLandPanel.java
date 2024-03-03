@@ -31,6 +31,7 @@ import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.SRTextField;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
@@ -280,7 +281,7 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
     		tempTtList = troopTypes;
     	}else{
     		Faction showOnlyFaction = factions.get(filterChoice.getSelectedIndex() - 2);
-    		tempTtList = showOnlyFaction.getTroopTypes();
+    		tempTtList = showOnlyFaction.getTroopTypes().stream().map(uuid -> TroopPureFunctions.getTroopTypeByUuid(uuid, p.getGalaxy().getGameWorld())).collect(Collectors.toList());
     	}
     	// sort lists
     	if (filterChoice.getSelectedIndex() == 0){
@@ -527,7 +528,7 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
 
     	if(!typeName.contains("---")){
 	    	Galaxy g = p.getGalaxy();
-	    	TroopType tt = g.findTroopType(typeName);
+	    	TroopType tt = TroopPureFunctions.getTroopTypeByName(typeName, g.getGameWorld());
 	    	
 	    	String appendString = "";
 	    	if (!aTA.getText().equals("")){

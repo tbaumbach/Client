@@ -115,7 +115,7 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
 	}else{
 		if (tempOffer.isVIP()){
 			// if amount is = 0, no bid exists
-			if (GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()).getAlignment().canHaveVip(tempOffer.getVIPType().getAlignment().getName())){
+			if (GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()).getAlignment().canHaveVip(tempOffer.getVIPType().getAlignment().getName())){
 				newButton.setEnabled(true);
 			}else{		
 				newButton.setEnabled(false);

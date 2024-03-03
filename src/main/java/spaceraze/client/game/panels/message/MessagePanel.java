@@ -144,7 +144,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
 	for (int i = 0; i < g.getFactions().size(); i++){
       Faction tempFaction = g.getGameWorld().getFactions().get(i);
       int tempNr = g.getFactionLivingMemberNr(tempFaction);
-      if(tempFaction.getKey().equalsIgnoreCase(p.getFactionKey())){
+      if(tempFaction.getUuid().equalsIgnoreCase(p.getFactionUuid())){
     	  tempNr--;
       }
       if(tempNr > 0){
@@ -155,8 +155,8 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
     for (int i = 0; i < g.getPlayers().size(); i++){
       Player tempPlayer = g.getPlayers().get(i);
       if ((!tempPlayer.isDefeated()) & (tempPlayer != p)){
-      	dlm.addElement("Governor " + tempPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByKey(tempPlayer.getFactionKey(), p.getGalaxy().getGameWorld()).getName() + ")");
-      	originalRecipientStrings.add("Governor " + tempPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByKey(tempPlayer.getFactionKey(), p.getGalaxy().getGameWorld()).getName() + ")");
+      	dlm.addElement("Governor " + tempPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(tempPlayer.getFactionUuid(), p.getGalaxy().getGameWorld()).getName() + ")");
+      	originalRecipientStrings.add("Governor " + tempPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(tempPlayer.getFactionUuid(), p.getGalaxy().getGameWorld()).getName() + ")");
       }
     }
   }
@@ -421,8 +421,8 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
 			strBuff.append("NEW ");
 		}
 		strBuff.append("Turn " + message.getTurn());
-		if (aGalaxy.getPlayer(message.getSender()) != null){
-			strBuff.append(" from Governor " + aGalaxy.getPlayer(message.getSender()).getGovernorName());
+		if (aGalaxy.getPlayerByUserName(message.getSender()) != null){
+			strBuff.append(" from Governor " + aGalaxy.getPlayerByUserName(message.getSender()).getGovernorName());
 		}else{
 			strBuff.append(" from " + message.getSender());
 		}
@@ -437,7 +437,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
 			recieverString = message.getRecipientFaction() + " faction";
 		}else
 		if (message.getType().equalsIgnoreCase("private")){ // meddelandet ska till en separat spelare
-			recieverString = "Govenor " + aGalaxy.getPlayer(message.getRecipientPlayer()).getGovernorName() + " (" + GameWorldHandler.getFactionByKey(aGalaxy.getPlayer(message.getRecipientPlayer()).getFactionKey(), aGalaxy.getGameWorld()).getName() + ")";
+			recieverString = "Govenor " + aGalaxy.getPlayerByUserName(message.getRecipientPlayer()).getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(aGalaxy.getPlayerByUserName(message.getRecipientPlayer()).getFactionUuid(), aGalaxy.getGameWorld()).getName() + ")";
 		}else
 		if (message.getType().equalsIgnoreCase("all")){ // meddelandet ska till en separat spelare
 			recieverString = "all governors";

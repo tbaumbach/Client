@@ -141,9 +141,9 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 				VIPsInList.add(aVIP);
 				String tempDest = VIPsPanel.getDestinationName(aVIP, player.getGalaxy(), player.getOrders().getVIPMoves());
 				if (!tempDest.equalsIgnoreCase("")) {
-					dlm.addElement(VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), player.getGalaxy().getGameWorld()).getName() + " (--> " + tempDest + ")");
+					dlm.addElement(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getName() + " (--> " + tempDest + ")");
 				} else {
-					dlm.addElement(VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), player.getGalaxy().getGameWorld()).getName());
+					dlm.addElement(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getName());
 				}
 			}
 		}
@@ -162,7 +162,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 		} else if (ae.getSource() instanceof CheckBoxPanel) {
 			newOrder((CheckBoxPanel) ae.getSource());
 		} else if (ae.getSource() instanceof SRButton) {
-			client.showVIPTypeDetails(VipPureFunctions.getVipTypeByKey(currentVIP.getTypeKey(), player.getGalaxy().getGameWorld()).getName(), "All");
+			client.showVIPTypeDetails(VipPureFunctions.getVipTypeByUuid(currentVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getName(), "All");
 		}
 	}
 
@@ -217,7 +217,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 			// - ship has short range
 			// - the ship has a move order with long range
 			// ==> remove that order
-			if (VipPureFunctions.getVipTypeByKey(currentVIP.getTypeKey(), player.getGalaxy().getGameWorld()).isFTLbonus()) {
+			if (VipPureFunctions.getVipTypeByUuid(currentVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).isFTLbonus()) {
 				Spaceship shipLocation = currentVIP.getShipLocation();
 				if (shipLocation != null) {
 					SpaceshipRange range = shipLocation.getRange();
@@ -276,7 +276,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 		// först kolla om det finns en gammal order för denna vip som skall tas bort
 		VIPMovement found = null;
 		for (VIPMovement tempVIPMove : orders.getVIPMoves()) {
-			if (aVIP.getKey().equalsIgnoreCase(tempVIPMove.getVipKey())) {
+			if (aVIP.getUuid().equalsIgnoreCase(tempVIPMove.getVipKey())) {
 				found = tempVIPMove;
 			}
 		}
@@ -298,7 +298,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 		VIP tempVIP = VIPsInList.get(index);
 		if (tempVIP != null) {
 			currentVIP = tempVIP;
-			VIPType vipType = VipPureFunctions.getVipTypeByKey(currentVIP.getTypeKey(), player.getGalaxy().getGameWorld());
+			VIPType vipType = VipPureFunctions.getVipTypeByUuid(currentVIP.getTypeUuid(), player.getGalaxy().getGameWorld());
 			typeLabel.setText("Type: " + vipType.getName() + " (" + vipType.getShortName() + ")");
 			alignmentLabel.setText("Alignment: " + vipType.getAlignment().toString());
 			String locStr = "";
@@ -318,7 +318,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 			locationLabel.setText("Location: " + locStr); // add location. can be null...
 			abilitiesLabel.setText("VIP abilities:");
 			destinationLabel.setText("Select destination:");
-			if (vipType.getAssassination() > 0 || VipPureFunctions.getVipTypeByKey(currentVIP.getTypeKey(), player.getGalaxy().getGameWorld()).getDuellistSkill() > 0) {
+			if (vipType.getAssassination() > 0 || VipPureFunctions.getVipTypeByUuid(currentVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getDuellistSkill() > 0) {
 				killsLabel.setText("Kills: " + currentVIP.getKills());
 			} else {
 				killsLabel.setText("");
@@ -430,7 +430,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 		// add all troops (except maybe the one vip already is on)
 		List<Troop> troops = TroopPureFunctions.getPlayersTroopsOnPlanet(player, planet, player.getGalaxy().getTroops());
 		for (Troop aTroop : troops) {
-			if (currentVIP.getTroopLocation() != aTroop && isTroopVIP(VipPureFunctions.getVipTypeByKey(currentVIP.getTypeKey(), player.getGalaxy().getGameWorld()))) {
+			if (currentVIP.getTroopLocation() != aTroop && isTroopVIP(VipPureFunctions.getVipTypeByUuid(currentVIP.getTypeUuid(), player.getGalaxy().getGameWorld()))) {
 				if (addTroopInfoText) {
 					destinationChoice.addItem("------------------   Troops   ------------------");
 					addTroopInfoText = false;
@@ -455,7 +455,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 	// kolla om currentVIP kan flytta till denna planet
 	private boolean canMoveToPlanet(Planet aPlanet, boolean checkNeutral, Planet originPlanet) {
 		boolean ok = false;
-		VIPType vipType = VipPureFunctions.getVipTypeByKey(currentVIP.getTypeKey(), player.getGalaxy().getGameWorld());
+		VIPType vipType = VipPureFunctions.getVipTypeByUuid(currentVIP.getTypeUuid(), player.getGalaxy().getGameWorld());
 		if (vipType.isCanVisitEnemyPlanets()) { // om VIPen kan besöka andra planeter än ens egna
 			ok = true;
 		} else // kolla om planeten är egen

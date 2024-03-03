@@ -597,19 +597,19 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 								addVIPsOnShip(tempss, c, tmpVips);
 								// bg.setColor(c.getColor());
 								bg.setColor(ColorConverter
-										.getColorFromHexString(GameWorldHandler.getFactionByKey(tempss.getOwner().getFactionKey(), tempss.getOwner().getGalaxy().getGameWorld()).getPlanetHexColor()));
+										.getColorFromHexString(GameWorldHandler.getFactionByUuid(tempss.getOwner().getFactionUuid(), tempss.getOwner().getGalaxy().getGameWorld()).getPlanetHexColor()));
 								boolean drawNow = false;
 								if (l == (tempshortsShips.size() - 1)) {
 									drawNow = true;
 								} else {
 									Spaceship tempss2 = tempshortsShips.get(l + 1);
-									if (!SpaceshipPureFunctions.getSpaceshipTypeByKey(tempss2.getTypeKey(), player.getGalaxy().getGameWorld()).getName()
-											.equals(SpaceshipPureFunctions.getSpaceshipTypeByKey(tempss.getTypeKey(), player.getGalaxy().getGameWorld()).getName())) {
+									if (!SpaceshipPureFunctions.getSpaceshipTypeByUuid(tempss2.getTypeUuid(), player.getGalaxy().getGameWorld()).getName()
+											.equals(SpaceshipPureFunctions.getSpaceshipTypeByUuid(tempss.getTypeUuid(), player.getGalaxy().getGameWorld()).getName())) {
 										drawNow = true;
 									}
 								}
 								if (drawNow) {
-									String tmpShipStr = SpaceshipPureFunctions.getSpaceshipTypeByKey(tempss.getTypeKey(), player.getGalaxy().getGameWorld()).getShortName();
+									String tmpShipStr = SpaceshipPureFunctions.getSpaceshipTypeByUuid(tempss.getTypeUuid(), player.getGalaxy().getGameWorld()).getShortName();
 									if (shipCount > 1) {
 										tmpShipStr = shipCount + " " + tmpShipStr;
 									}
@@ -620,7 +620,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 										// System.out.println("tmpVips.size() = " + tmpVips.size());
 										for (Iterator<VIP> iter = tmpVips.iterator(); iter.hasNext();) {
 											VIP aVIP = iter.next();
-											tmpShipStr = tmpShipStr + VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), player.getGalaxy().getGameWorld()).getShortName();
+											tmpShipStr = tmpShipStr + VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getShortName();
 											if (iter.hasNext()) {
 												tmpShipStr = tmpShipStr + ",";
 											}
@@ -649,14 +649,14 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 																												// of
 																												// troop
 							for (Troop troop : tempTroops) {
-								String name = TroopPureFunctions.getTroopTypeByKey(troop.getTypeKey(), player.getGalaxy().getGameWorld()).getShortName();
+								String name = TroopPureFunctions.getTroopTypeByUuid(troop.getTypeUuid(), player.getGalaxy().getGameWorld()).getShortName();
 								Integer tempCounter = troopsMap.get(name);
 								if (tempCounter == null) {
 									tempCounter = 1;
 								} else {
 									tempCounter = tempCounter + 1;
 								}
-								troopsMap.put(TroopPureFunctions.getTroopTypeByKey(troop.getTypeKey(), player.getGalaxy().getGameWorld()).getShortName(), tempCounter);
+								troopsMap.put(TroopPureFunctions.getTroopTypeByUuid(troop.getTypeUuid(), player.getGalaxy().getGameWorld()).getShortName(), tempCounter);
 							}
 							if ((tempTroops.size() > 0) & (tempshortsShips.size() > 0)) {
 								// draw line between ships and troops
@@ -677,7 +677,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 									List<VIP> vipsOnTroops = new LinkedList<VIP>();
 									for (Troop aTroop : tempTroops) {
 										// System.out.println("looking for vips in troops " + aTroop);
-										if (TroopPureFunctions.getTroopTypeByKey(aTroop.getTypeKey(), player.getGalaxy().getGameWorld()).getShortName().equals(aTroopTypeName)) {
+										if (TroopPureFunctions.getTroopTypeByUuid(aTroop.getTypeUuid(), player.getGalaxy().getGameWorld()).getShortName().equals(aTroopTypeName)) {
 											addVIPsOnTroop(aTroop, c, vipsOnTroops);
 										}
 									}
@@ -685,7 +685,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 										tmpTroopStr = tmpTroopStr + " (";
 										for (Iterator<VIP> iter2 = vipsOnTroops.iterator(); iter2.hasNext();) {
 											VIP aVIP = iter2.next();
-											tmpTroopStr = tmpTroopStr + VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), player.getGalaxy().getGameWorld()).getShortName();
+											tmpTroopStr = tmpTroopStr + VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getShortName();
 											if (iter2.hasNext()) {
 												tmpTroopStr = tmpTroopStr + ",";
 											}
@@ -719,8 +719,8 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 									// System.out.println("c.isOpen(): " + c.isOpen());
 									if ((tempv.getBoss() == player) | (c.isOpen())) {
 										bg.setColor(ColorConverter.getColorFromHexString(
-												GameWorldHandler.getFactionByKey(tempv.getBoss().getFactionKey(), player.getGalaxy().getGameWorld()).getPlanetHexColor()));
-										String tmpName = VipPureFunctions.getVipTypeByKey(tempv.getTypeKey(), player.getGalaxy().getGameWorld()).getShortName();
+												GameWorldHandler.getFactionByUuid(tempv.getBoss().getFactionUuid(), player.getGalaxy().getGameWorld()).getPlanetHexColor()));
+										String tmpName = VipPureFunctions.getVipTypeByUuid(tempv.getTypeUuid(), player.getGalaxy().getGameWorld()).getShortName();
 										FontMetrics fm = g.getFontMetrics();
 										int tmpWidth = fm.stringWidth(tmpName);
 										bg.drawString(tmpName, newx - (size / 2) - 3 - tmpWidth, currenty);
@@ -887,7 +887,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 					}
 					// skriv ut st�rsta skeppsstorleken + (GovName) i r�tt f�rg
 					if (!shipSize.equalsIgnoreCase("")) {
-						g.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(tempPlayer.getFactionKey(), tempPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
+						g.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(tempPlayer.getFactionUuid(), tempPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
 						g.drawString(shipSize + " (" + tempPlayer.getGovernorName() + ")", x, y);
 						y = y + 9;
 					}
@@ -921,7 +921,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 					int numberOfTroops = TroopPureFunctions.getTroopsOnPlanet(tempPlanet, tempPlayer, player.getGalaxy().getTroops()).size();
 					if (numberOfTroops > 0) {
 						troopString = numberOfTroops + " troops";
-						g.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(tempPlayer.getFactionKey(), tempPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
+						g.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(tempPlayer.getFactionUuid(), tempPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
 						g.drawString(troopString + " (" + tempPlayer.getGovernorName() + ")", x, y);
 						y = y - 9;
 						troopString = "";
@@ -1201,7 +1201,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 			if ((tempPlayer == aPlayer) | (p.isOpen()) | (PlayerPureFunctions.playerHasShipsInSystem(aPlayer, p, aPlayer.getGalaxy())) | spy
 					| troopInSystem) { // spelarens egen planet, visa r�tt f�rg
 				if (p.getPlayerInControl() != null) {
-					c.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(tempPlayer.getFactionKey(), tempPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
+					c.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(tempPlayer.getFactionUuid(), tempPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
 				} else {
 					c.setColor(StyleGuide.colorNeutralWhite);
 				}
@@ -1209,8 +1209,8 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 				if (PlanetPureFunctions.findPlanetInfo(p.getName(), aPlayer.getPlanetInformations()).getLastKnownOwner().equalsIgnoreCase("Neutral")) { // neutral planet
 					c.setColor(StyleGuide.colorNeutralWhite);
 				} else {
-					c.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(aPlayer.getGalaxy()
-							.getPlayer(PlanetPureFunctions.findPlanetInfo(p.getName(), aPlayer.getPlanetInformations()).getLastKnownOwner()).getFactionKey(), p.getGalaxy().getGameWorld()).getPlanetHexColor()));
+					c.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(aPlayer.getGalaxy()
+							.getPlayerByUserName(PlanetPureFunctions.findPlanetInfo(p.getName(), aPlayer.getPlanetInformations()).getLastKnownOwner()).getFactionUuid(), p.getGalaxy().getGameWorld()).getPlanetHexColor()));
 				}
 			}
 			insertCoorSorted(c, pcoors);
@@ -1224,7 +1224,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 				if (aTroop.getPlanetLocation() != null) {
 					if (aTroop.getPlanetLocation() == aPlanet) {
 						if (aPlanet.getPlayerInControl() == aTroop.getOwner()) {
-							if (TroopPureFunctions.getTroopTypeByKey(aTroop.getTypeKey(), player.getGalaxy().getGameWorld()).isVisible()) {
+							if (TroopPureFunctions.getTroopTypeByUuid(aTroop.getTypeUuid(), player.getGalaxy().getGameWorld()).isVisible()) {
 								nrTroopsOnPlanet++;
 							}
 						}
@@ -1321,7 +1321,7 @@ public class MapCanvas extends SRBasePanel implements Runnable, MouseListener, M
 				if (foundCoor != null) {
 					if (!tempv.getBoss().isPlayer(player)) {
 						// LoggingHandler.fine("other player found!");
-						if (VipPureFunctions.getVipTypeByKey(tempv.getTypeKey(), player.getGalaxy().getGameWorld()).getShowOnOpenPlanet()) {
+						if (VipPureFunctions.getVipTypeByUuid(tempv.getTypeUuid(), player.getGalaxy().getGameWorld()).getShowOnOpenPlanet()) {
 							// LoggingHandler.fine("show on open planet!");
 							foundCoor.addVip(tempv);
 						}

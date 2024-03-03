@@ -16,6 +16,10 @@ import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.panels.login.FactionDetailInfoPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.BuildingPureFunctions;
+import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
+import spaceraze.servlethelper.game.troop.TroopPureFunctions;
+import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.BuildingType;
@@ -153,7 +157,7 @@ public class FactionPanel extends SRBasePanel implements ListSelectionListener, 
     public void showFaction(String name){
     	Faction f;
     	if(name.equals(playerListText)){
-    		f = findFaction(GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()).getName());
+    		f = findFaction(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()).getName());
     	}else{
     		f = findFaction(name);
     	}
@@ -186,7 +190,7 @@ public class FactionPanel extends SRBasePanel implements ListSelectionListener, 
         DefaultListModel dlm = (DefaultListModel)startingUnitsList.getModel();
         dlm.removeAllElements();
         
-        List<VIPType> allVIPs = f.getStartingVIPTypes();
+        List<VIPType> allVIPs = f.getStartingVIPTypes().stream().map(uuid -> VipPureFunctions.getVipTypeByUuid(uuid, p.getGalaxy().getGameWorld())).collect(Collectors.toList());
         for (VIPType vipType : allVIPs) {
     		if(addVIPInfoText){
     			dlm.addElement("------   Specific VIPs   -----------");
@@ -196,7 +200,7 @@ public class FactionPanel extends SRBasePanel implements ListSelectionListener, 
     		startingUnits.add(vipType);
         }
         
-        List<SpaceshipType> allShips = f.getStartingShipTypes();
+        List<SpaceshipType> allShips = f.getStartingShipTypes().stream().map(uuid -> SpaceshipPureFunctions.getSpaceshipTypeByUuid(uuid, p.getGalaxy().getGameWorld())).collect(Collectors.toList());
         for (SpaceshipType spaceshipType : allShips) {
     		if(addShipInfoText){
     			dlm.addElement("------   Ships   -------------------");
@@ -206,7 +210,7 @@ public class FactionPanel extends SRBasePanel implements ListSelectionListener, 
     		startingUnits.add(spaceshipType);
         }
         	
-        List<TroopType> troops = f.getStartingTroops();
+        List<TroopType> troops = f.getStartingTroops().stream().map(uuid -> TroopPureFunctions.getTroopTypeByUuid(uuid, p.getGalaxy().getGameWorld())).collect(Collectors.toList());
         for (TroopType troopType : troops) {
         	if(addTroopInfoText){
         		dlm.addElement("------   Troops   ------------------");
@@ -216,7 +220,7 @@ public class FactionPanel extends SRBasePanel implements ListSelectionListener, 
         	startingUnits.add(troopType);
 		}
         
-        List<BuildingType> buildings = f.getStartingBuildings();
+        List<BuildingType> buildings = f.getStartingBuildings().stream().map(uuid -> BuildingPureFunctions.getBuildingTypeByUuid(uuid, p.getGalaxy().getGameWorld())).collect(Collectors.toList());
         for (BuildingType buildingType : buildings) {
         	if(addBuildingInfoText){
         		dlm.addElement("------   Buildings   ---------------");

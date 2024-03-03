@@ -89,7 +89,7 @@ public class MessageShowPopupPanel extends BasicPopupPanel {
 			recieverString = "Faction: " + message.getRecipientFaction();
 		}else
 		if (message.getType().equalsIgnoreCase("private")){ // meddelandet ska till en separat spelare
-			recieverString = "Govenor: " + aGalaxy.getPlayer(message.getRecipientPlayer()).getGovernorName() + " (" + GameWorldHandler.getFactionByKey(aGalaxy.getPlayer(message.getRecipientPlayer()).getFactionKey(), aGalaxy.getGameWorld()).getName() + ")";
+			recieverString = "Govenor: " + aGalaxy.getPlayerByUserName(message.getRecipientPlayer()).getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(aGalaxy.getPlayerByUserName(message.getRecipientPlayer()).getFactionUuid(), aGalaxy.getGameWorld()).getName() + ")";
 		}else
 		if (message.getType().equalsIgnoreCase("all")){ // meddelandet ska till en separat spelare
 			recieverString = "Public message";

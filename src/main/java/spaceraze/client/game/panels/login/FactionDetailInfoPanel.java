@@ -173,7 +173,7 @@ public class FactionDetailInfoPanel extends SRBasePanel {
 
 		if (f != null) {
 			nameLbl2.setText(String.valueOf(f.getName()));
-			nameLbl2.setForeground(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()).getPlanetHexColor()));
+			nameLbl2.setForeground(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()).getPlanetHexColor()));
 			openPlanetBonusLbl2.setText(String.valueOf(p.getOpenPlanetBonus()));
 			closedPlanetBonusLbl2.setText(String.valueOf(p.getClosedPlanetBonus()));
 			resistanceBonusLbl2.setText(String.valueOf(p.getResistanceBonus()));

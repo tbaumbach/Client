@@ -237,7 +237,7 @@ public class Coors implements Serializable{
 				boolean ownPlanet = aPlanet.getPlayerInControl() == aPlayer;
 		//		Logger.finest(aPlanet + ", shipInSystem: " + shipInSystem);
 				if (ownPlanet | alwaysShow | spy | shipInSystem | troopInSystem){
-					retStr = retStr + BuildingPureFunctions.getBuildingType(building.getTypeKey(), aPlayer.getGalaxy().getGameWorld()).getShortName();
+					retStr = retStr + BuildingPureFunctions.getBuildingTypeByUuid(building.getTypeUuid(), aPlayer.getGalaxy().getGameWorld()).getShortName();
 					if(iter.hasNext()){
 						retStr = retStr + ", ";
 					}

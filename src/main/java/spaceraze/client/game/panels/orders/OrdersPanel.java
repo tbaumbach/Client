@@ -142,7 +142,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	infoarea.append("Selfdestruct ships" + "\n");
     	infoarea.append(sepLine);
     	for (int m = 0; m < shipIds.size(); m++){
-    		Spaceship tempss = g.findSpaceshipByUniqueId(shipIds.get(m));
+    		Spaceship tempss = g.findSpaceshipByUuid(shipIds.get(m));
     		infoarea.append("Spaceship " + tempss.getName() + " is to be destroyed." + "\n");
     	}
     	infoarea.append("\n");
@@ -154,7 +154,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	infoarea.append("Selfdestruct VIPs" + "\n");
     	infoarea.append(sepLine);
     	for (int v = 0; v < tempVIPs.size(); v++){
-    		VIPType tempVIP = VipPureFunctions.getVipTypeByKey(tempVIPs.get(v), g.getGameWorld());
+    		VIPType tempVIP = VipPureFunctions.getVipTypeByUuid(tempVIPs.get(v), g.getGameWorld());
     		infoarea.append("VIP " + tempVIP.getName() + " is to be retired." + "\n");
     	}
     	infoarea.append("\n");
@@ -167,7 +167,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	infoarea.append(sepLine);
     	for (int n = 0; n < tempBuildings.size(); n++){
     		Building tempBuilding = BuildingPureFunctions.findBuilding(tempBuildings.get(n), aPlayer, g);
-    		infoarea.append("Building " + BuildingPureFunctions.getBuildingType(tempBuilding.getTypeKey(), g.getGameWorld()).getName() + " at " + tempBuilding.getLocation().getName() + " is to be destroyed." + "\n");
+    		infoarea.append("Building " + BuildingPureFunctions.getBuildingTypeByUuid(tempBuilding.getTypeUuid(), g.getGameWorld()).getName() + " at " + tempBuilding.getLocation().getName() + " is to be destroyed." + "\n");
     	}
     	infoarea.append("\n");
     }
@@ -178,7 +178,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	infoarea.append("Screen spaceships" + "\n");
     	infoarea.append(sepLine);
     	for (int p = 0; p < shipIds.size(); p++){
-    		Spaceship tempss = g.findSpaceshipByUniqueId(shipIds.get(p));
+    		Spaceship tempss = g.findSpaceshipByUuid(shipIds.get(p));
     		if (tempss.getLocation() != null){
     			infoarea.append("Your ship " + tempss.getName() + " at " + tempss.getLocation().getName() + "  is to change its screened status to " + !tempss.isScreened() + "\n");
     		}else{
@@ -252,7 +252,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
 	}
 
 	private String getText(VIPMovement vipMovement, Galaxy aGalaxy) {
-		return "Move " + VipPureFunctions.getVipTypeByKey(VipPureFunctions.findVIP(vipMovement.getVipKey(), aGalaxy).getTypeKey(), aGalaxy.getGameWorld()).getName() + " from " + VipPureFunctions.getLocationString(VipPureFunctions.findVIP(vipMovement.getVipKey(), aGalaxy)) + " to " + VIPsPanel.getDestinationName(vipMovement, aGalaxy) + ".";
+		return "Move " + VipPureFunctions.getVipTypeByUuid(VipPureFunctions.findVIP(vipMovement.getVipKey(), aGalaxy).getTypeUuid(), aGalaxy.getGameWorld()).getName() + " from " + VipPureFunctions.getLocationString(VipPureFunctions.findVIP(vipMovement.getVipKey(), aGalaxy)) + " to " + VIPsPanel.getDestinationName(vipMovement, aGalaxy) + ".";
 	}
 
 	public String getText(ShipToCarrierMovement shipToCarrierMovement, Galaxy aGalaxy) {

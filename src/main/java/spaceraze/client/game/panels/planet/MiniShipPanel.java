@@ -379,7 +379,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 	private int countShipToCarrierMoves(Spaceship aCarrier, Orders orders) {
 		int count = 0;
 		for (ShipToCarrierMovement aShipToCarrierMove : orders.getShipToCarrierMoves()) {
-			if (aCarrier.getKey().equalsIgnoreCase(aShipToCarrierMove.getDestinationCarrierKey())) {
+			if (aCarrier.getUuid().equalsIgnoreCase(aShipToCarrierMove.getDestinationCarrierKey())) {
 				count++;
 				Logger.finest("adding carrier count = " + count);
 			}
@@ -416,7 +416,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			Logger.finer("ae.getSource() instanceof SRButton");
 
 			if (action.equalsIgnoreCase("View Details")) {
-				client.showShiptypeDetails(SpaceshipPureFunctions.getSpaceshipTypeByKey(currentss.getTypeKey(), player.getGalaxy().getGameWorld()).getName(), "Yours");
+				client.showShiptypeDetails(SpaceshipPureFunctions.getSpaceshipTypeByUuid(currentss.getTypeUuid(), player.getGalaxy().getGameWorld()).getName(), "Yours");
 			} else if (action.equalsIgnoreCase("Auto add squadrons")) {
 				// Auto Fill
 				autoFillCarrier();
@@ -454,11 +454,11 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 		List<Spaceship> selectedShips = getSelectedSpaceships();
 		boolean semicolon = false;
 		for (Spaceship aShip : selectedShips) {
-			if (!SpaceshipPureFunctions.getSpaceshipTypeByKey(aShip.getTypeKey(), player.getGalaxy().getGameWorld()).isCivilian()) {
+			if (!SpaceshipPureFunctions.getSpaceshipTypeByUuid(aShip.getTypeUuid(), player.getGalaxy().getGameWorld()).isCivilian()) {
 				if (semicolon) {
 					sb.append(";");
 				}
-				sb.append(SpaceshipPureFunctions.getSpaceshipTypeByKey(aShip.getTypeKey(), player.getGalaxy().getGameWorld()).getName());
+				sb.append(SpaceshipPureFunctions.getSpaceshipTypeByUuid(aShip.getTypeUuid(), player.getGalaxy().getGameWorld()).getName());
 				String abilities = getBattleSimAbilities(aShip);
 				// append () if needed
 				String vips = SpaceshipPureFunctions.getAllBattleSimVipsOnShip(aShip, player.getGalaxy().getAllVIPs(), player.getGalaxy().getGameWorld());
@@ -563,7 +563,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 		ShipToCarrierMovement tempShipToCarrierMove = null;
 		while ((i < orders.getShipToCarrierMoves().size()) & !found) {
 			tempShipToCarrierMove = orders.getShipToCarrierMoves().get(i);
-			if (tempss.getKey().equalsIgnoreCase(tempShipToCarrierMove.getSpaceShipKey())) {
+			if (tempss.getUuid().equalsIgnoreCase(tempShipToCarrierMove.getSpaceShipKey())) {
 				found = true;
 			} else {
 				i++;
@@ -577,7 +577,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 
 	public static void addNewShipMove(Spaceship ss, Planet destination, Orders orders) {
 		// först kolla om det finns en gammal order för detta skepp som skall tas bort
-		ShipMovement shipMovement = orders.getShipMoves().stream().filter(shipMovement1 -> ss.getKey().equalsIgnoreCase(shipMovement1.getSpaceshipKey())).findAny().orElse(null);
+		ShipMovement shipMovement = orders.getShipMoves().stream().filter(shipMovement1 -> ss.getUuid().equalsIgnoreCase(shipMovement1.getSpaceshipKey())).findAny().orElse(null);
 		if(shipMovement != null){
 			orders.getShipMoves().remove(shipMovement);
 		}
@@ -590,7 +590,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 		// först kolla om det finns en gammal order för detta skepp som skall tas bort
 		ShipToCarrierMovement found = null;
 		for (ShipToCarrierMovement tempShipToCarrierMove : orders.getShipToCarrierMoves()) {
-			if (ss.getKey().equalsIgnoreCase(tempShipToCarrierMove.getSpaceShipKey())) {
+			if (ss.getUuid().equalsIgnoreCase(tempShipToCarrierMove.getSpaceShipKey())) {
 				found = tempShipToCarrierMove;
 			}
 		}
@@ -869,7 +869,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 						Planet destanationPlanet = player.getGalaxy().getPlanets().get(i);
 						if (destanationPlanet.getName().equalsIgnoreCase(getShipDestinationName(ss, player.getGalaxy(), player.getOrders()))) {
 							boolean spy = VipPureFunctions.findVIPSpy(destanationPlanet, player, player.getGalaxy()) != null;
-							if (isFactionPlanet(destanationPlanet, GameWorldHandler.getFactionByKey(player.getFactionKey(), player.getGalaxy().getGameWorld()))) {
+							if (isFactionPlanet(destanationPlanet, GameWorldHandler.getFactionByUuid(player.getFactionUuid(), player.getGalaxy().getGameWorld()))) {
 								if (destanationPlanet.getPlayerInControl() != null || destanationPlanet.isOpen()
 										|| PlayerPureFunctions.playerHasShipsInSystem(player, planet, player.getGalaxy()) || spy) {
 									motherShipInfo.setText("Will be supplyed by planet");
@@ -917,7 +917,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 					motherShipInfo2.setVisible(true);
 
 				} else {// No orders and on the planet.
-					if (isFactionPlanet(planet, GameWorldHandler.getFactionByKey(player.getFactionKey(), player.getGalaxy().getGameWorld()))) {
+					if (isFactionPlanet(planet, GameWorldHandler.getFactionByUuid(player.getFactionUuid(), player.getGalaxy().getGameWorld()))) {
 						motherShipInfo.setText("Supplyed by planet.");
 						motherShipInfo.setToolTipText("A sqd needs supply to survive");
 						motherShipInfo.setVisible(true);
@@ -1030,7 +1030,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 	private boolean isFactionPlanet(Planet planet, Faction aFaction){
 		boolean sameFaction = false;
 		if (planet.getPlayerInControl() != null){
-			if (planet.getPlayerInControl().getFactionKey().equalsIgnoreCase(aFaction.getKey())){
+			if (planet.getPlayerInControl().getFactionUuid().equalsIgnoreCase(aFaction.getUuid())){
 				sameFaction = true;
 			}
 		}
@@ -1056,7 +1056,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 		} else {
 			VIPInfoTextArea.setText("");
 			for (VIP aVIP : allVIPs) {
-				VIPInfoTextArea.append(VipPureFunctions.getVipTypeByKey(aVIP.getTypeKey(), player.getGalaxy().getGameWorld()).getName() + "\n");
+				VIPInfoTextArea.append(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getName() + "\n");
 			}
 		}
 	}

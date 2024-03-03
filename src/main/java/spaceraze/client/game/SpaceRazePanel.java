@@ -350,7 +350,7 @@ public class SpaceRazePanel extends SRBasePanel {
 	}
 
 	private void setFactionColor() {
-		StyleGuide.colorCurrent = ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByKey(p.getFactionKey(), p.getGalaxy().getGameWorld()).getPlanetHexColor());
+		StyleGuide.colorCurrent = ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()).getPlanetHexColor());
 	}
 
 	// Används bara för drag 0

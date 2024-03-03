@@ -48,7 +48,7 @@ public class BattleSimPanel extends SRBasePanel
 		implements ListSelectionListener, SRUpdateablePanel, ActionListener, BattleSimListener {
 	private static final long serialVersionUID = 1L;
 	private String id;
-	private List<SpaceshipType> militaryShiptypes;
+	private List<SpaceshipType> militaryShipTypes;
 	private List<VIPType> vipTypes;
 	private List<Faction> factions;
 	private ListPanel shiptypelist = null, vipsList;
@@ -66,8 +66,8 @@ public class BattleSimPanel extends SRBasePanel
 	private List<Integer> graphPoints;
 
 	public BattleSimPanel(List<SpaceshipType> allShiptypes, Player p, String id) {
-		militaryShiptypes = getMilitaryShiptypes(allShiptypes);
-		Collections.sort(militaryShiptypes, new SpaceshipTypeComparator());
+		militaryShipTypes = getMilitaryShiptypes(allShiptypes);
+		Collections.sort(militaryShipTypes, new SpaceshipTypeComparator());
 		this.id = id;
 		this.p = p;
 
@@ -235,7 +235,7 @@ public class BattleSimPanel extends SRBasePanel
 	}
 
 	private List<SpaceshipType> getMilitaryShiptypes(List<SpaceshipType> allShipTypes) {
-		List<SpaceshipType> milShiptypes = new LinkedList<SpaceshipType>();
+		List<SpaceshipType> milShiptypes = new LinkedList<>();
 		for (SpaceshipType aShiptype : allShipTypes) {
 			if (!aShiptype.isCivilian()) {
 				milShiptypes.add(aShiptype);
@@ -273,9 +273,9 @@ public class BattleSimPanel extends SRBasePanel
 		if (filterChoice.getSelectedIndex() > 1) {
 			// get faction to show ships from
 			Faction showOnlyFaction = factions.get(filterChoice.getSelectedIndex() - 2);
-			tempSstList = showOnlyFaction.getSpaceshipTypes();
+			tempSstList = showOnlyFaction.getSpaceshipTypes().stream().map(uuid -> SpaceshipPureFunctions.getSpaceshipTypeByUuid(uuid, p.getGalaxy().getGameWorld())).collect(Collectors.toList());
 		} else {
-			tempSstList = militaryShiptypes;
+			tempSstList = militaryShipTypes;
 		}
 
 		if (filterChoice.getSelectedIndex() == 0) {
@@ -422,7 +422,7 @@ public class BattleSimPanel extends SRBasePanel
 				shiptypeName = shiptypeName.substring(1);
 			}
 			Galaxy g = p.getGalaxy();
-			SpaceshipType sst = g.findSpaceshipType(shiptypeName);
+			SpaceshipType sst = SpaceshipPureFunctions.getSpaceshipTypeByName(shiptypeName, g.getGameWorld());
 			String appendString = "";
 			if (!aTA.getText().equals("")) {
 				appendString = ";";
