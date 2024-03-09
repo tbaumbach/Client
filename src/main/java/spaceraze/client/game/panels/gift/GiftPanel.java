@@ -108,7 +108,6 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
   }
 
   public void actionPerformed(ActionEvent ae){
-  	Logger.fine("actionPerformed: " + ae.getActionCommand() + " " + ae.getSource().getClass().getName());
   	String action = ae.getActionCommand();
   	if (action.equalsIgnoreCase("cancel")){
   	}else
@@ -152,7 +151,7 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
   
   private void openPopupGift(String actionCommand){
   	Logger.fine("openPopup called: " + actionCommand);
-    Player giveToPlayer = (Player)otherPlayers.get(allGiftsList.getSelectedIndex());
+    Player giveToPlayer = otherPlayers.get(allGiftsList.getSelectedIndex());
 
     if (actionCommand.equalsIgnoreCase("edit gift")){
     	int amount = p.getOrders().findGift(giveToPlayer);
@@ -166,9 +165,9 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
   }
 
   private void emptyList(){
-    DefaultListModel dlm = (DefaultListModel)allGiftsList.getModel();
-    dlm.removeAllElements();
-    otherPlayers = new ArrayList<Player>();
+    DefaultListModel dlm = allGiftsList.getModel();
+    dlm.clear();
+    otherPlayers = new ArrayList<>();
   }
 
   public String getId(){
