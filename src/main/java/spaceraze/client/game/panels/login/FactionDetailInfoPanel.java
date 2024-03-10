@@ -7,6 +7,7 @@ import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
+import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.StyleGuide;
@@ -155,7 +156,7 @@ public class FactionDetailInfoPanel extends SRBasePanel {
 			resistanceBonusLbl2.setText(String.valueOf(f.getResistanceBonus()));
 			alignmentLbl2.setText(f.getAlignment().toString());
 			corrLbl2.setText(f.getCorruptionPoint() != null ? f.getCorruptionPoint().getDescription() : "None");
-			governorVIPTypeLbl2.setText(f.getGovernorVIPType().getName());
+			governorVIPTypeLbl2.setText(VipPureFunctions.getVipTypeByUuid(f.getGovernorVIPType(), f.getGameWorld()).getName());
 			nrStartingRandomVIPsLbl2.setText(String.valueOf(f.getNrStartingRandomVIPs()));
 			techBonusLbl2.setText(String.valueOf(f.getTechBonus()));
 			xenomorphLbl2.setText(Functions.getYesNo(f.isAlien()));
@@ -179,7 +180,7 @@ public class FactionDetailInfoPanel extends SRBasePanel {
 			resistanceBonusLbl2.setText(String.valueOf(p.getResistanceBonus()));
 			alignmentLbl2.setText(f.getAlignment().toString());
 			corrLbl2.setText(p.getCorruptionPoint() != null ? p.getCorruptionPoint().getDescription() : "None");
-			governorVIPTypeLbl2.setText(f.getGovernorVIPType().getName());
+			governorVIPTypeLbl2.setText(VipPureFunctions.getVipTypeByUuid(f.getGovernorVIPType(), f.getGameWorld()).getName());
 			nrStartingRandomVIPsLbl2.setText(String.valueOf(f.getNrStartingRandomVIPs()));
 			techBonusLbl2.setText(String.valueOf(p.getTechBonus()));
 			xenomorphLbl2.setText(Functions.getYesNo(f.isAlien()));

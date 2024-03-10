@@ -353,7 +353,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 						newOrder(found, "Troop");
 					}
 				}
-			} else if (currentBuildingType.getBuildVIPTypes().size() > 0) {
+			} else if (currentBuildingType.getVipTypes().size() > 0) {
 				// { leta r�tt p� vilken choice som har valts
 				int found = -1;
 				int i = 0;
@@ -565,7 +565,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 					shipTypeChoice[0].setSelectedIndex(0);
 				} else if (currentBuildingType.getTypeOfTroop().size() > 0) {
 					troopTypeChoice[0].setSelectedIndex(0);
-				} else if (currentBuildingType.getBuildVIPTypes().size() > 0) {
+				} else if (currentBuildingType.getVipTypes().size() > 0) {
 					VIPTypeChoice[0].setSelectedIndex(0);
 				} else {
 					upgradeBuildingTypeChoice[0].setSelectedIndex(0);
@@ -635,7 +635,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			client.showBuildingTypeDetails(getComboBoxValue(shipTypeChoice[0].getSelectedItem()), "Yours");
 		} else if (currentBuildingType.getTypeOfTroop().size() > 0) {
 			client.showBuildingTypeDetails(getComboBoxValue(troopTypeChoice[0].getSelectedItem()), "Yours");
-		} else if (currentBuildingType.getBuildVIPTypes().size() > 0) {
+		} else if (currentBuildingType.getVipTypes().size() > 0) {
 			client.showBuildingTypeDetails(getComboBoxValue(VIPTypeChoice[0].getSelectedItem()), "Yours");
 		} else {
 			client.showBuildingTypeDetails(getComboBoxValue(upgradeBuildingTypeChoice[0].getSelectedItem()), "Yours");
@@ -720,7 +720,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 					upgradeBuildingTypeChoice[0].setVisible(false);
 					troopTypeChoice[0].setVisible(true);
 					buildTypeLabel.setVisible(true);
-				} else if (currentBuildingType.getBuildVIPTypes().size() > 0) {
+				} else if (currentBuildingType.getVipTypes().size() > 0) {
 					// visa alla tidigare valda VIPsorder samt ev. en till med ytterligare
 					// tillgängliga alternativ
 					showVIPTypeChoices(currentBuilding);
@@ -763,7 +763,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 				buildTypeLabel.setText("Build new ship or upgrade the building:");
 			} else if (currentBuildingType.getTypeOfTroop().size() > 0) {
 				buildTypeLabel.setText("Build new troop or upgrade the building:");
-			} else if (currentBuildingType.getBuildVIPTypes().size() > 0) {
+			} else if (currentBuildingType.getVipTypes().size() > 0) {
 				buildTypeLabel.setText("Recruite new VIP or upgrade the building:");
 			} else {
 				buildTypeLabel.setText("Upgrade building to:");
@@ -792,7 +792,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 
 			abilitiesLabel.setText("Building abilities:");
 			abilitiesTextArea.setText("");
-			List<String> allStrings = BuildingPureFunctions.getAbilitiesStrings(currentBuildingType);
+			List<String> allStrings = BuildingPureFunctions.getAbilitiesStrings(currentBuildingType, player.getGalaxy().getGameWorld());
 			for (int i = 0; i < allStrings.size(); i++) {
 				abilitiesTextArea.append(allStrings.get(i) + "\n");
 				Logger.finer("Building abilities: " + allStrings.get(i));
@@ -836,7 +836,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			shipTypeChoice[0].setVisible(false);
 			VIPTypeChoice[0].setVisible(false);
 			upgradeBuildingTypeChoice[0].setVisible(false);
-		} else if (currentBuildingType.getBuildVIPTypes().size() > 0) {
+		} else if (currentBuildingType.getVipTypes().size() > 0) {
 			VIPTypeChoice[0].addItem("None");
 			VIPTypeChoice[0].setEnabled(false);
 			VIPTypeChoice[0].setVisible(true);
@@ -1093,7 +1093,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			addUpgradeBuildTypes(VIPTypeChoice[0], true);
 		}
 
-		List<VIPType> copyAllTypes = List.copyOf(currentBuildingType.getBuildVIPTypes());
+		List<VIPType> copyAllTypes = currentBuildingType.getVipTypes().stream().map(vipUuid -> VipPureFunctions.getVipTypeByUuid(vipUuid, player.getGalaxy().getGameWorld())).toList();
 		Collections.sort(copyAllTypes, new VIPTypeComparator());
 		Collections.reverse(copyAllTypes);
 

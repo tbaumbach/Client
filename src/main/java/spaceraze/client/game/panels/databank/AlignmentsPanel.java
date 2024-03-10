@@ -11,6 +11,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import spaceraze.servlethelper.comparator.AlignmentNameComparator;
+import spaceraze.servlethelper.game.AlignmentPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.world.Alignment;
 import spaceraze.world.Player;
@@ -172,7 +173,7 @@ public class AlignmentsPanel extends SRBasePanel implements ListSelectionListene
           descScrollPane.setVisible(true);
           // can have vip textarea
           canHaveVIPTextArea.setText("");
-          List<Alignment> canHaveVipList = anAlignment.getCanHaveVipList();
+          List<Alignment> canHaveVipList = AlignmentPureFunctions.getAlignments(anAlignment.getCanHaveVips(), anAlignment.getGameWorld());
 //    	  canHaveVIPTextArea.append(anAlignment.getName() + "\n");
           for (Alignment tmpAlignment : canHaveVipList) {
         	  canHaveVIPTextArea.append(tmpAlignment.getName() + "\n");
@@ -181,7 +182,7 @@ public class AlignmentsPanel extends SRBasePanel implements ListSelectionListene
           canHaveVIPScrollPane.setVisible(true);
           // hate duellist textarea
           hatesDuellistTextArea.setText("");
-          List<Alignment> hatesDuellistList = anAlignment.getHateDuellistsList();
+          List<Alignment> hatesDuellistList = AlignmentPureFunctions.getAlignments(anAlignment.getHateDuellists(), anAlignment.getGameWorld());
           for (Alignment tmpAlignment : hatesDuellistList) {
         	  hatesDuellistTextArea.append(tmpAlignment.getName() + "\n");
           }

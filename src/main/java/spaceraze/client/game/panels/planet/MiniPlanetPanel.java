@@ -1037,7 +1037,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 					OrderMutator.removeAllBuildShip(aBuilding, aPlayer.getOrders());
 				} else if (BuildingPureFunctions.getBuildingTypeByUuid(aBuilding.getTypeUuid(), aPlayer.getGalaxy().getGameWorld()).getTypeOfTroop().size() > 0) {
 					OrderMutator.removeAllBuildTroop(aBuilding, aPlayer.getOrders());
-				} else if (BuildingPureFunctions.getBuildingTypeByUuid(aBuilding.getTypeUuid(), aPlayer.getGalaxy().getGameWorld()).getBuildVIPTypes().size() > 0) {
+				} else if (BuildingPureFunctions.getBuildingTypeByUuid(aBuilding.getTypeUuid(), aPlayer.getGalaxy().getGameWorld()).getVipTypes().size() > 0) {
 					OrderMutator.removeBuildVIP(aBuilding, aPlayer.getOrders());
 				}
 			}

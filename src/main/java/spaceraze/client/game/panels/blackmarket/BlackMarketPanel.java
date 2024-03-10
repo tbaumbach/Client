@@ -14,7 +14,7 @@ import spaceraze.client.components.SRButton;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
-import spaceraze.servlethelper.handlers.GameWorldHandler;
+import spaceraze.servlethelper.game.AlignmentPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.world.BlackMarketBid;
 import spaceraze.world.BlackMarketOffer;
@@ -115,7 +115,7 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
 	}else{
 		if (tempOffer.isVIP()){
 			// if amount is = 0, no bid exists
-			if (GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()).getAlignment().canHaveVip(tempOffer.getVIPType().getAlignment().getName())){
+			if (AlignmentPureFunctions.canHaveVip(tempOffer.getVIPType().getAlignment(), AlignmentPureFunctions.getPlayerAlignment(p, p.getGalaxy().getGameWorld()))){
 				newButton.setEnabled(true);
 			}else{		
 				newButton.setEnabled(false);

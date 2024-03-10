@@ -24,6 +24,7 @@ import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.BuildingPureFunctions;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
+import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
@@ -286,11 +287,11 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
     		rotBuildingList.setSelected(selectIndex);
     	}
 	    	
-	    if(buildingType.getBuildVIPTypes().size() > 0){
+	    if(buildingType.getVipTypes().size() > 0){
 			 DefaultListModel dlm = (DefaultListModel)vipsList.getModel();
 			 dlm.removeAllElements();
 			 List<VIPType> tmpVIPs = null;
-			 tmpVIPs = buildingType.getBuildVIPTypes();
+			 tmpVIPs = buildingType.getVipTypes().stream().map(vipUuid -> VipPureFunctions.getVipTypeByUuid(vipUuid, p.getGalaxy().getGameWorld())).toList();
 			 for (VIPType aVIPType : tmpVIPs) {
 				 dlm.addElement(aVIPType.getName());
 			 }
@@ -348,9 +349,9 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 
 		 tmpY += 18;
 		 
-		 if(buildingType.getParentBuildingName() != null){
-			 parentbutton.setToolTipText("Hit this button to see the parent building: " + buildingType.getParentBuildingName());
-			 parentbutton.setText(buildingType.getParentBuildingName());
+		 if(buildingType.getParentBuildingType() != null){
+			 parentbutton.setToolTipText("Hit this button to see the parent building: " + BuildingPureFunctions.getBuildingTypeByUuid(buildingType.getParentBuildingType(), p.getGalaxy().getGameWorld()).getName());
+			 parentbutton.setText(BuildingPureFunctions.getBuildingTypeByUuid(buildingType.getParentBuildingType(), p.getGalaxy().getGameWorld()).getName());
 			 parentbutton.setBounds(column1X, tmpY, buttonWidth, 20);
 			 parentbutton.setVisible(true);
 			 
@@ -370,7 +371,7 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 		 tmpY += 19;
 		 scrollPaneDetails.setLocation(column1X,tmpY);
 		 
-		 List<String> allStrings = BuildingPureFunctions.getAbilitiesStrings(buildingType);
+		 List<String> allStrings = BuildingPureFunctions.getAbilitiesStrings(buildingType, p.getGalaxy().getGameWorld());
 	        for (int i = 0; i < allStrings.size(); i++){
 	        	detailsArea.append(allStrings.get(i) + "\n");
 	        }

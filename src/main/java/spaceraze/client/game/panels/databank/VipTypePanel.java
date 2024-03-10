@@ -20,6 +20,7 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.AlignmentPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Alignment;
@@ -181,10 +182,10 @@ public class VipTypePanel extends SRBasePanel implements ListSelectionListener, 
 		}
     }
     
-    private List<Alignment> getCanHaveAlignments(Alignment anAlignment){
+    private List<Alignment> getCanHaveAlignments(String alignmentUuid){
     	List<Alignment> tmpAlignments = new LinkedList<Alignment>();
     	for (Alignment alignment : alignments) {
-			if (anAlignment.canHaveVip(alignment.getName())){
+			if (AlignmentPureFunctions.canHaveVip(alignmentUuid, alignment)){
 				tmpAlignments.add(alignment);
 			}
 		}
