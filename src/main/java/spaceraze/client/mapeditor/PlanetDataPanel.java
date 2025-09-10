@@ -21,6 +21,7 @@ import spaceraze.client.components.SRButton;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRTextField;
 import spaceraze.client.components.scrollable.ListPanel;
+import spaceraze.servlethelper.map.MapPureFunctions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.*;
 
@@ -171,20 +172,20 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 			connectionsList.setListSelectionListener(this);
 			add(connectionsList);
 			// fill list with data
-			DefaultListModel dlm = (DefaultListModel)connectionsList.getModel();
+			DefaultListModel dlm = connectionsList.getModel();
 		    dlm.clear();
 		    List<MapPlanetConnection> allConnections = theMap.getConnections();
 			for (MapPlanetConnection aConnection : allConnections) {
-				MapPlanet p1 = aConnection.getPlanetOne();
-				MapPlanet p2 = aConnection.getPlanetTwo();
+				MapPlanet p1 = MapPureFunctions.getPlanet(aConnection.getPlanetOneUuid(), theMap);
+				MapPlanet p2 = MapPureFunctions.getPlanet(aConnection.getPlanetTwoUuid(), theMap);
 				String rangeStr = "short";
 				if (aConnection.isLongRange()){
 					rangeStr = "long";
 				}
-				if (p1 == selectedPlanet){
+				if (aConnection.getPlanetOneUuid().equals(selectedPlanet.getUuid())){
 					dlm.addElement(p2.getName() + " (" + rangeStr + ")");
 				}else
-				if (p2 == selectedPlanet){
+				if (aConnection.getPlanetTwoUuid().equals(selectedPlanet.getUuid())){
 					dlm.addElement(p1.getName() + " (" + rangeStr + ")");
 				}
 			}
@@ -266,7 +267,7 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 			selStr = selStr.substring(0,index);
 			System.out.println("selStr: " + selStr);
 			MapPlanet aPlanet = theMap.findPlanet(selStr);
-			theMap.deleteConnection(selectedPlanet,aPlanet);
+			MapPureFunctions.deleteConnection(theMap, selectedPlanet.getUuid(), aPlanet.getUuid());
 			guiPanel.updateMap();
 			showPlanet(selectedPlanet);
 			removeConnBtn.setEnabled(false);

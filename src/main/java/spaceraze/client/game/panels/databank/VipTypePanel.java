@@ -301,7 +301,7 @@ public class VipTypePanel extends SRBasePanel implements ListSelectionListener, 
       if (vt != null){
           nameLbl2.setText(vt.getName());
           shortNameLbl2.setText(vt.getShortName());
-          alignmentLbl2.setText(vt.getAlignment().toString());
+          alignmentLbl2.setText(AlignmentPureFunctions.findAlignmentByUuid(vt.getAlignment(), p.getGalaxy().getGameWorld().getAlignments()).getName());
           frequencyLbl2.setText(vt.getFrequencyString());
           /*
           if (filterChoice.getSelectedIndex() >= 1){

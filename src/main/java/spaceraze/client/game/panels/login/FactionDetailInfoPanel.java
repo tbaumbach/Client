@@ -7,6 +7,7 @@ import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
+import spaceraze.servlethelper.game.AlignmentPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Functions;
@@ -154,7 +155,7 @@ public class FactionDetailInfoPanel extends SRBasePanel {
 			openPlanetBonusLbl2.setText(String.valueOf(f.getOpenPlanetBonus()));
 			closedPlanetBonusLbl2.setText(String.valueOf(f.getClosedPlanetBonus()));
 			resistanceBonusLbl2.setText(String.valueOf(f.getResistanceBonus()));
-			alignmentLbl2.setText(f.getAlignment().toString());
+			alignmentLbl2.setText(AlignmentPureFunctions.findAlignmentByUuid(f.getAlignment(), f.getGameWorld().getAlignments()).getName());
 			corrLbl2.setText(f.getCorruptionPoint() != null ? f.getCorruptionPoint().getDescription() : "None");
 			governorVIPTypeLbl2.setText(VipPureFunctions.getVipTypeByUuid(f.getGovernorVIPType(), f.getGameWorld()).getName());
 			nrStartingRandomVIPsLbl2.setText(String.valueOf(f.getNrStartingRandomVIPs()));
@@ -178,7 +179,7 @@ public class FactionDetailInfoPanel extends SRBasePanel {
 			openPlanetBonusLbl2.setText(String.valueOf(p.getOpenPlanetBonus()));
 			closedPlanetBonusLbl2.setText(String.valueOf(p.getClosedPlanetBonus()));
 			resistanceBonusLbl2.setText(String.valueOf(p.getResistanceBonus()));
-			alignmentLbl2.setText(f.getAlignment().toString());
+            alignmentLbl2.setText(AlignmentPureFunctions.findAlignmentByUuid(f.getAlignment(), f.getGameWorld().getAlignments()).getName());
 			corrLbl2.setText(p.getCorruptionPoint() != null ? p.getCorruptionPoint().getDescription() : "None");
 			governorVIPTypeLbl2.setText(VipPureFunctions.getVipTypeByUuid(f.getGovernorVIPType(), f.getGameWorld()).getName());
 			nrStartingRandomVIPsLbl2.setText(String.valueOf(f.getNrStartingRandomVIPs()));

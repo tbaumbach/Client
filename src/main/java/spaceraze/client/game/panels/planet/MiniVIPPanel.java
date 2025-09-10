@@ -20,6 +20,7 @@ import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.components.scrollable.TextAreaPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.panels.resource.VIPsPanel;
+import spaceraze.servlethelper.game.AlignmentPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.player.CostPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
@@ -300,7 +301,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 			currentVIP = tempVIP;
 			VIPType vipType = VipPureFunctions.getVipTypeByUuid(currentVIP.getTypeUuid(), player.getGalaxy().getGameWorld());
 			typeLabel.setText("Type: " + vipType.getName() + " (" + vipType.getShortName() + ")");
-			alignmentLabel.setText("Alignment: " + vipType.getAlignment().toString());
+			alignmentLabel.setText("Alignment: " + AlignmentPureFunctions.findAlignmentByUuid(vipType.getAlignment(), player.getGalaxy().getGameWorld().getAlignments()).getName());
 			String locStr = "";
 			if (currentVIP.getPlanetLocation() != null) {
 				locStr = currentVIP.getPlanetLocation().getName();

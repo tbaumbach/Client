@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 import javax.swing.event.MouseInputListener;
 
+import spaceraze.servlethelper.map.MapPureFunctions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.*;
 
@@ -97,14 +98,14 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 		// long range
 		for (MapPlanetConnection aConnection : allConnections) {
 			if (aConnection.isLongRange()){
-				drawPlanetconnection(g, StyleGuide.colorMapLongRange, scale,  aConnection.getPlanetOne(),  aConnection.getPlanetTwo());
+				drawPlanetConnection(g, StyleGuide.colorMapLongRange, scale,  aConnection.getPlanetOneUuid(),  aConnection.getPlanetTwoUuid());
 			}
 		}
 		
 		// short range
 		for (MapPlanetConnection aConnection : allConnections) {
 			if (!aConnection.isLongRange()){
-				drawPlanetconnection(g, StyleGuide.colorMapShortRange, scale,  aConnection.getPlanetOne(),  aConnection.getPlanetTwo());
+				drawPlanetConnection(g, StyleGuide.colorMapShortRange, scale,  aConnection.getPlanetOneUuid(),  aConnection.getPlanetTwoUuid());
 			}
 		}
 
@@ -132,11 +133,14 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 		
 	}
 
-	private void drawPlanetconnection(Graphics g, Color color, int scale, MapPlanet tmpPlanet1, MapPlanet tmpPlanet2){
-		int tmpX1 = (int)Math.round(tmpPlanet1.getX());
-		int tmpY1 = (int)Math.round(tmpPlanet1.getY());
-		int tmpX2 = (int)Math.round(tmpPlanet2.getX());
-		int tmpY2 = (int)Math.round(tmpPlanet2.getY());
+	private void drawPlanetConnection(Graphics g, Color color, int scale, String planetOneUuid, String planetTwoUuid){
+
+		MapPlanet planetOne = MapPureFunctions.getPlanet(planetOneUuid, theMap);
+		MapPlanet planetTwo = MapPureFunctions.getPlanet(planetTwoUuid, theMap);
+		int tmpX1 = (int)Math.round(planetOne.getX());
+		int tmpY1 = (int)Math.round(planetOne.getY());
+		int tmpX2 = (int)Math.round(planetTwo.getX());
+		int tmpY2 = (int)Math.round(planetTwo.getY());
 		tmpX1 = (xOffset * scale) + CENTER + (tmpX1 * scale);
 		tmpY1 = (yOffset * scale) + CENTER + (tmpY1 * scale);
 		tmpX2 = (xOffset * scale) + CENTER + (tmpX2 * scale);
@@ -303,11 +307,11 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 					// show error dialog
 					JOptionPane.showMessageDialog(this,chosenPlanet.getName() + " can not connect to itself");
 				}else
-				if (theMap.findConnection(closestPlanet,chosenPlanet) != null){
+				if (MapPureFunctions.findConnection(theMap, closestPlanet.getUuid(), chosenPlanet.getUuid()) != null){
 					// show error dialog
 					JOptionPane.showMessageDialog(this,chosenPlanet.getName() + " already have a connection to " + closestPlanet.getName());
 				}else{
-					theMap.addNewConnection(chosenPlanet,closestPlanet,false);
+					theMap.addNewConnection(chosenPlanet.getUuid(),closestPlanet.getUuid(),false);
 					guiPanel.addShortConnection(chosenPlanet);
 					repaint();
 				}
@@ -319,11 +323,11 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 					// show error dialog
 					JOptionPane.showMessageDialog(this,chosenPlanet.getName() + " can not connect to itself");
 				}else
-				if (theMap.findConnection(closestPlanet,chosenPlanet) != null){
+				if (MapPureFunctions.findConnection(theMap, closestPlanet.getUuid(), chosenPlanet.getUuid()) != null){
 					// show error dialog
 					JOptionPane.showMessageDialog(this,chosenPlanet.getName() + " already have a connection to " + closestPlanet.getName());
 				}else{
-					theMap.addNewConnection(chosenPlanet,closestPlanet,true);
+					theMap.addNewConnection(chosenPlanet.getUuid(),closestPlanet.getUuid(),true);
 					guiPanel.addLongConnection(chosenPlanet);
 					repaint();
 				}
