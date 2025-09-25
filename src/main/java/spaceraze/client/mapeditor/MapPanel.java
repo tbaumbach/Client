@@ -15,9 +15,11 @@ import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 import javax.swing.event.MouseInputListener;
 
-import spaceraze.servlethelper.map.MapPureFunctions;
+import spaceraze.map.MapPlanet;
+import spaceraze.map.MapPlanetConnection;
+import spaceraze.servlethelper.map.GalaxyMapPureFunctions;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.*;
+import spaceraze.map.GalaxyMap;
 
 /**
  * @author WMPABOD
@@ -26,7 +28,7 @@ import spaceraze.world.*;
  */
 @SuppressWarnings("serial")
 public class MapPanel extends JPanel implements MouseMotionListener, MouseInputListener{
-	private Map theMap;
+	private GalaxyMap theMap;
 	/**
 	 * 1 = *1 = 2 px for each LY between planets
 	 * 2 = *2 = 4 px for each LY between planets
@@ -48,7 +50,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 	private EditorGUIPanel guiPanel;
 	private MapPlanet chosenPlanet;
 
-	public MapPanel(Map aMap, EditorGUIPanel guiPanel){
+	public MapPanel(GalaxyMap aMap, EditorGUIPanel guiPanel){
 		theMap = aMap;
 		this.guiPanel = guiPanel;
 		
@@ -135,8 +137,8 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 
 	private void drawPlanetConnection(Graphics g, Color color, int scale, String planetOneUuid, String planetTwoUuid){
 
-		MapPlanet planetOne = MapPureFunctions.getPlanet(planetOneUuid, theMap);
-		MapPlanet planetTwo = MapPureFunctions.getPlanet(planetTwoUuid, theMap);
+		MapPlanet planetOne = GalaxyMapPureFunctions.getPlanet(planetOneUuid, theMap);
+		MapPlanet planetTwo = GalaxyMapPureFunctions.getPlanet(planetTwoUuid, theMap);
 		int tmpX1 = (int)Math.round(planetOne.getX());
 		int tmpY1 = (int)Math.round(planetOne.getY());
 		int tmpX2 = (int)Math.round(planetTwo.getX());
@@ -307,7 +309,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 					// show error dialog
 					JOptionPane.showMessageDialog(this,chosenPlanet.getName() + " can not connect to itself");
 				}else
-				if (MapPureFunctions.findConnection(theMap, closestPlanet.getUuid(), chosenPlanet.getUuid()) != null){
+				if (GalaxyMapPureFunctions.findConnection(theMap, closestPlanet.getUuid(), chosenPlanet.getUuid()) != null){
 					// show error dialog
 					JOptionPane.showMessageDialog(this,chosenPlanet.getName() + " already have a connection to " + closestPlanet.getName());
 				}else{
@@ -323,7 +325,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseInputL
 					// show error dialog
 					JOptionPane.showMessageDialog(this,chosenPlanet.getName() + " can not connect to itself");
 				}else
-				if (MapPureFunctions.findConnection(theMap, closestPlanet.getUuid(), chosenPlanet.getUuid()) != null){
+				if (GalaxyMapPureFunctions.findConnection(theMap, closestPlanet.getUuid(), chosenPlanet.getUuid()) != null){
 					// show error dialog
 					JOptionPane.showMessageDialog(this,chosenPlanet.getName() + " already have a connection to " + closestPlanet.getName());
 				}else{

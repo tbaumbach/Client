@@ -135,16 +135,16 @@ public class TurnInfoPanel extends SRBasePanel implements ActionListener {
 		if (p.isDefeated()) {
 			treasuryLabel.setText("Left to spend: -");
 		} else {
-			if (CostPureFunctions.isBroke(p, p.getGalaxy())) {
+			if (CostPureFunctions.isBroke(p, p.getGalaxy(), SpaceRazePanel.galaxyMap)) {
 				treasuryLabel.setText("Broke!");
 			} else {
-				treasuryLabel.setText("Left to spend: " + PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy()));
+				treasuryLabel.setText("Left to spend: " + PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy(), SpaceRazePanel.galaxyMap));
 			}
 		}
 		// om spelaren är pank och har utgifter eller om han inte är pank men har för
 		// höga utgifter
-		if ((CostPureFunctions.isBroke(p, p.getGalaxy()) & (ExpensePureFunction.getExpensesCost(p.getGalaxy(), p) > 0))
-				| ((!CostPureFunctions.isBroke(p, p.getGalaxy())) & (PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy()) < 0))) {
+		if ((CostPureFunctions.isBroke(p, p.getGalaxy(), SpaceRazePanel.galaxyMap) & (ExpensePureFunction.getExpensesCost(p.getGalaxy(), p, SpaceRazePanel.galaxyMap) > 0))
+				| ((!CostPureFunctions.isBroke(p, p.getGalaxy(), SpaceRazePanel.galaxyMap)) & (PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy(), SpaceRazePanel.galaxyMap) < 0))) {
 			sendbtn.setEnabled(false);
 		} else {
 			if (!client.getFinished()) {

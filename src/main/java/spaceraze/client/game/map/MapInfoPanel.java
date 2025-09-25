@@ -13,7 +13,7 @@ import javax.swing.border.LineBorder;
 
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Map;
+import spaceraze.map.GalaxyMap;
 import spaceraze.client.GeneralMessagePopupPanel;
 import spaceraze.client.components.ComboBoxPanel;
 import spaceraze.client.components.SRBasePanel;
@@ -27,9 +27,9 @@ public class MapInfoPanel extends SRBasePanel implements ItemListener, ActionLis
 	// info fields
 	private SRLabel  nrPlanetsLbl,averageNrConnLbl,nrPlanetsLbl2,averageNrConnLbl2;
 	// map
-	private spaceraze.world.Map map;
+	private GalaxyMap map;
 	
-	public MapInfoPanel(Map aMap, boolean showAdvanced){
+	public MapInfoPanel(GalaxyMap aMap, boolean showAdvanced){
 		this.map = aMap;
 		setLayout(null);
 		setSize(520, 610);                         
@@ -106,7 +106,7 @@ public class MapInfoPanel extends SRBasePanel implements ItemListener, ActionLis
 		g.drawRect(10, 100, 500, 500);
 	}
 
-    public void showMap(Map aMap, boolean showAdvanced){
+    public void showMap(GalaxyMap aMap, boolean showAdvanced){
     	Logger.fine(aMap.getNameFull() + " " + showAdvanced);
     	this.map = aMap;
 		titleLbl.setText(aMap.getNameFull());

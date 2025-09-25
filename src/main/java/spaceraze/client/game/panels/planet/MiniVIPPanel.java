@@ -20,6 +20,7 @@ import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.components.scrollable.TextAreaPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.panels.resource.VIPsPanel;
+import spaceraze.map.MapPlanet;
 import spaceraze.servlethelper.game.AlignmentPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.player.CostPureFunctions;
@@ -140,7 +141,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 			VIP aVIP = allVIPs.get(i);
 			if (aVIP.getBoss() == player) {
 				VIPsInList.add(aVIP);
-				String tempDest = VIPsPanel.getDestinationName(aVIP, player.getGalaxy(), player.getOrders().getVIPMoves());
+				String tempDest = VIPsPanel.getDestinationName(aVIP, player.getGalaxy(), player.getOrders().getVIPMoves(), SpaceRazePanel.galaxyMap);
 				if (!tempDest.equalsIgnoreCase("")) {
 					dlm.addElement(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getName() + " (--> " + tempDest + ")");
 				} else {
@@ -179,8 +180,8 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 	private Object getDestinationsInChoice(String choice) {
 		Object choicedObject = null;
 		for (Object destObject : destinationsInChoice) {
-			if (destObject instanceof Planet) {
-				if (((Planet) destObject).getName().equalsIgnoreCase(choice)) {
+			if (destObject instanceof Planet destination) {
+				if (PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, destination.getMapPlanetUuid()).equalsIgnoreCase(choice)) {
 					choicedObject = destObject;
 				}
 			} else if (destObject instanceof Spaceship) {
@@ -226,15 +227,14 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 						Orders orders = player.getOrders();
 						Planet shipDestination = MiniPlanetPanel.getDestination(shipLocation, player.getGalaxy(), orders);
 						if (shipDestination != null) {
-							SpaceshipRange distance = currentVIP.getBoss().getGalaxy().getDistance(shipDestination,
-									shipLocation.getLocation());
+							SpaceshipRange distance = PlanetPureFunctions.getDistance(SpaceRazePanel.galaxy, shipDestination, shipLocation.getLocation());
 							if (distance == SpaceshipRange.LONG) {
 								// remove move order for ship
 								MiniShipPanel.addNewShipMove(shipLocation, null, orders);
 								// a popup to the player about the removed move order should be displayed
 								String title = "Ship move deleted";
 								String message = "The ship " + shipLocation.getName()
-										+ " can no longer move long range, so it's move to " + shipDestination.getName()
+										+ " can no longer move long range, so it's move to " + PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, shipDestination.getMapPlanetUuid())
 										+ " has been deleted.";
 								Logger.finer("openMessagePopup called: " + message);
 								GeneralMessagePopupPanel popup = new GeneralMessagePopupPanel(title, this, message);
@@ -304,7 +304,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 			alignmentLabel.setText("Alignment: " + AlignmentPureFunctions.findAlignmentByUuid(vipType.getAlignment(), player.getGalaxy().getGameWorld().getAlignments()).getName());
 			String locStr = "";
 			if (currentVIP.getPlanetLocation() != null) {
-				locStr = currentVIP.getPlanetLocation().getName();
+				locStr = PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, currentVIP.getPlanetLocation().getMapPlanetUuid());
 			} else if (currentVIP.getShipLocation() != null) {
 				Spaceship tempss = currentVIP.getShipLocation();
 				if (tempss.getLocation() != null) {
@@ -327,7 +327,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 			destinationChoice.removeAllItems();
 			destinationsInChoice.clear();
 			addDestinations();
-			String tempDest = VIPsPanel.getDestinationName(currentVIP, player.getGalaxy(), player.getOrders().getVIPMoves());
+			String tempDest = VIPsPanel.getDestinationName(currentVIP, player.getGalaxy(), player.getOrders().getVIPMoves(), SpaceRazePanel.galaxyMap);
 			Logger.fine("tempDest: " + tempDest);
 			if (!tempDest.equalsIgnoreCase("")) {
 				destinationChoice.setSelectedItem(tempDest);
@@ -336,7 +336,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 			}
 			if (player.isRetreatingGovernor()) {
 				destinationChoice.setEnabled(false);
-			} else if (CostPureFunctions.isBroke(player, player.getGalaxy())) {
+			} else if (CostPureFunctions.isBroke(player, player.getGalaxy(), SpaceRazePanel.galaxyMap)) {
 				destinationChoice.setEnabled(false);
 			} else if (currentVIP.getPlanetLocation() != null) { // om vipen är på en planet...
 				if (currentVIP.getPlanetLocation().isBesieged()) { // och planeten är belägrad...
@@ -388,17 +388,18 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 		boolean addTroopInfoText = true;
 		if (currentPlanet != null) {
 
-			List<Planet> allDest = player.getGalaxy().getAllDestinations(currentPlanet, true);
-			Collections.sort(allDest, new PlanetNameComparator<Planet>());
-			for (int i = 0; i < allDest.size(); i++) {
-				Planet tempPlanet = allDest.get(i);
-				if (canMoveToPlanet(tempPlanet, false, currentPlanet)) {
+			List<Planet> allDest = PlanetPureFunctions.getAllDestinations(player.getGalaxy(), currentPlanet, true);
+            List<MapPlanet> mapPlanets = PlanetPureFunctions.getMapPlanets(SpaceRazePanel.galaxyMap, allDest);
+			mapPlanets.sort(new PlanetNameComparator<>());
+			for (MapPlanet mapPlanet : mapPlanets) {
+                Planet destination = PlanetPureFunctions.getPlanet(mapPlanet.getUuid(), allDest);
+				if (canMoveToPlanet(destination, false, currentPlanet)) {
 					if (addPlanetInfoText) {
 						destinationChoice.addItem("------------------   Planets   ------------------");
 						addPlanetInfoText = false;
 					}
-					destinationChoice.addItem(tempPlanet.getName());
-					destinationsInChoice.add(tempPlanet);
+					destinationChoice.addItem(mapPlanet.getName());
+					destinationsInChoice.add(destination);
 				}
 			}
 		} else {
@@ -409,7 +410,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 					destinationChoice.addItem("------------------   Planets   ------------------");
 					addPlanetInfoText = false;
 				}
-				destinationChoice.addItem(tmpLocation.getName());
+				destinationChoice.addItem(PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, tmpLocation.getMapPlanetUuid()));
 				destinationsInChoice.add(tmpLocation);
 			}
 		}
@@ -468,7 +469,7 @@ public class MiniVIPPanel extends SRBasePanel implements ActionListener, ListSel
 			} else // can not move to besieged planets if not canVisitEnemyPlanets()
 			if (((originPlanet != null) && (originPlanet.getPlayerInControl() == player)) & aPlanet.isBesieged()) {
 				ok = false;
-			} else if (!(checkNeutral & player.getOrders().getAbandonPlanet(aPlanet))) { // kan bara flytta från skepp
+			} else if (!(checkNeutral & player.getOrders().isAbandonPlanet(aPlanet))) { // kan bara flytta från skepp
 																							// (eller trupp) till egen
 																							// planet om det ej finns ej
 																							// abandon-order

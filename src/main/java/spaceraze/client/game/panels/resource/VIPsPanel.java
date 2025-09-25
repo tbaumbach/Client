@@ -14,7 +14,10 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTable;
 import spaceraze.client.components.SRTableHeader;
 import spaceraze.client.game.GameGUIPanel;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.map.GalaxyMap;
+import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
@@ -65,8 +68,8 @@ public class VIPsPanel extends SRBasePanel implements SRUpdateablePanel, ListSel
 		int i = 0;
 		for (VIP aVIP : VIPs) {
 			vipsTable.setValueAt(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getName(), i, 0);
-			vipsTable.setValueAt(VipPureFunctions.getLocationString(aVIP), i, 1);
-	        String tempDest = getDestinationName(aVIP, player.getGalaxy(), player.getOrders().getVIPMoves());
+			vipsTable.setValueAt(VipPureFunctions.getLocationString(aVIP, SpaceRazePanel.galaxyMap), i, 1);
+	        String tempDest = getDestinationName(aVIP, player.getGalaxy(), player.getOrders().getVIPMoves(), SpaceRazePanel.galaxyMap);
 			vipsTable.setValueAt(tempDest, i, 2);
 			i++;
 		}
@@ -103,7 +106,7 @@ public class VIPsPanel extends SRBasePanel implements SRUpdateablePanel, ListSel
 		VIPs = this.g.getPlayersVips(player);
 		VIP selectedVIP = VIPs.get(rowIndex);
 		Planet aPlanet = VipPureFunctions.getLocation(selectedVIP);
-    	gameGuiPanel.showPlanet(aPlanet.getName());    	
+    	gameGuiPanel.showPlanet(aPlanet.getMapPlanetUuid());
     }
 
 	public void valueChanged(ListSelectionEvent e) {
@@ -126,7 +129,7 @@ public class VIPsPanel extends SRBasePanel implements SRUpdateablePanel, ListSel
 		fillTableList();
 	}
 
-	public static String getDestinationName(VIP tempVIP, Galaxy aGalaxy, List<VIPMovement> VIPMoves) {
+	public static String getDestinationName(VIP tempVIP, Galaxy aGalaxy, List<VIPMovement> VIPMoves, GalaxyMap galaxyMap) {
 		String destName = "";
 		boolean found = false;
 		int i = 0;
@@ -140,15 +143,15 @@ public class VIPsPanel extends SRBasePanel implements SRUpdateablePanel, ListSel
 			}
 		}
 		if (found) {
-			destName = getDestinationName(tempVIPMove, aGalaxy);
+			destName = getDestinationName(tempVIPMove, aGalaxy, galaxyMap);
 		}
 		return destName;
 	}
 
-	public static String getDestinationName(VIPMovement vipMovement, Galaxy aGalaxy) {
+	public static String getDestinationName(VIPMovement vipMovement, Galaxy aGalaxy, GalaxyMap galaxyMap) {
 		String returnValue = "";
 		if (vipMovement.getPlanetDestination() != null) {
-			returnValue = vipMovement.getPlanetDestination();
+			returnValue = PlanetPureFunctions.getPlanetName(galaxyMap, vipMovement.getPlanetDestination());
 		} else if (vipMovement.getShipDestination() != null) {
 			returnValue = SpaceshipPureFunctions.findSpaceship(vipMovement.getShipDestination(), aGalaxy).getUniqueName();
 		} else { // troop

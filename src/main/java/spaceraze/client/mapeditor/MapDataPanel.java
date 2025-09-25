@@ -16,7 +16,7 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.SRTextField;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Map;
+import spaceraze.map.GalaxyMap;
 
 /**
  * @author WMPABOD
@@ -31,9 +31,9 @@ public class MapDataPanel extends JPanel implements ActionListener{
 	private JScrollPane scrollPane;
 	private SRButton newPlanetBtn;
 	private EditorGUIPanel guiPanel;
-	private Map theMap;
+	private GalaxyMap theMap;
 
-	public MapDataPanel(EditorGUIPanel guiPanel, Map aMap){
+	public MapDataPanel(EditorGUIPanel guiPanel, GalaxyMap aMap){
 		this.guiPanel = guiPanel;
 		this.theMap = aMap;
 		

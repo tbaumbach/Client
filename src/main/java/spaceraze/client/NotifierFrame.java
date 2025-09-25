@@ -41,6 +41,7 @@ import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.mapeditor.MapEditorPanel;
 import spaceraze.client.startview.GameListPanel;
 import spaceraze.client.startview.NewGamePanel;
+import spaceraze.map.GalaxyMap;
 import spaceraze.servlethelper.CreateNewGameData;
 import spaceraze.servlethelper.GameData;
 import spaceraze.servlethelper.NotifierTransferWrapper;
@@ -74,7 +75,7 @@ public class NotifierFrame extends JFrame implements Runnable,ActionListener{
 	private SpaceRazePanel spazeRazePanel;
 	private MapEditorPanel mapPanel;
 	private String port;
-	private List<spaceraze.world.Map> maps;
+	private List<GalaxyMap> maps;
 	private NewGamePanel newGamePanel;
 	private MapInfoPanel mapInfoPanel;
 	private GameWorldInfoPanel gameWorldInfoPanel;
@@ -248,7 +249,7 @@ public class NotifierFrame extends JFrame implements Runnable,ActionListener{
 		}
 	}
 	
-	public List<spaceraze.world.Map> getMaps(){
+	public List<GalaxyMap> getMaps(){
 		if (maps == null){
 			NotifierTransferWrapper wrapper = getResponse(null,0,null,false,true,null); 
 			maps = wrapper.getAllMaps();
@@ -645,11 +646,11 @@ public class NotifierFrame extends JFrame implements Runnable,ActionListener{
 		return yellow;
 	}
 	
-    public spaceraze.world.Map findMap(String aMapName){
-    	spaceraze.world.Map found = null;
+    public GalaxyMap findMap(String aMapName){
+    	GalaxyMap found = null;
     	int i = 0;
     	while ((found == null) & (i < maps.size())){
-    		spaceraze.world.Map aMap = maps.get(i);
+    		GalaxyMap aMap = maps.get(i);
     		if (aMap.getNameFull().equals(aMapName)){
     			found = aMap;
     		}else{
@@ -673,7 +674,7 @@ public class NotifierFrame extends JFrame implements Runnable,ActionListener{
 
     public MapInfoPanel showMapInfo(String aMapName, boolean showAdvanced){
     	Logger.fine("aMapName: " + aMapName);
-    	spaceraze.world.Map theMap = findMap(aMapName);
+    	GalaxyMap theMap = findMap(aMapName);
     	if (aMapName == null){ // hide map panel
     		mapInfoPanel.setVisible(false);
     	}else

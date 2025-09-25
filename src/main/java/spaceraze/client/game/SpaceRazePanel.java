@@ -29,16 +29,15 @@ import spaceraze.client.game.panels.login.LoginPanelFull;
 import spaceraze.client.game.panels.login.LoginPanelSimple;
 import spaceraze.client.game.panels.login.PlayerCreatedMessagePanel;
 import spaceraze.client.game.panels.login.PlayerSavedPanel;
+import spaceraze.client.mapeditor.MapEditorPanel;
 import spaceraze.client.panels.GeneralMessagePanel;
+import spaceraze.map.GalaxyMap;
 import spaceraze.servlethelper.game.TransferWrapper;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.util.properties.PropertiesHandler;
-import spaceraze.world.Faction;
-import spaceraze.world.GameWorld;
-import spaceraze.world.Message;
-import spaceraze.world.Player;
+import spaceraze.world.*;
 
 /**
  * <p>
@@ -85,6 +84,8 @@ public class SpaceRazePanel extends SRBasePanel {
 	private static String tunnelPath;
 	private static String port;
 	private static String codebase;
+    public static GalaxyMap galaxyMap;
+    public static Galaxy galaxy;
 
 	public SpaceRazePanel() {
 		// is called by browser, do nothing
@@ -304,8 +305,6 @@ public class SpaceRazePanel extends SRBasePanel {
 			}
 			remove(lpf);
 
-		} else if (lps != null) {
-			lps.setVisible(false);
 		}
 		p = getPlayer2(message);
 		Logger.fine("Data recieved successfully.");
@@ -344,6 +343,8 @@ public class SpaceRazePanel extends SRBasePanel {
 				}
 				receivedMessage = getPlayerMessages();
 				sentMessage = getPlayerSentMessages();
+                galaxy = p.getGalaxy();
+                galaxyMap = getMap(galaxy.getMapUuid(), p.getGalaxy().getMapVersion(), galaxy.getMapFileName());
 				showGUI();
 			}
 		}
@@ -447,6 +448,20 @@ public class SpaceRazePanel extends SRBasePanel {
 		Logger.info("Server answers, player returned: " + tmpPlayer.getName());
 		return tmpPlayer;
 	}
+
+    private GalaxyMap getMap(String uuid, long version, String fileName) {
+
+        MapEditorPanel mapEditorPanel = new MapEditorPanel(null, null);
+        return mapEditorPanel.loadMap(spaceraze.servlethelper.map.TransferWrapper.LOAD_PUB, fileName);
+
+        /*
+        Logger.info("getMap new called: ");
+        TransferWrapper tw = getResponse(null, "getMap " + uuid + " " + version + " " + fileName, null, null);
+        GalaxyMap map = (GalaxyMap) tw.getReturnObject();
+        Logger.info("Server answers, map returned: " + map.getName());
+        return map;
+        */
+    }
 
 	private String getTunnelURL() {
 		if (SpaceRazePanel.tunnelPath != null) {

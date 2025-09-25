@@ -22,10 +22,12 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRTextField;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.map.MapPlanet;
 import spaceraze.servlethelper.game.BuildingPureFunctions;
 import spaceraze.servlethelper.game.DiplomacyPureFunctions;
 import spaceraze.servlethelper.game.expenses.ExpensePureFunction;
 import spaceraze.servlethelper.game.orders.OrderMutator;
+import spaceraze.servlethelper.game.orders.OrderPureFunctions;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
@@ -54,6 +56,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 	private ComboBoxPanel maxBombardmentChoice;
 	private SRButton updateMapButton;
 	private Planet planet;
+    private MapPlanet mapPlanet;
 	private Player aPlayer;
 	private SpaceRazePanel client;
 	private int x = -195, y = -110;
@@ -76,6 +79,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 		this.client = srgclient;
 		this.aPlayer = aPlayer;
 		this.planet = chosenPlanet;
+        this.mapPlanet = PlanetPureFunctions.getMapPlanet(SpaceRazePanel.galaxyMap,  planet.getMapPlanetUuid());
 		this.allBuildings = planet.getBuildings();
 		this.allVIPs = VipPureFunctions.findAllVIPsOnPlanetOrShipsOrTroops(planet, aPlayer.getGalaxy());
 		// this.setLayout(null);
@@ -283,7 +287,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 		updateMapButton.addActionListener(this);
 		add(updateMapButton);
 
-		showPlanet(chosenPlanet.getName());
+		showPlanet(chosenPlanet.getMapPlanetUuid());
 	}
 
 	public void actionPerformed(ActionEvent ae) {
@@ -292,7 +296,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 																											// tryckt ok
 																											// i
 																											// confirmpopup
-				aPlayer.addOrRemoveAbandonPlanet(planet);
+				OrderMutator.addOrRemoveAbandonPlanet(aPlayer.getOrders(), planet);
 				checkAbandon(true);
 				client.updateTreasuryLabel();
 			} else if ((ae.getSource() instanceof SRButton) & (ae.getActionCommand().equalsIgnoreCase("cancel"))) { // anv.
@@ -467,8 +471,8 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 
 	public void saveNotesUpdateMap(boolean updateMap) {
 		String textfieldText = notesTextfield.getText();
-		String oldNotesText = PlanetPureFunctions.findPlanetInfo(planet.getName(), aPlayer.getPlanetInformations()).getNotes();
-		PlanetNotesChange aPlanetNotesChange = aPlayer.getOrders().getPlanetNotesChange(planet);
+		String oldNotesText = PlanetPureFunctions.findPlanetInfo(planet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).getNotes();
+		PlanetNotesChange aPlanetNotesChange = OrderPureFunctions.getPlanetNotesChange(aPlayer.getOrders(), planet);
 		String newOrderText = null;
 		if (aPlanetNotesChange != null) {
 			newOrderText = aPlanetNotesChange.getNotesText();
@@ -483,19 +487,19 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			// if tftext is same as old text
 			if (textfieldText.equals(oldNotesText)) {
 				// remove order
-				aPlayer.getOrders().removePlanetNotesChange(planet);
+				OrderMutator.removePlanetNotesChange(aPlayer.getOrders(), planet);
 			} else {
 				// if tftext is different from ordertext
 				if (!textfieldText.equals(newOrderText)) {
 					// change order
-					aPlayer.getOrders().addPlanetNotesChange(planet, textfieldText);
+					OrderMutator.addPlanetNotesChange(aPlayer.getOrders(), planet, PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, planet.getMapPlanetUuid()), textfieldText);
 				}
 			}
 		} else { // else, there is no change order
 					// check if tftext is different from oldtext
 			if (!textfieldText.equals(oldNotesText)) {
 				// create new order
-				aPlayer.getOrders().addPlanetNotesChange(planet, textfieldText);
+                OrderMutator.addPlanetNotesChange(aPlayer.getOrders(), planet, PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, planet.getMapPlanetUuid()), textfieldText);
 			}
 		}
 		if (updateMap) {
@@ -506,7 +510,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 	// ev uppdatera spelarens Orders
 	private void newOrder(CheckBoxPanel cb) {
 		if (cb == opencb) {
-			aPlayer.addOrRemovePlanetVisib(planet);
+            OrderMutator.addOrRemovePlanetVisibility(aPlayer.getOrders(), planet);
 			client.updateTreasuryLabel();
 		} else if (cb == upgradepopcb) {
 			if (cb.isSelected()) { // lägg till order
@@ -526,7 +530,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			client.updateTreasuryLabel();
 		} else if (cb == attackIfNeutralCheckbox) {
 			// aPlayer.getPlanetInfos().setAttackIfNeutral(cb.isSelected(),p.getName());
-			PlanetOrderStatusMutator.setAttackIfNeutral(cb.isSelected(), planet.getName(), aPlayer.getPlanetOrderStatuses());
+			PlanetOrderStatusMutator.setAttackIfNeutral(cb.isSelected(), planet.getMapPlanetUuid(), aPlayer.getPlanetOrderStatuses());
 			if (!cb.isSelected() && planet.getPlayerInControl() == null) {
 				aPlayer.getOrders().removeAllGroundAttacksAgainstPlanet(planet, aPlayer);
 			}
@@ -545,19 +549,19 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 		} else // doNotBesiegeCheckbox
 		if (cb == doNotBesiegeCheckbox) {
 			// aPlayer.getPlanetInfos().setDoNotBesiege(cb.isSelected(),p.getName());
-			PlanetOrderStatusMutator.setDoNotBesiege(cb.isSelected(), planet.getName(), aPlayer.getPlanetOrderStatuses());
+			PlanetOrderStatusMutator.setDoNotBesiege(cb.isSelected(), planet.getMapPlanetUuid(), aPlayer.getPlanetOrderStatuses());
 			if (cb.isSelected() && planet.getPlayerInControl() != null) {
 				aPlayer.getOrders().removeAllGroundAttacksAgainstPlanet(planet, aPlayer);
 			}
 		} else { // destroyWharfsCheckbox
 			// aPlayer.getPlanetInfos().setOrbitalBuildings(cb.isSelected(),p.getName());
-			PlanetOrderStatusMutator.setDestroyOrbitalBuildings(cb.isSelected(), planet.getName(), aPlayer.getPlanetOrderStatuses());
+			PlanetOrderStatusMutator.setDestroyOrbitalBuildings(cb.isSelected(), mapPlanet.getUuid(), aPlayer.getPlanetOrderStatuses());
 		}
 	}
 
 	private void abandonPressed() {
 		if (abandonCheckbox.isSelected()) {
-			Logger.fine("Planet name: " + planet.getName());
+			Logger.fine("Planet name: " + mapPlanet.getName());
 			List<String> messages = new LinkedList<String>();
 			List<Troop> troopsOnPlanet = aPlayer.getGalaxy().findTroopsOnPlanet(planet, aPlayer);
 			if (troopsOnPlanet.size() > 0) {
@@ -578,8 +582,8 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 					} else {
 						Player owner = aShipOnPlanet.getOwner();
 						if (owner != null) { // check for move orders to planet
-							String destName = MiniShipPanel.getShipDestinationName(aShipOnPlanet, owner.getGalaxy(), owner.getOrders());
-							if (destName.equals(planet.getName())) {
+							String uuid = MiniShipPanel.getShipDestinationUuid(aShipOnPlanet, owner.getGalaxy(), owner.getOrders());
+							if (mapPlanet.getUuid().equals(uuid)) {
 								allIsSquadronsInCarrier = false;
 							}
 						}
@@ -597,7 +601,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			for (VIP aVip : vipsOnPlanet) {
 				VIPType vipType = VipPureFunctions.getVipTypeByUuid(aVip.getTypeUuid(), aPlayer.getGalaxy().getGameWorld());
 				if ((!vipType.isCanVisitEnemyPlanets() && !vipType.isCanVisitNeutralPlanets()) || vipType.isGovernor()) {
-					messages.add("Can't abandon " + planet.getName() + " while " + vipType.getName() + " is on the planet");
+					messages.add("Can't abandon " + mapPlanet.getName() + " while " + vipType.getName() + " is on the planet");
 				}
 			}
 			// får ej finnas flyttorder för vippar som ej kan vara på neutrala
@@ -607,17 +611,17 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 					VIP aVIP = VipPureFunctions.findVIP(aVIPMovement.getVipKey(), aPlayer.getGalaxy());
 					VIPType vipType = VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), aPlayer.getGalaxy().getGameWorld());
 					if ((!vipType.isCanVisitEnemyPlanets() && !vipType.isCanVisitNeutralPlanets()) || vipType.isGovernor()) {
-						messages.add("Can't abandon " + planet.getName() + " while " + vipType.getName()
+						messages.add("Can't abandon " + mapPlanet.getName() + " while " + vipType.getName()
 								+ " has a move order to the planet");
 					}
 				}
 			}
 			// får ej finnas moveorder på trupper till planeten
-			List<TroopToPlanetMovement> troopMoves = getTroopToPlanetMoves(planet, aPlayer.getOrders());
+			List<TroopToPlanetMovement> troopMoves = OrderPureFunctions.getTroopToPlanetMoves(planet.getMapPlanetUuid(), aPlayer.getOrders());
 			if (troopMoves.size() > 0) {
 				for (TroopToPlanetMovement aTroopToPlanetMovement : troopMoves) {
 					Troop aTroop = TroopPureFunctions.findTroop(aTroopToPlanetMovement.getTroopKey(),  aPlayer.getGalaxy());
-					messages.add("Can't abandon " + planet.getName() + " while " + aTroop.getName()
+					messages.add("Can't abandon " + mapPlanet.getName() + " while " + aTroop.getName()
 							+ " has a move order to the planet");
 				}
 			}
@@ -641,7 +645,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 				cPopup.open(this);
 			}
 		} else {
-			aPlayer.addOrRemoveAbandonPlanet(planet);
+            OrderMutator.addOrRemoveAbandonPlanet(aPlayer.getOrders(), planet);
 			checkAbandon(false);
 			client.updateTreasuryLabel();
 		}
@@ -665,15 +669,15 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 		ShipMovement shipMovement = orders.getShipMoves().stream()
 				.filter(movement -> tempss.getUuid().equalsIgnoreCase(movement.getSpaceshipKey())).findAny().orElse(null);
 
-		return shipMovement == null ? null : PlanetPureFunctions.getPlanet(shipMovement.getPlanetName(), aGalaxy);
+		return shipMovement == null ? null : PlanetPureFunctions.getPlanet(shipMovement.getDestination(), aGalaxy);
 	}
 
 
 	// count how many troops are ordered to move to a planet
-	public List<TroopToPlanetMovement> getTroopToPlanetMoves(Planet aPlanet, Orders orders) {
-		List<TroopToPlanetMovement> troopMoves = new LinkedList<TroopToPlanetMovement>();
+	public List<TroopToPlanetMovement> getTroopToPlanetMoves(String uuid, Orders orders) {
+		List<TroopToPlanetMovement> troopMoves = new LinkedList<>();
 		for (TroopToPlanetMovement aTroopToPlanetMove : orders.getTroopToPlanetMoves()) {
-			if (aPlanet.getName().equalsIgnoreCase(aTroopToPlanetMove.getPlanetName())) {
+			if (uuid.equalsIgnoreCase(aTroopToPlanetMove.getMapPlanetUuid())) {
 				troopMoves.add(aTroopToPlanetMove);
 			}
 		}
@@ -699,24 +703,20 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			if (maxBombTemp == 6) {
 				maxBombTemp = 9999;
 			}
-			PlanetOrderStatusMutator.setMaxBombardment(maxBombTemp, planet.getName(), aPlayer.getPlanetOrderStatuses());
+			PlanetOrderStatusMutator.setMaxBombardment(maxBombTemp, planet.getMapPlanetUuid(), aPlayer.getPlanetOrderStatuses());
 		}
 	}
 
-	private void showPlanet(String name) {
+	private void showPlanet(String planetUuid) {
 		hideAll();
-		String nameOnly = name;
-		if (name.indexOf("(") != -1) {
-			nameOnly = name.substring(0, name.indexOf("(") - 1);
-		}
 		Galaxy g = aPlayer.getGalaxy();
-		planet = g.findPlanet(nameOnly);
+		planet = PlanetPureFunctions.getPlanetByName(g, SpaceRazePanel.galaxyMap, planetUuid);
 		if (planet != null) { // det finns en planet med namnet "name"
-			PlanetNotesChange aPlanetNotesChange = aPlayer.getOrders().getPlanetNotesChange(planet);
+			PlanetNotesChange aPlanetNotesChange = OrderPureFunctions.getPlanetNotesChange(aPlayer.getOrders(), planet);
 			if (aPlanetNotesChange != null) {
 				notesTextfield.setText(aPlanetNotesChange.getNotesText());
 			} else {
-				notesTextfield.setText(PlanetPureFunctions.findPlanetInfo(planet.getName(), aPlayer.getPlanetInformations()).getNotes());
+				notesTextfield.setText(PlanetPureFunctions.findPlanetInfo(planet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).getNotes());
 			}
 			boolean spy = VipPureFunctions.findVIPSpy(planet, aPlayer, g) != null;
 			// visa alltid vem som kontrollerar planeten eller vem som senast n�r planeten
@@ -802,15 +802,15 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 							// visa destroyWharfs
 							// attackIfNeutralCheckbox.setSelected(aPlayer.getPlanetInfos().getAttackIfNeutral(p.getName()));
 							attackIfNeutralCheckbox
-									.setSelected(PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getName(), aPlayer.getPlanetOrderStatuses()));
+									.setSelected(PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getMapPlanetUuid(), aPlayer.getPlanetOrderStatuses()));
 							attackIfNeutralCheckbox.setVisible(true);
 							// destroyBuildingCheckbox.setSelected(aPlayer.getPlanetInfos().getOrbitalBuildings(p.getName()));
 							destroyBuildingCheckbox.setSelected(
-									PlanetOrderStatusPureFunctions.isDestroyOrbitalBuildings(planet.getName(), aPlayer.getPlanetOrderStatuses()));
+									PlanetOrderStatusPureFunctions.isDestroyOrbitalBuildings(planet.getMapPlanetUuid(), aPlayer.getPlanetOrderStatuses()));
 							destroyBuildingCheckbox.setVisible(true);
 							// doNotBesiegeCheckbox.setSelected(aPlayer.getPlanetInfos().getDoNotBesiege(p.getName()));
 							doNotBesiegeCheckbox
-									.setSelected(PlanetOrderStatusPureFunctions.isDoNotBesiege(planet.getName(), aPlayer.getPlanetOrderStatuses()));
+									.setSelected(PlanetOrderStatusPureFunctions.isDoNotBesiege(planet.getMapPlanetUuid(), aPlayer.getPlanetOrderStatuses()));
 							doNotBesiegeCheckbox.setVisible(true);
 							showMaxBombChoice();
 						}
@@ -819,15 +819,15 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 							// visa attackIfNeutral & destroyWharfs
 							// attackIfNeutralCheckbox.setSelected(aPlayer.getPlanetInfos().getAttackIfNeutral(p.getName()));
 							attackIfNeutralCheckbox
-									.setSelected(PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getName(), aPlayer.getPlanetOrderStatuses()));
+									.setSelected(PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getMapPlanetUuid(), aPlayer.getPlanetOrderStatuses()));
 							attackIfNeutralCheckbox.setVisible(true);
 							// destroyBuildingCheckbox.setSelected(aPlayer.getPlanetInfos().getOrbitalBuildings(p.getName()));
 							destroyBuildingCheckbox.setSelected(
-									PlanetOrderStatusPureFunctions.isDestroyOrbitalBuildings(planet.getName(), aPlayer.getPlanetOrderStatuses()));
+									PlanetOrderStatusPureFunctions.isDestroyOrbitalBuildings(planet.getMapPlanetUuid(), aPlayer.getPlanetOrderStatuses()));
 							destroyBuildingCheckbox.setVisible(true);
 							// doNotBesiegeCheckbox.setSelected(aPlayer.getPlanetInfos().getDoNotBesiege(p.getName()));
 							doNotBesiegeCheckbox
-									.setSelected(PlanetOrderStatusPureFunctions.isDoNotBesiege(planet.getName(), aPlayer.getPlanetOrderStatuses()));
+									.setSelected(PlanetOrderStatusPureFunctions.isDoNotBesiege(planet.getMapPlanetUuid(), aPlayer.getPlanetOrderStatuses()));
 							doNotBesiegeCheckbox.setVisible(true);
 							showMaxBombChoice();
 						}
@@ -873,12 +873,12 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 				} else {
 					// visa attackIfNeutral & destroyWharfs
 					attackIfNeutralCheckbox
-							.setSelected(PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getName(), aPlayer.getPlanetOrderStatuses()));
+							.setSelected(PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getMapPlanetUuid(), aPlayer.getPlanetOrderStatuses()));
 					attackIfNeutralCheckbox.setVisible(true);
 					destroyBuildingCheckbox
-							.setSelected(PlanetOrderStatusPureFunctions.isDestroyOrbitalBuildings(planet.getName(), aPlayer.getPlanetOrderStatuses()));
+							.setSelected(PlanetOrderStatusPureFunctions.isDestroyOrbitalBuildings(planet.getMapPlanetUuid(), aPlayer.getPlanetOrderStatuses()));
 					destroyBuildingCheckbox.setVisible(true);
-					doNotBesiegeCheckbox.setSelected(PlanetOrderStatusPureFunctions.isDoNotBesiege(planet.getName(), aPlayer.getPlanetOrderStatuses()));
+					doNotBesiegeCheckbox.setSelected(PlanetOrderStatusPureFunctions.isDoNotBesiege(planet.getMapPlanetUuid(), aPlayer.getPlanetOrderStatuses()));
 					doNotBesiegeCheckbox.setVisible(true);
 					showMaxBombChoice();
 				}
@@ -1025,8 +1025,8 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			}
 			opencb.setEnabled(false);
 			if (opencb.isSelected()) {
-				if (aPlayer.getOrders().getPlanetVisibility(planet)) {
-					aPlayer.addOrRemovePlanetVisib(planet);
+				if (aPlayer.getOrders().isPlanetVisibility(planet)) {
+                    OrderMutator.addOrRemovePlanetVisibility(aPlayer.getOrders(), planet);
 					opencb.setSelected(!opencb.isSelected());
 				}
 			}
@@ -1055,7 +1055,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			maxBombLabel.setText("Max bombardement:");
 			maxBombLabel.setVisible(true);
 			// int maxBombTemp = aPlayer.getPlanetInfos().getMaxBombardment(p.getName());
-			int maxBombTemp = PlanetOrderStatusPureFunctions.getMaxBombardment(planet.getName(), aPlayer.getPlanetOrderStatuses());
+			int maxBombTemp = PlanetOrderStatusPureFunctions.getMaxBombardment(planet.getMapPlanetUuid(), aPlayer.getPlanetOrderStatuses());
 			Logger.info("maxBombTemp: " + maxBombTemp);
 			if (maxBombTemp == 9999) {
 				maxBombTemp = 6;
@@ -1090,7 +1090,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 		opencb.setText("Open (income: +" + openBonus + ")");
 		opencb.setVisible(true);
 		abandonCheckbox.setVisible(true);
-		Logger.fine(p.getName() + " p.isBesieged(): " + p.isBesieged());
+		Logger.fine(p.getMapPlanetUuid() + " p.isBesieged(): " + p.isBesieged());
 		if (p.isBesieged() | (aPlayer.getGalaxy().getTurn() == 0)) {
 			opencb.setSelected(false);
 			upgradepopcb.setSelected(false);
@@ -1109,7 +1109,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			Orders o = aPlayer.getOrders();
 			// set opencb
 			boolean tempOpen = p.isOpen();
-			if (o.getPlanetVisibility(p)) {
+			if (o.isPlanetVisibility(p)) {
 				opencb.setSelected(!tempOpen);
 			} else {
 				opencb.setSelected(tempOpen);
@@ -1119,7 +1119,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 			// set upgrade res
 			upgraderescb.setSelected(o.incResExpenseExist(p));
 			// set the abandon cb and check how it affects the other cb:s
-			abandonCheckbox.setSelected(o.getAbandonPlanet(p));
+			abandonCheckbox.setSelected(o.isAbandonPlanet(p));
 			checkAbandon(abandonCheckbox.isSelected());
 		}
 	}
@@ -1175,7 +1175,7 @@ public class MiniPlanetPanel extends SRBasePanel implements ActionListener, List
 
 	public void updateData() {
 		if (planet != null) {
-			showPlanet(planet.getName());
+			showPlanet(planet.getMapPlanetUuid());
 		}
 	}
 

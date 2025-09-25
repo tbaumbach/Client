@@ -53,7 +53,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 	public ShowPlanet(Planet aPlanet, Player aPlayer, SpaceRazePanel client, ImageHandler imageHandler) {
 		this.aPlanet = aPlanet;
 		this.aPlayer = aPlayer;
-		planetName = aPlanet.getName();
+		planetName = PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, aPlanet.getMapPlanetUuid());
 		this.client = client;
 		setLayout(null);
 		setOpaque(true);
@@ -162,7 +162,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		boolean spy = VipPureFunctions.findVIPSpy(aPlanet, aPlayer, aPlayer.getGalaxy()) != null;
 		;
 		boolean shipInSystem = PlayerPureFunctions.playerHasShipsInSystem(aPlayer, aPlanet, aPlayer.getGalaxy());
-		boolean lastKnownRazed = PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).isRazed();
+		boolean lastKnownRazed = PlanetPureFunctions.findPlanetInfo(aPlanet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).isRazed();
 		boolean surveyShip = SpaceshipPureFunctions.findSurveyShip(aPlanet, aPlayer, aPlayer.getGalaxy().getSpaceships(), aPlayer.getGalaxy().getGameWorld()) != null;
 		boolean surveyVIP = VipPureFunctions.findSurveyVIPonShip(aPlanet, aPlayer, aPlayer.getGalaxy()) != null;
 		boolean razed = PlanetPureFunctions.isRazed(aPlanet) & (aPlanet.getPlayerInControl() == null);
@@ -194,8 +194,8 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		}
 		bg.setFont(new Font("Helvetica", 0, 12));
 		bg.setColor(new Color(41, 198, 255));
-		int prod = PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getProd();
-		int res = PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getRes();
+		int prod = PlanetPureFunctions.findPlanetInfo(aPlanet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).getProd();
+		int res = PlanetPureFunctions.findPlanetInfo(aPlanet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).getRes();
 		if ((aPlanet.isOpen()) | (aPlanet.getPlayerInControl() == aPlayer) | spy | surveyShip | surveyVIP) {
 			// always show correct values
 			if (razed) {
@@ -268,16 +268,16 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 			bg.setColor(StyleGuide.colorNeutralWhite);
 			bg.drawString("Planet is Razed?", textX, 54);
 		} else {
-			String lastKnownOwner = PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getLastKnownOwner();
+			String lastKnownOwner = PlanetPureFunctions.findPlanetInfo(aPlanet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).getLastKnownOwner();
 			if (lastKnownOwner.equalsIgnoreCase("Neutral")) {
 				bg.setColor(StyleGuide.colorNeutralWhite);
-				bg.drawString("Neutral? (info from turn " + PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getLastInfoTurn() + ")", textX, 54);
+				bg.drawString("Neutral? (info from turn " + PlanetPureFunctions.findPlanetInfo(aPlanet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).getLastInfoTurn() + ")", textX, 54);
 			} else {
 				Faction lastKnownFaction =  findPlayerFaction(lastKnownOwner, aPlayer.getGalaxy());
 				// bg.setColor(aPlanet.getPlayerInControl().getFaction().getPlanetColor());
 				bg.setColor(ColorConverter.getColorFromHexString(lastKnownFaction.getPlanetHexColor()));
-				bg.drawString(findPlayerFaction(PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getLastKnownOwner(), aPlayer.getGalaxy()).getName()
-						+ "? (info from turn " + PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getLastInfoTurn() + ")", textX, 54);
+				bg.drawString(findPlayerFaction(PlanetPureFunctions.findPlanetInfo(aPlanet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).getLastKnownOwner(), aPlayer.getGalaxy()).getName()
+						+ "? (info from turn " + PlanetPureFunctions.findPlanetInfo(aPlanet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).getLastInfoTurn() + ")", textX, 54);
 			}
 		}
 		// draw buffer
@@ -380,7 +380,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		if (miniPlanetPanel != null) {
 			retVal = miniPlanetPanel.getNotes();
 		} else {
-			retVal =PlanetPureFunctions.findPlanetInfo(aPlanet.getName(), aPlayer.getPlanetInformations()).getNotes();
+			retVal =PlanetPureFunctions.findPlanetInfo(aPlanet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).getNotes();
 		}
 		return retVal;
 	}

@@ -239,7 +239,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 		String destName = "";
 		Planet destination = getDestinationPlanet(aTroop, aGalaxy, orders);
 		if (destination != null) {
-			destName = destination.getName();
+			destName = PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, destination.getMapPlanetUuid());
 		}
 		return destName;
 	}
@@ -409,7 +409,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 				}
 			} else {
 				// destination is maybe a planet
-				Planet newDestination = player.getGalaxy().findPlanet(destinationName);
+				Planet newDestination = PlanetPureFunctions.getPlanetByName(player.getGalaxy(), SpaceRazePanel.galaxyMap, destinationName);
 				if (newDestination != null) {
 					// destination is a planet
 					for (Troop aTroop : selectedTroops) {
@@ -536,7 +536,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			weaponsLabel.setVisible(true);
 			weaponsDamageLabel.setVisible(true);
 			nameLabel.setText(aTroop.getName() + " (" + aTroop.getShortName() + ")");
-			locationLabel.setText("Location: " + TroopPureFunctions.getLocationString(aTroop));
+			locationLabel.setText("Location: " + TroopPureFunctions.getLocationString(aTroop, SpaceRazePanel.galaxyMap));
 			weaponsInfantryLabel.setText("vs Infantry:");
 			weaponsInfantryLabel2.setText(String.valueOf(TroopPureFunctions.getAttackInfantry(aTroop)));
 			weaponsArmorLabel.setText("vs Armor:");
@@ -571,7 +571,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			destinationchoice.setVisible(true);
 
 			// set properties and initial value
-			if (CostPureFunctions.isBroke(player, player.getGalaxy()) | player.isRetreatingGovernor() | !aTroop.isSpaceshipTravel()
+			if (CostPureFunctions.isBroke(player, player.getGalaxy(), SpaceRazePanel.galaxyMap) | player.isRetreatingGovernor() | !aTroop.isSpaceshipTravel()
 					| getTroopSelfDestruct(aTroop, player.getOrders())) {
 				destinationchoice.setEnabled(false);
 			} else {
@@ -649,7 +649,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 					noSelfdestruct = false;
 				}
 			}
-			if (CostPureFunctions.isBroke(player, player.getGalaxy()) | player.isRetreatingGovernor() | allCanMove | noSelfdestruct) {
+			if (CostPureFunctions.isBroke(player, player.getGalaxy(), SpaceRazePanel.galaxyMap) | player.isRetreatingGovernor() | allCanMove | noSelfdestruct) {
 				destinationchoice.setEnabled(false);
 			} else {
 				destinationchoice.setVisible(true);
@@ -733,24 +733,24 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 				 */
 		}
 		// check if planet is neutral and "attack if neutral" is checked
-		if ((!PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getName(), player.getPlanetOrderStatuses())
+		if ((!PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getMapPlanetUuid(), player.getPlanetOrderStatuses())
 				&& planet.getPlayerInControl() == null)) {
 			Logger.fine(
 					"player.getPlanetInfos().getAttackIfNeutral(planet.getName()) && planet.getPlayerInControl() == null): "
-							+ !(PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getName(), player.getPlanetOrderStatuses())
+							+ !(PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getMapPlanetUuid(), player.getPlanetOrderStatuses())
 									&& planet.getPlayerInControl() == null));
 
 			Logger.fine("player.getPlanetInfos().getAttackIfNeutral(planet.getName()): "
-					+ PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getName(), player.getPlanetOrderStatuses()));
+					+ PlanetOrderStatusPureFunctions.isAttackIfNeutral(planet.getMapPlanetUuid(), player.getPlanetOrderStatuses()));
 			Logger.fine("planet.getPlayerInControl() == null: " + (planet.getPlayerInControl() == null));
 
 			planetMoveOk = false;
 		} // check if planet in a fi player control and "DoNotBesiege" is unchecked.
-		if ((planet.getPlayerInControl() != null && PlanetOrderStatusPureFunctions.isDoNotBesiege(planet.getName(), player.getPlanetOrderStatuses()))) {
+		if ((planet.getPlayerInControl() != null && PlanetOrderStatusPureFunctions.isDoNotBesiege(planet.getMapPlanetUuid(), player.getPlanetOrderStatuses()))) {
 			Logger.fine(
 					"!(planet.getPlayerInControl() != null && player.getPlanetInfos().getDoNotBesiege(planet.getName())): "
 							+ (planet.getPlayerInControl() != null
-									&& PlanetOrderStatusPureFunctions.isDoNotBesiege(planet.getName(), player.getPlanetOrderStatuses())));
+									&& PlanetOrderStatusPureFunctions.isDoNotBesiege(planet.getMapPlanetUuid(), player.getPlanetOrderStatuses())));
 
 			planetMoveOk = false;
 		}
@@ -813,8 +813,8 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 		Logger.fine("checkPlanetMoveOk(selectedTroops) called : " + checkPlanetMoveOk(selectedTroops));
 		// add planet if it is ok
 		if (planetMoveOk) {
-			Logger.fine("adding planet name : " + planet.getName());
-			dc.addItem(planet.getName());
+			Logger.fine("adding planet name : " + planet.getMapPlanetUuid());
+			dc.addItem(PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, planet.getMapPlanetUuid()));
 		}
 		// get all carriers with enough free slots to carry all selected ships, and add
 		// then to a tmp list

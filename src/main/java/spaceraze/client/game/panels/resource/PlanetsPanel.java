@@ -15,6 +15,7 @@ import spaceraze.client.components.SRTable;
 import spaceraze.client.components.SRTableHeader;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.game.GameGUIPanel;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
@@ -113,7 +114,7 @@ public class PlanetsPanel extends SRBasePanel implements SRUpdateablePanel, List
 			if(aPlanet.isBesieged())
 				tmpBesieged = "Yes";
 			
-			shipTable.setValueAt(aPlanet.getName(), i, 0);
+			shipTable.setValueAt(PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, aPlanet.getMapPlanetUuid()), i, 0);
 			shipTable.setValueAt(aPlanet.getPopulation(), i, 1);
 			shipTable.setValueAt(aPlanet.getResistance(), i, 2);
 			shipTable.setValueAt(tmpOpen , i, 3);
@@ -211,7 +212,7 @@ public class PlanetsPanel extends SRBasePanel implements SRUpdateablePanel, List
     private void showSpaceship(int rowIndex){
     	String shipName = (String)shipTable.getValueAt(rowIndex, 0);
     	//Planet pp = g.findPlanet(shipName);
-    	gameGuiPanel.showPlanet(shipName);
+    	gameGuiPanel.showPlanet(PlanetPureFunctions.getMapPlanetByName(SpaceRazePanel.galaxyMap, shipName).getUuid());
     	
     	
     	//Spaceship ss = g.findSpaceship(shipName, player);

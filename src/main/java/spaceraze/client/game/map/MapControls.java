@@ -17,10 +17,12 @@ import spaceraze.client.components.ComboBoxPanel;
 import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRButton;
 import spaceraze.client.components.SRLabel;
+import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.map.MapPlanet;
+import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Planet;
 import spaceraze.world.Player;
-import spaceraze.servlethelper.comparator.PlanetNameComparator;
 import spaceraze.servlethelper.comparator.PlayerNameComparator;
 
 public class MapControls extends SRBasePanel implements ItemListener, MouseListener {
@@ -154,7 +156,7 @@ public class MapControls extends SRBasePanel implements ItemListener, MouseListe
 		highlightChoice.addItemListener(this);
 		add(highlightChoice);
 
-		centerchoice.setSelectedItem(p.getHomePlanet().getName());
+		centerchoice.setSelectedItem(p.getHomePlanet().getMapPlanetUuid());
 	}
 
 	public void itemStateChanged(ItemEvent ie) {
@@ -199,7 +201,7 @@ public class MapControls extends SRBasePanel implements ItemListener, MouseListe
 		} else if (aButton.getText().equalsIgnoreCase("homeplanet")) {
 			doChange = false;
 			map.doReset();
-			map.doSetCenter(p.getHomePlanet().getName());
+			map.doSetCenter(p.getHomePlanet().getMapPlanetUuid());
 			map.doChange(0, 0, initialZoom, 0, 0, 0);
 		} else if (aButton.getText().equalsIgnoreCase("sector")) {
 			doChange = false;
@@ -239,11 +241,9 @@ public class MapControls extends SRBasePanel implements ItemListener, MouseListe
 		}
 	}
 
-	private void addPlanets(List<Planet> pplanets, ComboBoxPanel thischoice) {
+	private void addPlanets(List<Planet> planets, ComboBoxPanel thischoice) {
 		thischoice.addItem("Sector origo");
-		List<Planet> sortedPlanets = pplanets.stream().collect(Collectors.toList());
-		Collections.sort(sortedPlanets, new PlanetNameComparator<Planet>());
-		for (Planet planet : sortedPlanets) {
+		for (MapPlanet planet : PlanetPureFunctions.getMapPlanets(SpaceRazePanel.galaxyMap, planets)) {
 			thischoice.addItem(planet.getName());
 		}
 	}
@@ -258,7 +258,7 @@ public class MapControls extends SRBasePanel implements ItemListener, MouseListe
 	}
 
 	public void updateData() {
-		map.doSetCenter(p.getHomePlanet().getName());
+		map.doSetCenter(p.getHomePlanet().getMapPlanetUuid());
 		/*
 		 * if (once){ map.doSetCenter(p.getHomeplanet().getName());
 		 * map.doChange(0,0,initialZoom,0,0,0); once = false; }

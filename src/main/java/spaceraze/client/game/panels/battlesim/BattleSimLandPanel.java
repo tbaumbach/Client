@@ -30,6 +30,7 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.SRTextField;
 import spaceraze.client.components.scrollable.ListPanel;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
@@ -465,7 +466,7 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
     }
 
     private void startSim(){
-    	landBattleSim = new BattleSimLand(this,p.getGalaxy().getGameWorld());
+    	landBattleSim = new BattleSimLand(this,p.getGalaxy().getGameWorld(), SpaceRazePanel.galaxyMap);
     	String tf1troops = getTroops(aForceTA.getText(), true);
     	String tf1unknown = getUnknownUnits(aForceTA.getText());
     	String tf2troops = getTroops(bForceTA.getText(), true);

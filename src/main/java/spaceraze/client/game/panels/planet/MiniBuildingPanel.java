@@ -27,7 +27,6 @@ import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
-import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.Logger;
 import spaceraze.world.*;
@@ -83,7 +82,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		boolean enemyTroopsOnPlanet = TroopPureFunctions.findOtherTroopsPlayersOnRazedPlanet(player, aPlanet, player.getGalaxy().getTroops())
 				.size() > 0;
 		boolean underSiege = aPlanet.isBesieged();
-		boolean abandonPlanet = player.getOrders().getAbandonPlanet(aPlanet);
+		boolean abandonPlanet = player.getOrders().isAbandonPlanet(aPlanet);
 		if (enemyTroopsOnPlanet | underSiege | abandonPlanet) {
 			buildnewBuildingChoice.setEnabled(false);
 		} else {
@@ -674,7 +673,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			boolean enemyTroopsOnPlanet = TroopPureFunctions.findOtherTroopsPlayersOnRazedPlanet(player, currentBuilding.getLocation(), player.getGalaxy().getTroops()).size() > 0;
 			boolean underSiege = currentBuilding.getLocation().isBesieged()
 					&& currentBuildingType.isInOrbit();
-			boolean abandonPlanet = player.getOrders().getAbandonPlanet(aPlanet);
+			boolean abandonPlanet = player.getOrders().isAbandonPlanet(aPlanet);
 			if (enemyTroopsOnPlanet) {
 				statusString = "Can't build any units if planet have ongoing ground battles.";
 				Logger.finer("Planet have ongoing ground battles so buildigns can not build any units at this time.");

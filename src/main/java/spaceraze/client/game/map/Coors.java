@@ -17,7 +17,7 @@ import spaceraze.world.VIP;
 public class Coors implements Serializable{
     static final long serialVersionUID = 1L;
     double x,y,z,x2,y2,z2;
-    String name;
+    String mapPlanetUuid;
     Color c;
     boolean besieged = false, origo = false, connection = false, longRange = false, open = false;   // shipOrFleet behövs ej?
     boolean razed = false, razedAndUninfected = false;
@@ -43,10 +43,10 @@ public class Coors implements Serializable{
 	}
 
 	public Coors(double x, double y, double z){
-      ships = new LinkedList<Spaceship>();
-      vips = new LinkedList<VIP>();
-      troops = new LinkedList<Troop>();
-      buildings = new LinkedList<Building>();
+      ships = new LinkedList<>();
+      vips = new LinkedList<>();
+      troops = new LinkedList<>();
+      buildings = new LinkedList<>();
       this.x = x;
       this.y = y;
       this.z = z;
@@ -169,12 +169,12 @@ public class Coors implements Serializable{
         z2 = newvalue;
     }
 
-    public void setName(String newname){
-        name = newname;
+    public void setMapPlanetUuid(String newname){
+        mapPlanetUuid = newname;
     }
 
-    public String getName(){
-        return name;
+    public String getMapPlanetUuid(){
+        return mapPlanetUuid;
     }
 
     public void setColor(Color newc){
@@ -273,7 +273,7 @@ public class Coors implements Serializable{
 
 	@Override
 	public String toString(){
-		return "Coor: " + name;
+		return "Coor: " + mapPlanetUuid;
 	}
 
 	public String getLastKnownBuildingsString() {

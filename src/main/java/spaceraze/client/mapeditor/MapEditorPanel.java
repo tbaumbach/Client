@@ -24,14 +24,14 @@ import spaceraze.client.components.SRBasePanel;
 import spaceraze.servlethelper.map.TransferWrapper;
 import spaceraze.util.general.Logger;
 import spaceraze.util.properties.PropertiesHandler;
-import spaceraze.world.Map;
+import spaceraze.map.GalaxyMap;
 
 @SuppressWarnings("serial")
 public class MapEditorPanel extends SRBasePanel {
 	
 	private String mapFileName = null;
 	private EditorGUIPanel editorGuiPanel;
-	private Map theMap;
+	private GalaxyMap theMap;
 	private String userLogin;
 	
 	private java.util.Map<String,String> applicationParams;
@@ -114,7 +114,7 @@ public class MapEditorPanel extends SRBasePanel {
 	    	// get map name parameter
 	    	mapFileName = getParameter("mapname");
 	    	// get the map object from the server...
-	    	loadMap(action,mapFileName);
+	    	theMap = loadMap(action,mapFileName);
 	    	// Use test map
 /*	    	Vector planets = new Vector();
 	    	Vector conns = new Vector();
@@ -123,7 +123,7 @@ public class MapEditorPanel extends SRBasePanel {
 */
 	    }else{ // new map
 	    	// create a new empty map
-	    	theMap = new Map();
+	    	theMap = new GalaxyMap();
 			SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
 			theMap.setCreatedDate(sdf.format(new Date()));
 	    	theMap.setAuthor(userLogin);
@@ -142,7 +142,7 @@ public class MapEditorPanel extends SRBasePanel {
 	    add(editorGuiPanel);
 	}
 	
-	public Map getMap(){
+	public GalaxyMap getMap(){
 		return theMap;
 	}
 	
@@ -189,15 +189,14 @@ public class MapEditorPanel extends SRBasePanel {
 		}
 	  }
 	
-	public void loadMap(String anAction, String aMapFileName){
+	public GalaxyMap loadMap(String anAction, String aMapFileName){
 		// create transfer object
 		Logger.fine("creating tw: " + anAction + " " + userLogin + " " + aMapFileName);
 		TransferWrapper tw = new TransferWrapper(anAction,userLogin,aMapFileName);
 		// call server...
 		tw = getResponse(tw);
 		Logger.fine("recieving tw: " + tw.getMessage() + " " + tw.getMap());
-		theMap = tw.getMap();
-		Logger.fine("map loaded from server");
+		return tw.getMap();
 	}
 	
 	public void saveMap(String saveAction, String saveFileName){

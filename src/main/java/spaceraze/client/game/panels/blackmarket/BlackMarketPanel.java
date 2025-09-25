@@ -15,6 +15,7 @@ import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.AlignmentPureFunctions;
+import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.world.BlackMarketBid;
 import spaceraze.world.BlackMarketOffer;
@@ -173,12 +174,10 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
   	Logger.fine("performPopupAction called");
   	BlackMarketOffer currentOffer = offersInList.get(allOffersList.getSelectedIndex());
   	int tempSum = popup.getSum();
-  	String tmpDestination = "";
-    if (currentOffer.isHotStuff() | currentOffer.isShipBlueprint()){
+    if (currentOffer.isHotStuff() || currentOffer.isShipBlueprint()){
         p.getOrders().addNewBlackMarketBid(tempSum,currentOffer,null,p);
     }else{
-      	tmpDestination = popup.getDestination();
-        p.getOrders().addNewBlackMarketBid(tempSum,currentOffer,p.getGalaxy().findPlanet(tmpDestination),p);
+        p.getOrders().addNewBlackMarketBid(tempSum,currentOffer, PlanetPureFunctions.getMapPlanetByName(SpaceRazePanel.galaxyMap,  popup.getDestination()).getUuid(), p);
     }
     client.updateTreasuryLabel();
   	updateGiftPanel();

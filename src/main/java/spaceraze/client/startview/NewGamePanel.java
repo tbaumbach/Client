@@ -25,7 +25,7 @@ import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.GameWorld;
-import spaceraze.world.Map;
+import spaceraze.map.GalaxyMap;
 import spaceraze.world.StatisticGameType;
 import spaceraze.world.enums.DiplomacyGameType;
 
@@ -91,9 +91,9 @@ public class NewGamePanel extends SRBasePanel implements ItemListener, ActionLis
 
 		mapChoice = new ComboBoxPanel();
 		mapChoice.setSize(170,20);
-		List<Map> maps = notifierFrame.getMaps();
+		List<GalaxyMap> maps = notifierFrame.getMaps();
 		mapChoice.addItem("None");
-		for (Map map : maps) {
+		for (GalaxyMap map : maps) {
 			mapChoice.addItem(map.getNameFull());
 		}
 		mapChoice.addItemListener(this);
@@ -323,7 +323,7 @@ public class NewGamePanel extends SRBasePanel implements ItemListener, ActionLis
     			CreateNewGameData createNewGameData = new CreateNewGameData();
     			GameWorld theGameWorld = GameWorldHandler.findGameWorld(gwChoice.getSelectedItem());
     			createNewGameData.setGameWorldFileName(theGameWorld.getFileName());
-    			Map theMap = notifierFrame.findMap(mapChoice.getSelectedItem());
+    			GalaxyMap theMap = notifierFrame.findMap(mapChoice.getSelectedItem());
     			createNewGameData.setMapName(theMap.getFileName());
 				createNewGameData.setAutoBalanceString("yes");
 				if (customGameNameTF.getText().equals("")){
@@ -391,7 +391,7 @@ public class NewGamePanel extends SRBasePanel implements ItemListener, ActionLis
         	}
     	}else
         if (ae.getSource() == mapPlusBtn){
-    		List<Map> maps = notifierFrame.getMaps();
+    		List<GalaxyMap> maps = notifierFrame.getMaps();
         	int oldIndex = mapChoice.getSelectedIndex();
         	Logger.fine("oldIndex: " + oldIndex);
         	if (oldIndex < (maps.size())){

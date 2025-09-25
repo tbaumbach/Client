@@ -759,7 +759,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 				 return researchAdvantage.getCostToResearchOneTurn();
 			 }else{
 				 
-				 double treasury = IncomePureFunctions.getPlayerIncome(p,false);
+				 double treasury = IncomePureFunctions.getPlayerIncome(p,false, SpaceRazePanel.galaxyMap);
 				 double procent = researchAdvantage.getCostToResearchOneTurnInPercent();
 				 
 				 

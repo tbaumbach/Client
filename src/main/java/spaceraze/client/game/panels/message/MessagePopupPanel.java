@@ -66,7 +66,7 @@ public class MessagePopupPanel extends BasicPopupPanel implements ShowMapPlanet,
         mapCanvas.computeNewOrigo();
 	    mapCanvas.setBounds(10, 310, 680, 300);
 	    mapCanvas.setInitialZoom(-20);
-	    mapCanvas.setInitialSetCenter(player.getHomePlanet().getName());
+	    mapCanvas.setInitialSetCenter(player.getHomePlanet().getMapPlanetUuid());
 		mapCanvas.setChosenCoors("");
 	    add(mapCanvas);
 	}

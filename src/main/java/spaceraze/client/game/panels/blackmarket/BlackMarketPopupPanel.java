@@ -5,7 +5,6 @@ package spaceraze.client.game.panels.blackmarket;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collections;
 import java.util.List;
 
 import spaceraze.client.components.BasicPopupPanel;
@@ -13,6 +12,7 @@ import spaceraze.client.components.ComboBoxPanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRTextField;
 import spaceraze.client.game.ShowMapPlanet;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.map.MapCanvas;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
@@ -22,7 +22,6 @@ import spaceraze.world.BlackMarketBid;
 import spaceraze.world.BlackMarketOffer;
 import spaceraze.world.Planet;
 import spaceraze.world.Player;
-import spaceraze.servlethelper.comparator.PlanetNameComparator;
 
 /**
  * Pop up panel used for creation and edits of black market bids
@@ -41,7 +40,7 @@ public class BlackMarketPopupPanel extends BasicPopupPanel implements ActionList
 		offerSumTextField.setText(String.valueOf(bid.getCost()));
 		// set destination
         if (!offer.isHotStuff() & !offer.isShipBlueprint()){
-        	offerDestinationChoice.setSelectedItem(bid.getDestination());
+        	offerDestinationChoice.setSelectedItem(PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, bid.getDestination()));
         	Logger.finer("set ok enabled");
         	okBtn.setEnabled(true);
         	mapCanvas.setInitialSetCenter(bid.getDestination());
@@ -97,7 +96,7 @@ public class BlackMarketPopupPanel extends BasicPopupPanel implements ActionList
 	        mapCanvas.computeNewOrigo();
 		    mapCanvas.setBounds(10, 155, 380, 300);
 		    mapCanvas.setInitialZoom(-20);
-		    mapCanvas.setInitialSetCenter(player.getHomePlanet().getName());
+		    mapCanvas.setInitialSetCenter(player.getHomePlanet().getMapPlanetUuid());
 			mapCanvas.setChosenCoors("");
 		    add(mapCanvas);
 
@@ -111,10 +110,9 @@ public class BlackMarketPopupPanel extends BasicPopupPanel implements ActionList
 	private void addDestinations(){
 		offerDestinationChoice.addItem("None");
 		List<Planet> playersPlanets = PlanetPureFunctions.getPlayersPlanets(player, player.getGalaxy());
-		Collections.sort(playersPlanets,new PlanetNameComparator<Planet>());
-		for (Planet aPlanet : playersPlanets) {
-			if (!aPlanet.isBesieged()){
-				offerDestinationChoice.addItem(aPlanet.getName());
+        for (Planet planet : playersPlanets) {
+		    if (!planet.isBesieged()){
+				offerDestinationChoice.addItem(PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, planet.getMapPlanetUuid()));
 			}
 		}
 	}
@@ -142,14 +140,14 @@ public class BlackMarketPopupPanel extends BasicPopupPanel implements ActionList
 	public void actionPerformed(ActionEvent ae){
 		Object o = ae.getSource();
 		if (o instanceof ComboBoxPanel){
-			if ((ComboBoxPanel)ae.getSource() == offerDestinationChoice){
+			if (ae.getSource() == offerDestinationChoice){
 				String dest = getDestination();
 				if (dest.equalsIgnoreCase("none")){
 					okBtn.setEnabled(false);
 					mapCanvas.setChosenCoors("");
 				}else{
 					okBtn.setEnabled(true);
-					mapCanvas.setChosenCoors(dest);
+					mapCanvas.setChosenCoors(PlanetPureFunctions.getMapPlanetByName(SpaceRazePanel.galaxyMap, dest).getUuid());
 					mapCanvas.doSetCenter(dest);
 					mapCanvas.doChange(0,0,-40,0,0,0);
 				}
@@ -160,19 +158,19 @@ public class BlackMarketPopupPanel extends BasicPopupPanel implements ActionList
 		}
 	}
 
-	public void showPlanet(String aPlanetName) {
-//		System.out.println("planet: " + aPlanetName);
+	public void showPlanet(String planetName) {
+//		System.out.println("planet: " + MapPlanetUuid);
 		
-		if (offerDestinationChoice.exist(aPlanetName)){
-			offerDestinationChoice.setSelectedItem(aPlanetName);
+		if (offerDestinationChoice.exist(planetName)){
+			offerDestinationChoice.setSelectedItem(planetName);
 			offerDestinationChoice.paintAll(offerDestinationChoice.getGraphics());
 			okBtn.setEnabled(true);
 		}
 		mapCanvas.update(mapCanvas.getGraphics());
 	}
 
-	public void showPlanetShips(String aPlanetName) {
-		showPlanet(aPlanetName);
+	public void showPlanetShips(String planetUuid) {
+		showPlanet(planetUuid);
 	}
 
 }

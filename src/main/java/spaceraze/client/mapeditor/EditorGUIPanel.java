@@ -8,8 +8,8 @@ import java.awt.Color;
 import javax.swing.JPanel;
 
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Map;
-import spaceraze.world.MapPlanet;
+import spaceraze.map.GalaxyMap;
+import spaceraze.map.MapPlanet;
 
 /**
  * @author WMPABOD
@@ -28,7 +28,7 @@ public class EditorGUIPanel extends JPanel {
 	private MapDataPanel mdp;
 	private PlanetDataPanel pdp;
 	private MapActionPanel map;
-	private Map theMap;
+	private GalaxyMap theMap;
 	/**
 	 * Set to true when the user has pressed the create new planet button which 
 	 * expect user interaction on the map.
@@ -40,7 +40,7 @@ public class EditorGUIPanel extends JPanel {
 	private MapPlanet movePlanet =  null;
 	private boolean createShortConnection,createLongConnection;
 
-	public EditorGUIPanel(MapEditorPanel mea, Map aMap){
+	public EditorGUIPanel(MapEditorPanel mea, GalaxyMap aMap){
 		this.theMap = aMap;
 		
 	    // create panels

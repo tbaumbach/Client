@@ -12,10 +12,10 @@ import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
 import spaceraze.client.components.SRButton;
-import spaceraze.servlethelper.map.MapPureFunctions;
+import spaceraze.servlethelper.map.GalaxyMapPureFunctions;
 import spaceraze.servlethelper.map.TransferWrapper;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Map;
+import spaceraze.map.GalaxyMap;
 
 /**
  * @author WMPABOD
@@ -134,7 +134,7 @@ public class ButtonsPanel extends JPanel implements ActionListener{
 	private boolean validateSaveOk(){
 		boolean ok = true;
 		String message = "The map can't be saved due to the following errors:\n";
-		Map theMap = mapEditorPanel.getMap();
+		GalaxyMap theMap = mapEditorPanel.getMap();
 		boolean noEmptyNames = theMap.checkPlanetNamesNoEmpty();
 		// check if any planet has an empty name  or a name consisting only of blanks
 		if (!noEmptyNames){
@@ -149,7 +149,7 @@ public class ButtonsPanel extends JPanel implements ActionListener{
 	
 	private boolean validatePublishOk(){
 		boolean ok = true;
-		Map theMap = mapEditorPanel.getMap();
+		GalaxyMap theMap = mapEditorPanel.getMap();
 		String message = "The map can't be published due to the following errors:\n";
 		// check map name not empty
 		if (theMap.getNameFull().equals("")){
@@ -176,7 +176,7 @@ public class ButtonsPanel extends JPanel implements ActionListener{
 			ok = false;
 			message = message + "- all planets must have at least one connection to another planet" + "\n";
 		}else
-		if (!MapPureFunctions.checkPlanetsAllConnected(theMap)){
+		if (!GalaxyMapPureFunctions.checkPlanetsAllConnected(theMap)){
 			ok = false;
 			message = message + "- it must be possible to travel from any planet to any other planet, the map may not be divided into regions with no connections in between." + "\n";
 		}

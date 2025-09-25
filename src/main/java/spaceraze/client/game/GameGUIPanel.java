@@ -11,6 +11,8 @@ import spaceraze.client.game.panels.planet.MiniPlanetPanel;
 import spaceraze.client.game.panels.planet.ShowPlanet;
 import spaceraze.client.game.panels.turninfo.TurnInfoPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.map.GalaxyMap;
+import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.util.general.Logger;
@@ -34,7 +36,7 @@ public class GameGUIPanel extends JPanel implements SRUpdateablePanel, ShowMapPl
 	private ImageHandler imageHandler;
 	// Fasta Panels
 	private ShowPlanet showPlanetPanel;
-	private MapCanvas map;
+	private MapCanvas mapCanvas;
 	private MapControls controls;
 	private TurnInfoPanel turnInfoPanel;
 	private NavBarPanel navBarPanel;
@@ -43,12 +45,14 @@ public class GameGUIPanel extends JPanel implements SRUpdateablePanel, ShowMapPl
 	// coordinates
 	private int mapx, mapy, mapw, maph;
 	private SRBasePanel mapHolder;
+    private GalaxyMap map;
 
 	public GameGUIPanel(String id, Player p, SpaceRazePanel client, ImageHandler imageHandler, Galaxy galaxy) {
 		this.id = id;
 		this.p = p;
 		this.client = client;
 		this.imageHandler = imageHandler;
+        this.map = map;
 		setLayout(null);
 		setBackground(StyleGuide.colorBackground);
 
@@ -60,7 +64,7 @@ public class GameGUIPanel extends JPanel implements SRUpdateablePanel, ShowMapPl
 		mapHolder = new SRBasePanel();
 		mapHolder.setBounds(4, 32, 860, 635);
 
-		map = new MapCanvas(p, this);
+		mapCanvas = new MapCanvas(p, this);
 		mapx = 128;
 		mapy = 1;
 		mapw = 735;
@@ -70,17 +74,17 @@ public class GameGUIPanel extends JPanel implements SRUpdateablePanel, ShowMapPl
 		 * mapx = 128; mapy = 29; mapw = 732; maph = 580;
 		 * 
 		 */
-		map.setBounds(mapx, mapy, mapw, maph);
-		map.setPlanets(p.getGalaxy().getPlanets(), p);
-		map.setSpaceships(SpaceshipPureFunctions.getPlayersSpaceships(p, p.getGalaxy()));
-		map.setOwnVips(p.getGalaxy().getPlayersVips(p));
-		map.setOwnTroops(TroopPureFunctions.getPlayersTroops(p, p.getGalaxy()));
-		map.setOthersVips(p.getGalaxy().getAllVIPs());
-		map.setConnections(p.getGalaxy().getPlanetConnections(), p.getGalaxy());
-		map.computeNewOrigo();
-		mapHolder.add(map);
+		mapCanvas.setBounds(mapx, mapy, mapw, maph);
+		mapCanvas.setPlanets(p.getGalaxy().getPlanets(), p);
+		mapCanvas.setSpaceships(SpaceshipPureFunctions.getPlayersSpaceships(p, p.getGalaxy()));
+		mapCanvas.setOwnVips(p.getGalaxy().getPlayersVips(p));
+		mapCanvas.setOwnTroops(TroopPureFunctions.getPlayersTroops(p, p.getGalaxy()));
+		mapCanvas.setOthersVips(p.getGalaxy().getAllVIPs());
+		mapCanvas.setConnections(p.getGalaxy().getPlanetConnections(), p.getGalaxy());
+		mapCanvas.computeNewOrigo();
+		mapHolder.add(mapCanvas);
 
-		controls = new MapControls(p, map);
+		controls = new MapControls(p, mapCanvas);
 		controls.setBounds(1, 1, 120, 370);
 		mapHolder.add(controls);
 
@@ -139,9 +143,9 @@ public class GameGUIPanel extends JPanel implements SRUpdateablePanel, ShowMapPl
 		navBarPanel.showPanel("d�lj alla paneler");
 	}
 
-	public void showPlanet(String aPlanetName) {
+	public void showPlanet(String planetUuid) {
 		// h�mta planeten
-		Planet aPlanet = p.getGalaxy().findPlanet(aPlanetName);
+		Planet aPlanet = PlanetPureFunctions.getPlanet(planetUuid, SpaceRazePanel.galaxy);
 		// ta bort ev. gammal panel
 		if (showPlanetPanel != null) {
 			MiniPlanetPanel miniPlanetPanel = showPlanetPanel.getMiniPlanetPanel();
@@ -168,12 +172,12 @@ public class GameGUIPanel extends JPanel implements SRUpdateablePanel, ShowMapPl
 		}
 	}
 
-	public void showShipOnPlanet(String aPlanetName, Spaceship aShip) {
+	public void showShipOnPlanet(String planetUuid, Spaceship aShip) {
 		// h�mta planeten
-		Planet aPlanet = p.getGalaxy().findPlanet(aPlanetName);
+		Planet aPlanet = PlanetPureFunctions.getPlanet(planetUuid, SpaceRazePanel.galaxy);
 		// ta bort ev. gammal panel
 		if (showPlanetPanel != null) {
-			Logger.finest("showPlanetShips: " + aPlanetName + " curNotes: " + showPlanetPanel.getPlanetNotes());
+			Logger.finest("showPlanetShips: " + planetUuid + " curNotes: " + showPlanetPanel.getPlanetNotes());
 			MiniPlanetPanel miniPlanetPanel = showPlanetPanel.getMiniPlanetPanel();
 			if (miniPlanetPanel != null) {
 				// om en planet visas, spara notestext
@@ -190,12 +194,12 @@ public class GameGUIPanel extends JPanel implements SRUpdateablePanel, ShowMapPl
 		update(getGraphics());
 	}
 
-	public void showPlanetShips(String aPlanetName) {
-		showShipOnPlanet(aPlanetName, null);
+	public void showPlanetShips(String planetUuid) {
+		showShipOnPlanet(planetUuid, null);
 	}
 
-	public MapCanvas getMap() {
-		return map;
+	public MapCanvas getMapCanvas() {
+		return mapCanvas;
 	}
 
 	public void paintComponent(Graphics g) {
@@ -256,7 +260,7 @@ public class GameGUIPanel extends JPanel implements SRUpdateablePanel, ShowMapPl
 	}
 
 	public void updateMap() {
-		map.updatePcoors();
+		mapCanvas.updatePcoors();
 	}
 
 	public void showSendButton() {

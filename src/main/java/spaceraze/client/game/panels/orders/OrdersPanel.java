@@ -9,13 +9,17 @@ import java.util.List;
 import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.scrollable.TextAreaPanel;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.panels.resource.VIPsPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.map.MapPlanet;
 import spaceraze.servlethelper.game.BuildingPureFunctions;
 import spaceraze.servlethelper.game.expenses.ExpensePureFunction;
+import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
+import spaceraze.servlethelper.map.GalaxyMapPureFunctions;
 import spaceraze.world.*;
 import spaceraze.world.orders.Expense;
 import spaceraze.world.orders.Orders;
@@ -68,7 +72,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
 	    infoarea.append(sepLine);
 	    for (int i = 0; i < temp.size(); i++){
 	      Expense tempExpense = temp.get(i);
-	      infoarea.append(ExpensePureFunction.getText(g, ExpensePureFunction.getCost(tempExpense, g, aPlayer), tempExpense) + "\n");
+	      infoarea.append(ExpensePureFunction.getText(g, ExpensePureFunction.getCost(tempExpense, g, aPlayer, SpaceRazePanel.galaxyMap), tempExpense, SpaceRazePanel.galaxyMap) + "\n");
 	    }
 	    infoarea.append("\n");
     }
@@ -107,14 +111,15 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     }
     
     // add changes in planet visibility
-	List<String> planetNames = orders.getPlanetVisibilities();
-    if (planetNames.size() > 0){
+	List<String> planetUuids = orders.getPlanetVisibilities();
+    if (!planetUuids.isEmpty()){
     	infoarea.append("Open/closed planets" + "\n");
     	infoarea.append(sepLine);
-    	for (int k = 0; k < planetNames.size(); k++){    	
-    		Planet tempPlanet = g.findPlanet(planetNames.get(k));
-    		infoarea.append("Change planet " + tempPlanet.getName() + " to ");
-    		if (tempPlanet.isOpen()){  // change to closed
+    	for (String planetUuid : planetUuids){
+    		String planetName = PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, planetUuid);
+
+    		infoarea.append("Change planet " + planetName + " to ");
+    		if (PlanetPureFunctions.getPlanet(planetUuid, g).isOpen()){  // change to closed
     			infoarea.append("closed");
     		}else{ // change to open
     			infoarea.append("open");
@@ -125,13 +130,12 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     }
 
     // add changes in abandoning planets
-	planetNames = orders.getAbandonPlanets();
-    if (planetNames.size() > 0){
+    if (!orders.getAbandonPlanets().isEmpty()){
     	infoarea.append("Abandon planets" + "\n");
     	infoarea.append(sepLine);
-    	for (int l = 0; l < planetNames.size(); l++){
-    		Planet tempPlanet = g.findPlanet(planetNames.get(l));
-    		infoarea.append("Planet " + tempPlanet.getName() + " is to be abandoned." + "\n");
+    	for (String planetUuid : orders.getAbandonPlanets()){
+            MapPlanet mapPlanet = PlanetPureFunctions.getMapPlanet(SpaceRazePanel.galaxyMap, planetUuid);
+    		infoarea.append("Planet " + mapPlanet.getName() + " is to be abandoned." + "\n");
     	}
     	infoarea.append("\n");
     }
@@ -167,7 +171,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	infoarea.append(sepLine);
     	for (int n = 0; n < tempBuildings.size(); n++){
     		Building tempBuilding = BuildingPureFunctions.findBuilding(tempBuildings.get(n), aPlayer, g);
-    		infoarea.append("Building " + BuildingPureFunctions.getBuildingTypeByUuid(tempBuilding.getTypeUuid(), g.getGameWorld()).getName() + " at " + tempBuilding.getLocation().getName() + " is to be destroyed." + "\n");
+    		infoarea.append("Building " + BuildingPureFunctions.getBuildingTypeByUuid(tempBuilding.getTypeUuid(), g.getGameWorld()).getName() + " at " + PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, tempBuilding.getLocation().getMapPlanetUuid()) + " is to be destroyed." + "\n");
     	}
     	infoarea.append("\n");
     }
@@ -180,7 +184,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	for (int p = 0; p < shipIds.size(); p++){
     		Spaceship tempss = g.findSpaceshipByUuid(shipIds.get(p));
     		if (tempss.getLocation() != null){
-    			infoarea.append("Your ship " + tempss.getName() + " at " + tempss.getLocation().getName() + "  is to change its screened status to " + !tempss.isScreened() + "\n");
+                infoarea.append("Your ship " + tempss.getName() + " at " + PlanetPureFunctions.getMapPlanet(SpaceRazePanel.galaxyMap, tempss.getLocation().getMapPlanetUuid()).getName()  + "  is to change its screened status to " + !tempss.isScreened() + "\n");
     		}else{
     			infoarea.append("Your ship " + tempss.getName() + " in deep space is to change its screened status to " + !tempss.isScreened() + "\n");
     		}
@@ -248,11 +252,11 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
 		Spaceship spaceship = SpaceshipPureFunctions.findSpaceship(shipMovement.getSpaceshipKey(), aGalaxy);
 		return "Move " + spaceship.getName() + " from "
 				+ spaceship.getName() + " to "
-				+ shipMovement.getPlanetName() + ".";
+				+ PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, shipMovement.getDestination()) + ".";
 	}
 
 	private String getText(VIPMovement vipMovement, Galaxy aGalaxy) {
-		return "Move " + VipPureFunctions.getVipTypeByUuid(VipPureFunctions.findVIP(vipMovement.getVipKey(), aGalaxy).getTypeUuid(), aGalaxy.getGameWorld()).getName() + " from " + VipPureFunctions.getLocationString(VipPureFunctions.findVIP(vipMovement.getVipKey(), aGalaxy)) + " to " + VIPsPanel.getDestinationName(vipMovement, aGalaxy) + ".";
+		return "Move " + VipPureFunctions.getVipTypeByUuid(VipPureFunctions.findVIP(vipMovement.getVipKey(), aGalaxy).getTypeUuid(), aGalaxy.getGameWorld()).getName() + " from " + VipPureFunctions.getLocationString(VipPureFunctions.findVIP(vipMovement.getVipKey(), aGalaxy), SpaceRazePanel.galaxyMap) + " to " + VIPsPanel.getDestinationName(vipMovement, aGalaxy, SpaceRazePanel.galaxyMap) + ".";
 	}
 
 	public String getText(ShipToCarrierMovement shipToCarrierMovement, Galaxy aGalaxy) {
@@ -261,7 +265,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
 
 		String retStr;
 		if (aSpaceship.getLocation() != null) {
-			retStr = "Move " + aSpaceship.getName() + " from " + aSpaceship.getLocation().getName() + " to " + aSpaceshipCarrier.getName() + ".";
+			retStr = "Move " + aSpaceship.getName() + " from " + GalaxyMapPureFunctions.getPlanet(aSpaceship.getLocation().getMapPlanetUuid(), SpaceRazePanel.galaxyMap).getName() + " to " + aSpaceshipCarrier.getName() + ".";
 		} else {
 			retStr = "Move " + aSpaceship.getName() + " from " + aSpaceship.getCarrierLocation().getName() + " to " + aSpaceshipCarrier.getName() + ".";
 		}
@@ -273,16 +277,16 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
 		Spaceship destinationCarrier = SpaceshipPureFunctions.findSpaceship(troopToCarrierMovement.getDestinationCarrierKey(), aGalaxy);
 		String retStr = null;
 		if (aTroop.getPlanetLocation() != null){
-			retStr = "Move " + aTroop.getName() + " from " + aTroop.getPlanetLocation().getName() + " to " + destinationCarrier.getName() + ".";
+			retStr = "Move " + aTroop.getName() + " from " + GalaxyMapPureFunctions.getPlanet(aTroop.getPlanetLocation().getMapPlanetUuid(), SpaceRazePanel.galaxyMap).getName() + " to " + destinationCarrier.getName() + ".";
 		}else{ // move from ship to ship
 			retStr = "Move " + aTroop.getName() + " from " + aTroop.getShipLocation().getName() + " to " + destinationCarrier.getName() + ".";
 		}
 		return retStr;
 	}
 
-	private String getText(TroopToPlanetMovement troopToPlanetMovement, Galaxy aGalaxy) {
-		Troop aTroop = TroopPureFunctions.findTroop(troopToPlanetMovement.getTroopKey(), aGalaxy);
-		return "Move " + aTroop.getName() + " from " + aTroop.getShipLocation().getName() + " to " + troopToPlanetMovement.getDestinationName() + ".";
+	private String getText(TroopToPlanetMovement troopToPlanetMovement, Galaxy galaxy) {
+		Troop aTroop = TroopPureFunctions.findTroop(troopToPlanetMovement.getTroopKey(), galaxy);
+		return "Move " + aTroop.getName() + " from " + aTroop.getShipLocation().getName() + " to " + GalaxyMapPureFunctions.getPlanet(troopToPlanetMovement.getMapPlanetUuid(), SpaceRazePanel.galaxyMap).getName() + ".";
 	}
 
 }

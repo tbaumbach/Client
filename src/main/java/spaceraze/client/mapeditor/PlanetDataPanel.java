@@ -21,9 +21,9 @@ import spaceraze.client.components.SRButton;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRTextField;
 import spaceraze.client.components.scrollable.ListPanel;
-import spaceraze.servlethelper.map.MapPureFunctions;
+import spaceraze.servlethelper.map.GalaxyMapPureFunctions;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.*;
+import spaceraze.map.*;
 
 /**
  * @author WMPABOD
@@ -38,11 +38,11 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 	private ListPanel connectionsList;
 	private MapPlanet selectedPlanet;
 	private EditorGUIPanel guiPanel;
-	private Map theMap;
+	private GalaxyMap theMap;
 	private boolean removeConnState;
 	private CheckBoxPanel startPlanet;
 
-	public PlanetDataPanel(EditorGUIPanel guiPanel, Map aMap){
+	public PlanetDataPanel(EditorGUIPanel guiPanel, GalaxyMap aMap){
 		this.guiPanel = guiPanel;
 		this.theMap = aMap;
 		
@@ -176,8 +176,8 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 		    dlm.clear();
 		    List<MapPlanetConnection> allConnections = theMap.getConnections();
 			for (MapPlanetConnection aConnection : allConnections) {
-				MapPlanet p1 = MapPureFunctions.getPlanet(aConnection.getPlanetOneUuid(), theMap);
-				MapPlanet p2 = MapPureFunctions.getPlanet(aConnection.getPlanetTwoUuid(), theMap);
+				MapPlanet p1 = GalaxyMapPureFunctions.getPlanet(aConnection.getPlanetOneUuid(), theMap);
+				MapPlanet p2 = GalaxyMapPureFunctions.getPlanet(aConnection.getPlanetTwoUuid(), theMap);
 				String rangeStr = "short";
 				if (aConnection.isLongRange()){
 					rangeStr = "long";
@@ -267,7 +267,7 @@ public class PlanetDataPanel extends JPanel implements ActionListener, ListSelec
 			selStr = selStr.substring(0,index);
 			System.out.println("selStr: " + selStr);
 			MapPlanet aPlanet = theMap.findPlanet(selStr);
-			MapPureFunctions.deleteConnection(theMap, selectedPlanet.getUuid(), aPlanet.getUuid());
+			GalaxyMapPureFunctions.deleteConnection(theMap, selectedPlanet.getUuid(), aPlanet.getUuid());
 			guiPanel.updateMap();
 			showPlanet(selectedPlanet);
 			removeConnBtn.setEnabled(false);

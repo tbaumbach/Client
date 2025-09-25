@@ -16,8 +16,10 @@ import spaceraze.client.components.SRTable;
 import spaceraze.client.components.SRTableHeader;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.game.GameGUIPanel;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.panels.planet.MiniShipPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.Logger;
@@ -108,7 +110,7 @@ public class ShipsPanel extends SRBasePanel implements SRUpdateablePanel, ListSe
 		shipTable.getSelectionModel().addListSelectionListener(this);
 		
 		for (int i = 0; i < nrShips; i++) {
-			Spaceship aShip = ((Spaceship)ships.get(i));
+			Spaceship aShip = ships.get(i);
 			shipTable.setValueAt(aShip.getName(), i, 0);
 			
 			if (aShip.getCarrierLocation() != null){
@@ -116,7 +118,7 @@ public class ShipsPanel extends SRBasePanel implements SRUpdateablePanel, ListSe
 			}else
 			if (aShip.getLocation()!= null) {
 				Planet planet = aShip.getLocation();
-				shipTable.setValueAt(planet.getName(), i, 1);
+				shipTable.setValueAt(PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, planet.getMapPlanetUuid()), i, 1);
 			}else{
 				shipTable.setValueAt("Retreating", i, 1);
 			}
@@ -125,7 +127,7 @@ public class ShipsPanel extends SRBasePanel implements SRUpdateablePanel, ListSe
 				shipTable.setValueAt("-", i, 2);
 			}else
 			if (SpaceshipPureFunctions.checkShipMove(aShip, player.getOrders())){
-				shipTable.setValueAt(MiniShipPanel.getShipDestinationName(aShip, player.getGalaxy(), player.getOrders()), i, 2);
+				shipTable.setValueAt(PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, MiniShipPanel.getShipDestinationUuid(aShip, player.getGalaxy(), player.getOrders())), i, 2);
 			}
 			Logger.finer("Scr1" + aShip.isScreened());
 			Logger.finer("Scr2" + player.getOrders().checkScreenedShip(aShip));
@@ -226,7 +228,7 @@ public class ShipsPanel extends SRBasePanel implements SRUpdateablePanel, ListSe
         	if (planetlocation == null){
         		planetlocation = currentss.getCarrierLocation().getLocation();
         	}
-        	gameGuiPanel.showShipOnPlanet(planetlocation.getName(),currentss);
+        	gameGuiPanel.showShipOnPlanet(planetlocation.getMapPlanetUuid(), currentss);
         }
     }
 

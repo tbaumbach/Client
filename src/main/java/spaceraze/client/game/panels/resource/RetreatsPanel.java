@@ -20,8 +20,10 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.panels.planet.MiniShipPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.Logger;
@@ -104,7 +106,7 @@ public class RetreatsPanel extends SRBasePanel implements SRUpdateablePanel, Act
         	if(player.getShipSelfDestruct(tempss)){
         		suffix = " (will selfdestruct)";
         	}
-        	dlm.addElement(tempss.getName() + " is retreating and just left " + tempss.getOldLocation().getName() + suffix);
+        	dlm.addElement(tempss.getName() + " is retreating and just left " + PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, tempss.getOldLocation().getMapPlanetUuid()) + suffix);
         }
         shiplist.updateScrollList();
     }

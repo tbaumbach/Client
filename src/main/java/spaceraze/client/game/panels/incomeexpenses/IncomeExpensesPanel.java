@@ -11,6 +11,7 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTable;
 import spaceraze.client.components.SRTableHeader;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.expenses.ExpensePureFunction;
 import spaceraze.servlethelper.game.player.CostPureFunctions;
@@ -107,11 +108,11 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
     incomeLabel = new SRLabel("Planet incomes total:");
     incomeLabel.setBounds(x,70,col1width,20);
     add(incomeLabel);
-    incomeValueLabel = new SRLabel("+" + IncomePureFunctions.getPlayerIncomeWithoutCorruption(p,false, p.getGalaxy()));
+    incomeValueLabel = new SRLabel("+" + IncomePureFunctions.getPlayerIncomeWithoutCorruption(p,false, p.getGalaxy(), SpaceRazePanel.galaxyMap));
     incomeValueLabel.setBounds(col1width+x,70,250,20);
     add(incomeValueLabel);
 
-    int incomeCorr = IncomePureFunctions.getPlayerIncomeWithoutCorruption(p,false, p.getGalaxy());
+    int incomeCorr = IncomePureFunctions.getPlayerIncomeWithoutCorruption(p,false, p.getGalaxy(), SpaceRazePanel.galaxyMap);
     incomeCorrLabel = new SRLabel("Lost to corruption:");
     incomeCorrLabel.setBounds(x,100,col1width,20);
     add(incomeCorrLabel);
@@ -143,7 +144,7 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
     expencesLabel = new SRLabel("Expences this turn total:");
     expencesLabel.setBounds(x,220,col1width,20);
     add(expencesLabel);
-    expencesValueLabel = new SRLabel("-" + ExpensePureFunction.getExpensesCost(p.getGalaxy(), p));
+    expencesValueLabel = new SRLabel("-" + ExpensePureFunction.getExpensesCost(p.getGalaxy(), p, SpaceRazePanel.galaxyMap));
     expencesValueLabel.setBounds(col1width+x,220,250,20);
     expencesValueLabel.setOpaque(true);
     expencesValueLabel.setBackground(StyleGuide.colorBackground);
@@ -152,7 +153,7 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
     newTreasuryLabel = new SRLabel("Total left to spend:");
     newTreasuryLabel.setBounds(x,250,col1width,20);
     add(newTreasuryLabel);
-    newTreasuryValueLabel = new SRLabel(String.valueOf(PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy())));
+    newTreasuryValueLabel = new SRLabel(String.valueOf(PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy(), SpaceRazePanel.galaxyMap)));
     newTreasuryValueLabel.setBounds(col1width+x,250,250,20);
     newTreasuryValueLabel.setOpaque(true);
     newTreasuryValueLabel.setBackground(StyleGuide.colorBackground);
@@ -238,8 +239,8 @@ public class IncomeExpensesPanel extends SRBasePanel implements SRUpdateablePane
 
   public void updateData(){
   	Logger.finer("called");
-    expencesValueLabel.setText("-" + ExpensePureFunction.getExpensesCost(p.getGalaxy(), p));
-    newTreasuryValueLabel.setText(String.valueOf(PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy())));
+    expencesValueLabel.setText("-" + ExpensePureFunction.getExpensesCost(p.getGalaxy(), p, SpaceRazePanel.galaxyMap));
+    newTreasuryValueLabel.setText(String.valueOf(PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy(), SpaceRazePanel.galaxyMap)));
   }
 
 }
