@@ -12,6 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -32,6 +33,7 @@ import spaceraze.client.game.panels.login.PlayerSavedPanel;
 import spaceraze.client.mapeditor.MapEditorPanel;
 import spaceraze.client.panels.GeneralMessagePanel;
 import spaceraze.map.GalaxyMap;
+import spaceraze.servlethelper.ReturnGames;
 import spaceraze.servlethelper.game.TransferWrapper;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
@@ -451,7 +453,13 @@ public class SpaceRazePanel extends SRBasePanel {
 
     private GalaxyMap getMap(String uuid, long version, String fileName) {
 
-        MapEditorPanel mapEditorPanel = new MapEditorPanel(null, null);
+        Map<String,String> applicationParams = new HashMap<String,String>();
+        applicationParams.put("mapname", fileName);
+        applicationParams.put("action", spaceraze.servlethelper.map.TransferWrapper.LOAD_PUB);
+        applicationParams.put("codebase", getCodeBase().toString());
+        applicationParams.put("port", port);
+
+        MapEditorPanel mapEditorPanel = new MapEditorPanel(applicationParams, null);
         return mapEditorPanel.loadMap(spaceraze.servlethelper.map.TransferWrapper.LOAD_PUB, fileName);
 
         /*
