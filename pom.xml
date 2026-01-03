@@ -10,10 +10,10 @@
 	<description>SpaceRaze Java swing client</description>
 	<url>http://maven.apache.org</url>
 	<properties>
-		<java.version>21</java.version>
-		<maven.compiler.target>21</maven.compiler.target>
-		<maven.compiler.source>21</maven.compiler.source>
-		<maven.complier.release>21</maven.complier.release>
+		<java.version>25</java.version>
+		<maven.compiler.target>25</maven.compiler.target>
+		<maven.compiler.source>25</maven.compiler.source>
+		<maven.complier.release>25</maven.complier.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -48,11 +48,13 @@
 			<artifactId>servlethelper</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>
 			<version>5.11.0</version>
 			<scope>test</scope>
 		</dependency>
+		-->
 	</dependencies>
 </project>
