@@ -9,7 +9,7 @@ import spaceraze.client.components.BasicPopupPanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRTextField;
 import spaceraze.util.general.Logger;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 
 /**
  * @author wmpabod

@@ -17,10 +17,10 @@ import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Galaxy;
-import spaceraze.world.Planet;
-import spaceraze.world.Player;
-import spaceraze.world.Spaceship;
+import spaceraze.game.Galaxy;
+import spaceraze.game.Planet;
+import spaceraze.game.Player;
+import spaceraze.game.Spaceship;
 
 /**
  * The panel which contains the game gui in the client.
@@ -75,12 +75,12 @@ public class GameGUIPanel extends JPanel implements SRUpdateablePanel, ShowMapPl
 		 * 
 		 */
 		mapCanvas.setBounds(mapx, mapy, mapw, maph);
-		mapCanvas.setPlanets(p.getGalaxy().getPlanets(), p);
-		mapCanvas.setSpaceships(SpaceshipPureFunctions.getPlayersSpaceships(p, p.getGalaxy()));
-		mapCanvas.setOwnVips(p.getGalaxy().getPlayersVips(p));
-		mapCanvas.setOwnTroops(TroopPureFunctions.getPlayersTroops(p, p.getGalaxy()));
-		mapCanvas.setOthersVips(p.getGalaxy().getAllVIPs());
-		mapCanvas.setConnections(p.getGalaxy().getPlanetConnections(), p.getGalaxy());
+		mapCanvas.setPlanets(SpaceRazePanel.galaxy.getPlanets(), p);
+		mapCanvas.setSpaceships(SpaceshipPureFunctions.getPlayersSpaceships(p, SpaceRazePanel.galaxy));
+		mapCanvas.setOwnVips(SpaceRazePanel.galaxy.getPlayersVips(p));
+		mapCanvas.setOwnTroops(TroopPureFunctions.getPlayersTroops(p, SpaceRazePanel.galaxy));
+		mapCanvas.setOthersVips(SpaceRazePanel.galaxy.getAllVIPs());
+		mapCanvas.setConnections(SpaceRazePanel.galaxy.getPlanetConnections(), SpaceRazePanel.galaxy);
 		mapCanvas.computeNewOrigo();
 		mapHolder.add(mapCanvas);
 

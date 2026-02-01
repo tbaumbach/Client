@@ -4,7 +4,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import spaceraze.world.GameWorld;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 import spaceraze.client.game.GameGUIPanel;
 import spaceraze.client.game.GamePanel;
 import spaceraze.client.game.GameWorldPanel;
@@ -15,7 +15,7 @@ import spaceraze.client.components.SRTabbedPane;
 import spaceraze.client.components.SRTabbedPaneUI;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.world.SpaceshipType;
-import spaceraze.world.enums.SpaceShipSize;;
+import spaceraze.world.enums.SpaceShipSize;
 
 /**
  * This panel contains the different data panels, and the navigation buttons
@@ -48,13 +48,13 @@ public class DataBankPanel extends SRBasePanel implements SRUpdateablePanel, Cha
       // create all panels
       gp = new GamePanel(p, "Game");
  
-      gwp = new GameWorldPanel(p.getGalaxy().getGameWorld(), "GameWorld");
+      gwp = new GameWorldPanel(SpaceRazePanel.gameWorld, "GameWorld");
      
       fp = new FactionPanel(p, "Factions", client);
     
-      sstp = new ShiptypePanel(p.getGalaxy().getGameWorld().getShipTypes(), p, "ships", hasSquadrons(p.getGalaxy().getGameWorld()));
+      sstp = new ShiptypePanel(SpaceRazePanel.gameWorld.getShipTypes(), p, "ships", hasSquadrons(SpaceRazePanel.gameWorld));
 
-      ttp = new TroopTypePanel(p.getGalaxy().getTroopTypes(), p,"troops");
+      ttp = new TroopTypePanel(SpaceRazePanel.galaxy.getTroopTypes(SpaceRazePanel.gameWorld), p,"troops");
 
       vtp = new VipTypePanel(p,"VIPs");
     
@@ -87,7 +87,7 @@ public class DataBankPanel extends SRBasePanel implements SRUpdateablePanel, Cha
       tabbedPanel.setToolTipTextAt(3, "Ship types details");
       
       int tabbelIndex = 4;
-      if (p.getGalaxy().getGameWorld().isTroopGameWorld()){
+      if (SpaceRazePanel.gameWorld.isTroopGameWorld()){
     	  tabbedPanel.addTab("Troops", ttp);
           tabbedPanel.setToolTipTextAt(4, "Troop types details");
           tabbelIndex++;
@@ -122,7 +122,7 @@ public class DataBankPanel extends SRBasePanel implements SRUpdateablePanel, Cha
   }
 
   public void showVIPTypeDetails(String aVIPType, String faction){
-	  if(p.getGalaxy().getGameWorld().isTroopGameWorld()){
+	  if(SpaceRazePanel.gameWorld.isTroopGameWorld()){
 		  tabbedPanel.setSelectedIndex(5);
 	  }else{
 		  tabbedPanel.setSelectedIndex(4);
@@ -131,7 +131,7 @@ public class DataBankPanel extends SRBasePanel implements SRUpdateablePanel, Cha
 	}
   
   public void showBuildingTypeDetails(String aBuildingType, String faction){
-	  if(p.getGalaxy().getGameWorld().isTroopGameWorld()){
+	  if(SpaceRazePanel.gameWorld.isTroopGameWorld()){
 		  tabbedPanel.setSelectedIndex(6);
 	  }else{
 		  tabbedPanel.setSelectedIndex(5);

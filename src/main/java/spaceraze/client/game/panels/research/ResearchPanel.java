@@ -22,9 +22,12 @@ import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
-import spaceraze.servlethelper.game.BuildingPureFunctions;
+import spaceraze.game.Player;
+import spaceraze.servlethelper.game.building.BuildingPureFunctions;
 import spaceraze.servlethelper.game.ResearchPureFunctions;
 import spaceraze.servlethelper.game.gameworld.GameWorldPureFunction;
+import spaceraze.servlethelper.game.orders.OrderMutator;
+import spaceraze.servlethelper.game.orders.OrderPureFunctions;
 import spaceraze.servlethelper.game.player.IncomePureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
@@ -33,7 +36,7 @@ import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.*;
 import spaceraze.servlethelper.comparator.FactionsComparator;
-import spaceraze.world.orders.ResearchOrder;
+import spaceraze.game.orders.ResearchOrder;
 
 @SuppressWarnings("serial")
 public class ResearchPanel extends SRBasePanel implements ListSelectionListener, SRUpdateablePanel, ActionListener {
@@ -256,7 +259,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 	 private void fillTreeList(){
 		 treeChoice.addItem("My tree");
 		 
-		 factions = p.getGalaxy().getGameWorld().getFactions().stream().collect(Collectors.toList());
+		 factions = SpaceRazePanel.gameWorld.getFactions().stream().collect(Collectors.toList());
 	    	Collections.sort(factions,new FactionsComparator());
 	    	for (Faction aFaction : factions) {
 				treeChoice.addItem(aFaction.getName());
@@ -278,12 +281,12 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 			 }
 			 
 		 }else{
-			 tmpAdvantages = ResearchPureFunctions.getAllAdvantagesThatIsReadyToBeResearchOn(p, GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()));
+			 tmpAdvantages = ResearchPureFunctions.getAllAdvantagesThatIsReadyToBeResearchOn(p, GameWorldHandler.getFactionByUuid(p.getFactionUuid(), SpaceRazePanel.gameWorld));
 			 boolean developedFound = false;
 			 dlm.add(0,"-Ready For Research-");
 			 for(int i = 0; i < tmpAdvantages.size(); i++){				 
 				 
-				 if(p.getOrders().checkResearchOrder(tmpAdvantages.get(i).getName())){
+				 if(OrderPureFunctions.checkResearchOrder(p.getOrders(), tmpAdvantages.get(i).getName())){
 					 if(dlm.get(0).toString().equalsIgnoreCase("---Ongoing---")){
 						 dlm.add(1,tmpAdvantages.get(i).getName());
 					 }else{
@@ -337,11 +340,11 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 		 
 		 Logger.fine("showResearchAdvantage(String researchAdvantagename) " + researchAdvantagename);
 		 if(treeChoice.getSelectedIndex() == 0){
-			 researchAdvantage = ResearchPureFunctions.getAdvantage(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()), researchAdvantagename);
+			 researchAdvantage = ResearchPureFunctions.getAdvantage(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), SpaceRazePanel.gameWorld), researchAdvantagename);
 			 Logger.fine("p.getResearch().getAdvantage(researchAdvantagename) (own) " + researchAdvantage.getName());
 		 }
 		 else{
-			 researchAdvantage = ResearchPureFunctions.getAdvantage(GameWorldHandler.getFactionByName(treeChoice.getSelectedItem(), p.getGalaxy().getGameWorld()), researchAdvantagename);
+			 researchAdvantage = ResearchPureFunctions.getAdvantage(GameWorldHandler.getFactionByName(treeChoice.getSelectedItem(), SpaceRazePanel.gameWorld), researchAdvantagename);
 			 Logger.fine("ReserachPanel Faction " + researchAdvantage.getName());
 		 }
 		 
@@ -351,7 +354,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 			 DefaultListModel dlm = (DefaultListModel)shipList.getModel();
 			 dlm.removeAllElements();
 
-			 researchAdvantage.getShips().forEach(uuid -> dlm.addElement(SpaceshipPureFunctions.getSpaceshipTypeByUuid(uuid, p.getGalaxy().getGameWorld()).getName()));
+			 researchAdvantage.getShips().forEach(uuid -> dlm.addElement(SpaceshipPureFunctions.getSpaceshipTypeByUuid(uuid, SpaceRazePanel.gameWorld).getName()));
 
 			 shipList.updateScrollList();
 			 shipListLabel.setVisible(true);
@@ -369,7 +372,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 		 if(researchAdvantage.getTroops().size() > 0){
 			 DefaultListModel dlm = (DefaultListModel)troopsList.getModel();
 			 dlm.removeAllElements();
-			 researchAdvantage.getTroops().forEach(uuid -> dlm.addElement(TroopPureFunctions.getTroopTypeByUuid(uuid, p.getGalaxy().getGameWorld()).getName()));
+			 researchAdvantage.getTroops().forEach(uuid -> dlm.addElement(TroopPureFunctions.getTroopTypeByUuid(uuid, SpaceRazePanel.gameWorld).getName()));
 			 troopsList.setLocation(columnUnitX , 259+ xpos);
 			 troopListLabel.setLocation(columnUnitX, 240+ xpos);
 			 viewTroopButton.setLocation(columnUnitX, 307+ xpos);
@@ -389,7 +392,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 			 DefaultListModel dlm = buildingsList.getModel();
 			 dlm.removeAllElements();
 			 for (String buildingUUID : researchAdvantage.getBuildings()) {
-				 dlm.addElement(BuildingPureFunctions.getBuildingTypeByUuid(buildingUUID,p.getGalaxy().getGameWorld()).getName());
+				 dlm.addElement(BuildingPureFunctions.getBuildingTypeByUuid(buildingUUID,SpaceRazePanel.gameWorld).getName());
 			 }
 			 buildingsList.setLocation(columnUnitX, 259+ xpos);
 			 buildingListLabel.setLocation(columnUnitX , 240+ xpos);
@@ -409,8 +412,8 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 		 name2.setText(researchAdvantage.getName());
 		 
 		 
-		 parentAndChildButtonXCordinate = new int[researchAdvantage.getChildren().size() + GameWorldPureFunction.getParent(researchAdvantage.getUuid(), p.getGalaxy().getGameWorld()).size()];
-		 parentAndChildButtonYCordinate = new int[researchAdvantage.getChildren().size() + GameWorldPureFunction.getParent(researchAdvantage.getUuid(), p.getGalaxy().getGameWorld()).size()];
+		 parentAndChildButtonXCordinate = new int[researchAdvantage.getChildren().size() + GameWorldPureFunction.getParent(researchAdvantage.getUuid(), SpaceRazePanel.gameWorld).size()];
+		 parentAndChildButtonYCordinate = new int[researchAdvantage.getChildren().size() + GameWorldPureFunction.getParent(researchAdvantage.getUuid(), SpaceRazePanel.gameWorld).size()];
 		 
 		 int tmpY = 92;
 		 int offsetY = 25; // extra pixels for each row of advantages
@@ -424,7 +427,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 			 int columnCounter = 1;
 			 
 			 for(String uuid : researchAdvantage.getChildren()){
-				 ResearchAdvantage child = GameWorldPureFunction.getResearchAdvantageByUuid(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()), uuid);
+				 ResearchAdvantage child = GameWorldPureFunction.getResearchAdvantageByUuid(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), SpaceRazePanel.gameWorld), uuid);
 				 Logger.fine("child.getName() " + child.getName());
 				 
 				 if (columnCounter == 4){ // start on a new row
@@ -455,18 +458,18 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 		 tmpY += 18;
 		 
 		 // Adding buttons to go against parents researchAdvantage
-		 if(GameWorldPureFunction.getParent(researchAdvantage.getUuid(), p.getGalaxy().getGameWorld()).size() > 0){
-			 Logger.fine("GameWorldPureFunction.getParent(researchAdvantage.getUuid(), p.getGalaxy().getGameWorld()).size() " + GameWorldPureFunction.getParent(researchAdvantage.getUuid(), p.getGalaxy().getGameWorld()).size());
+		 if(GameWorldPureFunction.getParent(researchAdvantage.getUuid(), SpaceRazePanel.gameWorld).size() > 0){
+			 Logger.fine("GameWorldPureFunction.getParent(researchAdvantage.getUuid(), SpaceRazePanel.gameWorld).size() " + GameWorldPureFunction.getParent(researchAdvantage.getUuid(), SpaceRazePanel.gameWorld).size());
 			 int tempParentButtonXCordinat = column1X;
 			 int columnCounter = 1;
 			 
-			 for(int i=0; i < GameWorldPureFunction.getParent(researchAdvantage.getUuid(), p.getGalaxy().getGameWorld()).size();i++){
-				 Logger.fine("GameWorldPureFunction.getParent(researchAdvantage.getUuid(), p.getGalaxy().getGameWorld()).get(i).getName() " + GameWorldPureFunction.getParent(researchAdvantage.getUuid(), p.getGalaxy().getGameWorld()).get(i).getName());
+			 for(int i=0; i < GameWorldPureFunction.getParent(researchAdvantage.getUuid(), SpaceRazePanel.gameWorld).size();i++){
+				 Logger.fine("GameWorldPureFunction.getParent(researchAdvantage.getUuid(), SpaceRazePanel.gameWorld).get(i).getName() " + GameWorldPureFunction.getParent(researchAdvantage.getUuid(), SpaceRazePanel.gameWorld).get(i).getName());
 				 
-				 SRButton tempbutton = new SRButton(GameWorldPureFunction.getParent(researchAdvantage.getUuid(), p.getGalaxy().getGameWorld()).get(i).getName());
+				 SRButton tempbutton = new SRButton(GameWorldPureFunction.getParent(researchAdvantage.getUuid(), SpaceRazePanel.gameWorld).get(i).getName());
 				 tempbutton.setBounds(tempParentButtonXCordinat, tmpY, buttonWidth, 20);
 				 tempbutton.addActionListener(this);
-				 tempbutton.setToolTipText("Hit this button to see the parent research advantage: " + GameWorldPureFunction.getParent(researchAdvantage.getUuid(), p.getGalaxy().getGameWorld()).get(i).getName());
+				 tempbutton.setToolTipText("Hit this button to see the parent research advantage: " + GameWorldPureFunction.getParent(researchAdvantage.getUuid(), SpaceRazePanel.gameWorld).get(i).getName());
 				 add(tempbutton);
 				 parentAndChildButtonXCordinate[parentAndChildButtonMaxIndexNumber] = tempParentButtonXCordinat;
 				 parentAndChildButtonYCordinate[parentAndChildButtonMaxIndexNumber] = tmpY;
@@ -494,13 +497,13 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 		 
 		 tmpY += 19;
 		 scrollPaneDetails.setLocation(column1X,tmpY);
-		 detailsArea.setText(ResearchPureFunctions.getResearchText(researchAdvantage, p.getGalaxy().getGameWorld()));
+		 detailsArea.setText(ResearchPureFunctions.getResearchText(researchAdvantage, SpaceRazePanel.gameWorld));
 		 
 		 if(treeChoice.getSelectedIndex() == 0){
 			 if(p.getResearchProgress(researchAdvantage.getName()) != null && p.getResearchProgress(researchAdvantage.getName()).isDeveloped()){
 				 turnInfo.setText("This advantage is done");
 			 }else{
-				 if(ResearchPureFunctions.isReadyToBeResearchedOn(researchAdvantage.getUuid(), p,  GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()))){
+				 if(ResearchPureFunctions.isReadyToBeResearchedOn(researchAdvantage.getUuid(), p,  GameWorldHandler.getFactionByUuid(p.getFactionUuid(), SpaceRazePanel.gameWorld))){
 					 
 					 turnInfo.setText("Develop time:   " + new Integer(researchAdvantage.getTimeToResearch()).toString() + " turns (" + new Integer(researchAdvantage.getTimeToResearch()-p.getResearchProgress(researchAdvantage.getName()).getResearchedTurns()).toString() + " turns left)");
 					 
@@ -509,7 +512,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 					 
 					 // if(p.getResearch().isOnGoingResearchedAdvantage(researchAdvantage))
 					 
-					 if(p.getOrders().checkResearchOrder(researchAdvantage.getName())){
+					 if(OrderPureFunctions.checkResearchOrder(p.getOrders(), researchAdvantage.getName())){
 						 doResearchButton.setText("Cancel the research");
 						 doResearchButton.setVisible(true);
 					 }else{
@@ -643,7 +646,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 			//	p.getResearch().removeOnGoingResearchedAdvantage(p.getResearch().getAdvantage(name2.getText()));
 				
 				// removes Order text in Order Panel
-				p.getOrders().removeResearchOrder(name2.getText(), p.getGalaxy());
+				OrderMutator.removeResearchOrder(p.getOrders(), name2.getText());
 				// ta bort denna lop. körs aldrig.
 			/*	for(int i=0; i < p.getOrders().getResearchOrders().size();i++){
 					ResearchOrder ro = (ResearchOrder)p.getOrders().getResearchOrders().get(i);
@@ -652,7 +655,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 				}*/
 				Logger.fine("(ResearchPanel.java) Cancel the research p.getOrders().getResearchOrders().size()" + p.getOrders().getResearchOrders().size());
 			}else{
-				if(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()).getNumberOfSimultaneouslyResearchAdvantages() == 1){
+				if(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), SpaceRazePanel.gameWorld).getNumberOfSimultaneouslyResearchAdvantages() == 1){
 				//	p.getResearch().removeAllOnGoingResearchedAdvantage();
 					if(p.getOrders().getResearchOrders().size() > 0){
 						p.getOrders().getResearchOrders().remove(0);
@@ -663,20 +666,18 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 					//p.getResearch().setOnGoingResearchedAdvantage(p.getResearch().getAdvantage(name2.getText()));
 //					TODO (Tobbe) add Order text in Order Panel
 					
-					int cost = countCost(ResearchPureFunctions.getAdvantage(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()), name2.getText()));
+					int cost = countCost(ResearchPureFunctions.getAdvantage(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), SpaceRazePanel.gameWorld), name2.getText()));
 					
 					Logger.fine("ResearchPanel cost " + cost);
-					p.getOrders().addResearchOrder(new ResearchOrder(name2.getText(), cost),p);
-					//ResearchOrder researchOrder, Player p, int sum)
-				}
-				else{
-					int tempNumberOfSimultaneouslyResearchAdvantages = GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()).getNumberOfSimultaneouslyResearchAdvantages();
+					OrderMutator.addResearchOrder(p.getOrders(), new ResearchOrder(name2.getText(), cost),p);
+				} else {
+					int tempNumberOfSimultaneouslyResearchAdvantages = GameWorldHandler.getFactionByUuid(p.getFactionUuid(), SpaceRazePanel.gameWorld).getNumberOfSimultaneouslyResearchAdvantages();
 					int tempNumbersOfResearchOrders =  p.getOrders().getResearchOrders().size();
 					
 					if(tempNumbersOfResearchOrders < tempNumberOfSimultaneouslyResearchAdvantages){
-						int cost = countCost(ResearchPureFunctions.getAdvantage( GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()), name2.getText()));
+						int cost = countCost(ResearchPureFunctions.getAdvantage( GameWorldHandler.getFactionByUuid(p.getFactionUuid(), SpaceRazePanel.gameWorld), name2.getText()));
 						Logger.fine("ResearchPanel cost " + cost);
-						p.getOrders().addResearchOrder(new ResearchOrder(name2.getText(),cost),p);
+						OrderMutator.addResearchOrder(p.getOrders(), new ResearchOrder(name2.getText(), cost),p);
 						//p.getOrders().addResearchOrder(new ResearchOrder(name2.getText()));
 					}
 					else{
@@ -759,7 +760,7 @@ public class ResearchPanel extends SRBasePanel implements ListSelectionListener,
 				 return researchAdvantage.getCostToResearchOneTurn();
 			 }else{
 				 
-				 double treasury = IncomePureFunctions.getPlayerIncome(p,false, SpaceRazePanel.galaxyMap);
+				 double treasury = IncomePureFunctions.getPlayerIncome(p,false, SpaceRazePanel.galaxyMap, SpaceRazePanel.gameWorld, SpaceRazePanel.galaxy);
 				 double procent = researchAdvantage.getCostToResearchOneTurnInPercent();
 				 
 				 

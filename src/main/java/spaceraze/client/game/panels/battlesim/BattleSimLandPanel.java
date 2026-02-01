@@ -37,15 +37,15 @@ import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Faction;
-import spaceraze.world.Galaxy;
-import spaceraze.world.Player;
-import spaceraze.world.TroopType;
-import spaceraze.world.VIPType;
+import spaceraze.game.Galaxy;
+import spaceraze.game.Player;
 import spaceraze.servlethelper.comparator.FactionsComparator;
 import spaceraze.servlethelper.comparator.VIPTypeComparator;
 import spaceraze.servlethelper.comparator.trooptype.TroopTypeComparator;
 import spaceraze.servlethelper.comparator.trooptype.TroopTypeNameComparator2;
 import spaceraze.servlethelper.comparator.trooptype.TroopTypeTypeAndBuildCostComparator;
+import spaceraze.world.TroopType;
+import spaceraze.world.VIPType;
 import spaceraze.world.enums.BattleGroupPosition;
 import spaceraze.world.enums.TypeOfTroop;
 
@@ -237,7 +237,7 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
 
     
     private void fillVipsList(){
-    	List<VIPType> tmpVipTypes = VipPureFunctions.getLandBattleVIPtypes(p.getGalaxy().getGameWorld());
+    	List<VIPType> tmpVipTypes = VipPureFunctions.getLandBattleVIPtypes(SpaceRazePanel.gameWorld);
     	Collections.sort(tmpVipTypes,new VIPTypeComparator());
         DefaultListModel dlm = (DefaultListModel)vipsList.getModel();
         for(int i = 0; i < tmpVipTypes.size(); i++){
@@ -251,7 +251,7 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
     private void fillFilterList(){
     	filterChoice.addItem("All (sort by name)");
     	filterChoice.addItem("All (sort by class & size)");
-    	factions = p.getGalaxy().getGameWorld().getFactions().stream().collect(Collectors.toList());
+    	factions = SpaceRazePanel.gameWorld.getFactions().stream().collect(Collectors.toList());
     	Collections.sort(factions,new FactionsComparator());
     	for (Faction aFaction : factions) {
 			filterChoice.addItem(aFaction.getName());
@@ -282,7 +282,7 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
     		tempTtList = troopTypes;
     	}else{
     		Faction showOnlyFaction = factions.get(filterChoice.getSelectedIndex() - 2);
-    		tempTtList = showOnlyFaction.getTroopTypes().stream().map(uuid -> TroopPureFunctions.getTroopTypeByUuid(uuid, p.getGalaxy().getGameWorld())).collect(Collectors.toList());
+    		tempTtList = showOnlyFaction.getTroopTypes().stream().map(uuid -> TroopPureFunctions.getTroopTypeByUuid(uuid, SpaceRazePanel.gameWorld)).collect(Collectors.toList());
     	}
     	// sort lists
     	if (filterChoice.getSelectedIndex() == 0){
@@ -413,10 +413,10 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
     			tmpUnitName = tmpUnitName.substring(0,otherAbilitiesStart);
     		}
     		// check if tmpUnitName is a troop
-    		TroopType tt = p.getGalaxy().getGameWorld().getTroopTypeByName(tmpUnitName);
+    		TroopType tt = SpaceRazePanel.gameWorld.getTroopTypeByName(tmpUnitName);
     		if (tt == null){
     			// try to find by short name
-    			tt = p.getGalaxy().getGameWorld().getTroopTypeByShortName(tmpUnitName);
+    			tt = SpaceRazePanel.gameWorld.getTroopTypeByShortName(tmpUnitName);
     		}
     		// add if match to returnTroops
     		System.out.println(tmpUnitName + " " + tt + " " + returnTroops);
@@ -447,10 +447,10 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
     			tmpUnitName = tmpUnitName.substring(0,otherAbilitiesStart);
     		}
     		// check if tmpUnitName is a troop
-    		TroopType tt = p.getGalaxy().getGameWorld().getTroopTypeByName(tmpUnitName);
+    		TroopType tt = SpaceRazePanel.gameWorld.getTroopTypeByName(tmpUnitName);
     		if (tt == null){
     			// try to find by short name
-    			tt = p.getGalaxy().getGameWorld().getTroopTypeByShortName(tmpUnitName);
+    			tt = SpaceRazePanel.gameWorld.getTroopTypeByShortName(tmpUnitName);
     		}
     		// add if match to returnTroops
     		if (tt == null){
@@ -466,7 +466,7 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
     }
 
     private void startSim(){
-    	landBattleSim = new BattleSimLand(this,p.getGalaxy().getGameWorld(), SpaceRazePanel.galaxyMap);
+    	landBattleSim = new BattleSimLand(this,SpaceRazePanel.gameWorld, SpaceRazePanel.galaxyMap, SpaceRazePanel.galaxy);
     	String tf1troops = getTroops(aForceTA.getText(), true);
     	String tf1unknown = getUnknownUnits(aForceTA.getText());
     	String tf2troops = getTroops(bForceTA.getText(), true);
@@ -528,8 +528,7 @@ public class BattleSimLandPanel extends SRBasePanel implements ListSelectionList
     	String typeName = troopTypeList.getSelectedItem();
 
     	if(!typeName.contains("---")){
-	    	Galaxy g = p.getGalaxy();
-	    	TroopType tt = TroopPureFunctions.getTroopTypeByName(typeName, g.getGameWorld());
+	    	TroopType tt = TroopPureFunctions.getTroopTypeByName(typeName, SpaceRazePanel.gameWorld);
 	    	
 	    	String appendString = "";
 	    	if (!aTA.getText().equals("")){

@@ -11,10 +11,11 @@ import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRTabbedPane;
 import spaceraze.client.components.SRTabbedPaneUI;
 import spaceraze.client.game.GameGUIPanel;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 
 /**
  * This panel contains the different data panels, and the navigation buttons
@@ -39,17 +40,17 @@ public class ResourcesPanel extends SRBasePanel implements SRUpdateablePanel, Ch
       setBackground(StyleGuide.colorBackground);
            
       // create all panels
-      rpp = new PlanetsPanel(p.getGalaxy(), "Planets", p, gameGuiPanel);
+      rpp = new PlanetsPanel(SpaceRazePanel.galaxy, "Planets", p, gameGuiPanel);
       rpp.setName("Databank");
       add(rpp);
       panels.add(rpp);
       
-      vp = new VIPsPanel(p.getGalaxy(), "VIPs", p, gameGuiPanel);
+      vp = new VIPsPanel(SpaceRazePanel.galaxy, "VIPs", p, gameGuiPanel);
       vp.setName("Databank");
       add(vp);
       panels.add(vp);
       
-      sp = new ShipsPanel(p.getGalaxy(), "Ships", p, gameGuiPanel);
+      sp = new ShipsPanel(SpaceRazePanel.galaxy, "Ships", p, gameGuiPanel);
       sp.setName("Databank");
       add(sp);
       panels.add(sp);

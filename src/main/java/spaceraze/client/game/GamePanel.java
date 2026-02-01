@@ -6,7 +6,7 @@ import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.GameWorld;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 
 @SuppressWarnings("serial")
 public class GamePanel extends SRBasePanel implements SRUpdateablePanel{
@@ -21,7 +21,7 @@ public class GamePanel extends SRBasePanel implements SRUpdateablePanel{
     public GamePanel(Player p, String id){
       this.id = id;
       this.p = p;
-      this.gw = p.getGalaxy().getGameWorld();
+      this.gw = SpaceRazePanel.gameWorld;
 
       this.setLayout(null);
       setBackground(StyleGuide.colorBackground);
@@ -92,9 +92,9 @@ public class GamePanel extends SRBasePanel implements SRUpdateablePanel{
     
     public void showGame(){
     	String maxTurns = "Unlimited";
-    	String turnText =  "" + p.getGalaxy().getTurn();
-    	if (p.getGalaxy().getEndTurn() > 0){
-    		maxTurns = String.valueOf(p.getGalaxy().getEndTurn());
+    	String turnText =  "" + SpaceRazePanel.galaxy.getTurn();
+    	if (SpaceRazePanel.galaxy.getEndTurn() > 0){
+    		maxTurns = String.valueOf(SpaceRazePanel.galaxy.getEndTurn());
     		turnText += " of " + maxTurns; 
     	}
     	
@@ -103,13 +103,13 @@ public class GamePanel extends SRBasePanel implements SRUpdateablePanel{
     	govNameLbl2.setText(p.getGovernorName());
     	gameWorldLbl2.setText(gw.getFullName());
     	mapNameLbl2.setText(SpaceRazePanel.galaxyMap.getName());
-    	factionNameLbl2.setText(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()).getName());
-    	gameNameLbl2.setText(p.getGalaxy().getGameName());
+    	factionNameLbl2.setText(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), SpaceRazePanel.gameWorld).getName());
+    	gameNameLbl2.setText(SpaceRazePanel.galaxy.getGameName());
     	maxTurnsLbl2.setText(maxTurns);
-    	factionWinLbl2.setText(p.getGalaxy().getFactionVictory() + "%");
-    	soloWinLbl2.setText(p.getGalaxy().getSingleVictory() + "%");
-        diplomacyTypeLbl2.setText(p.getGalaxy().getDiplomacyGameType().getLongText());
-        statisticsTypeLbl2.setText(p.getGalaxy().getStatisticGameType().getText());
+    	factionWinLbl2.setText(SpaceRazePanel.galaxy.getFactionVictory() + "%");
+    	soloWinLbl2.setText(SpaceRazePanel.galaxy.getSingleVictory() + "%");
+        diplomacyTypeLbl2.setText(SpaceRazePanel.galaxy.getDiplomacyGameType().getLongText());
+        statisticsTypeLbl2.setText(SpaceRazePanel.galaxy.getStatisticGameType().getText());
     }
 
     public String getId(){

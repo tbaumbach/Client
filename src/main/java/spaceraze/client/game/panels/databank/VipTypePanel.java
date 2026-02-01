@@ -19,13 +19,14 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.AlignmentPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Alignment;
 import spaceraze.world.Faction;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 import spaceraze.world.VIPType;
 import spaceraze.servlethelper.comparator.FactionsComparator;
 import spaceraze.servlethelper.comparator.VIPTypeComparator;
@@ -63,7 +64,7 @@ public class VipTypePanel extends SRBasePanel implements ListSelectionListener, 
     private final int yInterval = 20;
     
     public VipTypePanel(Player p, String id){
-      viptypes = p.getGalaxy().getGameWorld().getVipTypes().stream().collect(Collectors.toList());
+      viptypes = SpaceRazePanel.gameWorld.getVipTypes().stream().collect(Collectors.toList());
 	  Collections.sort(viptypes,new VIPTypeComparator());
       this.id = id;
       this.p = p;
@@ -171,11 +172,11 @@ public class VipTypePanel extends SRBasePanel implements ListSelectionListener, 
     private void fillFilterList(){
     	filterChoice.addItem("All");
 //    	filterChoice.addItem("Yours");
-    	alignments = p.getGalaxy().getGameWorld().getAlignments();
+    	alignments = SpaceRazePanel.gameWorld.getAlignments();
     	for (Alignment alignment : alignments) {
     		filterChoice.addItem("Alignment: " + alignment.getName());
 		}
-    	factions = p.getGalaxy().getGameWorld().getFactions().stream().collect(Collectors.toList());
+    	factions = SpaceRazePanel.gameWorld.getFactions().stream().collect(Collectors.toList());
     	Collections.sort(factions,new FactionsComparator());
     	for (Faction aFaction : factions) {
 			filterChoice.addItem("Faction: " + aFaction.getName());
@@ -218,7 +219,7 @@ public class VipTypePanel extends SRBasePanel implements ListSelectionListener, 
     		List<Alignment> canHaveAlignments = getCanHaveAlignments(showOnlyFaction.getAlignment());
     		System.out.println("canHaveAlignments: " + canHaveAlignments.size());
     		for (Alignment showOnlyAlignment : canHaveAlignments) {
-    			List<VIPType> alignmentVIPTypeList = p.getGalaxy().getVIPType(showOnlyAlignment);
+    			List<VIPType> alignmentVIPTypeList = SpaceRazePanel.galaxy.getVIPType(showOnlyAlignment, SpaceRazePanel.gameWorld);
         		System.out.println("alignmentVIPTypeList: " + alignmentVIPTypeList.size());
     			for (VIPType aVipType : alignmentVIPTypeList) {
     				System.out.println("aVipType: " + aVipType.getName());
@@ -229,7 +230,7 @@ public class VipTypePanel extends SRBasePanel implements ListSelectionListener, 
     	}else 
     	if(selIndex > 0){//alignment
     		Alignment showOnlyAlignment = alignments.get(filterChoice.getSelectedIndex() - 1);
-    		tempVIPTypeList = p.getGalaxy().getVIPType(showOnlyAlignment);
+    		tempVIPTypeList = SpaceRazePanel.galaxy.getVIPType(showOnlyAlignment, SpaceRazePanel.gameWorld);
     	}
     	else{
     		tempVIPTypeList = viptypes;// all
@@ -245,7 +246,7 @@ public class VipTypePanel extends SRBasePanel implements ListSelectionListener, 
     
     private VIPType findVIPType(String findname){
         VIPType vt = null;
-        vt = VipPureFunctions.getVipTypeByName(findname, p.getGalaxy().getGameWorld());
+        vt = VipPureFunctions.getVipTypeByName(findname, SpaceRazePanel.gameWorld);
         return vt;
       }
     
@@ -301,7 +302,7 @@ public class VipTypePanel extends SRBasePanel implements ListSelectionListener, 
       if (vt != null){
           nameLbl2.setText(vt.getName());
           shortNameLbl2.setText(vt.getShortName());
-          alignmentLbl2.setText(AlignmentPureFunctions.findAlignmentByUuid(vt.getAlignment(), p.getGalaxy().getGameWorld().getAlignments()).getName());
+          alignmentLbl2.setText(AlignmentPureFunctions.findAlignmentByUuid(vt.getAlignment(), SpaceRazePanel.gameWorld.getAlignments()).getName());
           frequencyLbl2.setText(vt.getFrequencyString());
           /*
           if (filterChoice.getSelectedIndex() >= 1){

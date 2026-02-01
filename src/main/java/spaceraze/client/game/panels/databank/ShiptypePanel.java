@@ -21,7 +21,9 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.game.Player;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.util.general.Functions;
@@ -713,7 +715,7 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	filterChoice.addItem("All (sort by name)");
     	filterChoice.addItem("All (sort by class & size)");
     	filterChoice.addItem("Yours");
-    	factions = p.getGalaxy().getGameWorld().getFactions().stream().collect(Collectors.toList());
+    	factions = SpaceRazePanel.gameWorld.getFactions().stream().collect(Collectors.toList());
     	Collections.sort(factions,new FactionsComparator());
     	for (Faction aFaction : factions) {
 			filterChoice.addItem(aFaction.getName());
@@ -739,9 +741,9 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
     	if (filterChoice.getSelectedIndex() > 2){
     		// get faction to show ships from
     		Faction showOnlyFaction = factions.get(filterChoice.getSelectedIndex() - 3);
-    		tempSstList = showOnlyFaction.getSpaceshipTypes().stream().map(uuid -> SpaceshipPureFunctions.getSpaceshipTypeByUuid(uuid, p.getGalaxy().getGameWorld())).collect(Collectors.toList());
+    		tempSstList = showOnlyFaction.getSpaceshipTypes().stream().map(uuid -> SpaceshipPureFunctions.getSpaceshipTypeByUuid(uuid, SpaceRazePanel.gameWorld)).collect(Collectors.toList());
     	}else if(filterChoice.getSelectedIndex() == 2){
-    		tempSstList = PlayerPureFunctions.getSpaceshipTypes(p.getGalaxy(), p);
+    		tempSstList = PlayerPureFunctions.getSpaceshipTypes(p, SpaceRazePanel.gameWorld);
     	}
     	else{
     		tempSstList = spaceshiptypes;
@@ -834,11 +836,11 @@ public class ShiptypePanel extends SRBasePanel implements ListSelectionListener,
       SpaceshipType sst = null;
       int i = 0;
       if(filterChoice.getSelectedIndex() == 2){
-    	  sst = PlayerPureFunctions.findOwnSpaceshipType(SpaceshipPureFunctions.getSpaceshipTypeByName(findname, p.getGalaxy().getGameWorld()).getUuid(), p, p.getGalaxy());
+    	  sst = PlayerPureFunctions.findOwnSpaceshipType(SpaceshipPureFunctions.getSpaceshipTypeByName(findname, SpaceRazePanel.gameWorld).getUuid(), p, SpaceRazePanel.gameWorld);
       }else
       if (filterChoice.getSelectedIndex() > 2){
   		//Faction aFaction = factions.get(filterChoice.getSelectedIndex() - 3);
-  		sst = SpaceshipPureFunctions.getSpaceshipTypeByName(findname, p.getGalaxy().getGameWorld());
+  		sst = SpaceshipPureFunctions.getSpaceshipTypeByName(findname, SpaceRazePanel.gameWorld);
       }else{
 	      while ((sst == null) & (i<spaceshiptypes.size())){
 	        SpaceshipType temp = spaceshiptypes.get(i);

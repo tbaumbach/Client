@@ -8,7 +8,7 @@ import javax.swing.border.LineBorder;
 import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 
 /**
  * This panel is used when a player successfully has finished his turn.

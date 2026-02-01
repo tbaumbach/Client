@@ -22,7 +22,7 @@ import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
-import spaceraze.servlethelper.game.BuildingPureFunctions;
+import spaceraze.servlethelper.game.building.BuildingPureFunctions;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
@@ -31,7 +31,7 @@ import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.BuildingType;
 import spaceraze.world.Faction;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 import spaceraze.world.VIPType;
 import spaceraze.servlethelper.comparator.FactionsComparator;
 
@@ -184,7 +184,7 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
     private void fillTreeList(){
     	filterChoice.addItem("Yours");
 		 
-		 factions = p.getGalaxy().getGameWorld().getFactions().stream().collect(Collectors.toList());
+		 factions = SpaceRazePanel.gameWorld.getFactions().stream().collect(Collectors.toList());
 	    	Collections.sort(factions,new FactionsComparator());
 	    	for (Faction aFaction : factions) {
 				filterChoice.addItem(aFaction.getName());
@@ -216,7 +216,7 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 			 Faction showOnlyFaction = factions.get(filterChoice.getSelectedIndex() - 1);
 			 tmpRootBuildings = BuildingPureFunctions.getRootBuildings(showOnlyFaction.getBuildings());
 		 }else{
-			 tmpRootBuildings = BuildingPureFunctions.getRootBuildings(p);
+			 tmpRootBuildings = BuildingPureFunctions.getRootBuildings(p, SpaceRazePanel.gameWorld);
 		 }
    	
 		 for(int i = 0; i < tmpRootBuildings.size(); i++){
@@ -260,12 +260,12 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 	    	
 		 Logger.fine("showBuilding(String BuildingName) " + buildingName);
 		 if(filterChoice.getSelectedIndex() == 0){
-			 buildingType = PlayerPureFunctions.findOwnBuildingTypeByUuid(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()).getBuildingTypeByName(buildingName).getUuid(), p);
-			 nextBuildingTypes = BuildingPureFunctions.getNextBuildingSteps(buildingType, PlayerPureFunctions.getBuildingTypes(p));
+			 buildingType = PlayerPureFunctions.findOwnBuildingTypeByUuid(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), SpaceRazePanel.gameWorld).getBuildingTypeByName(buildingName).getUuid(), p, SpaceRazePanel.gameWorld);
+			 nextBuildingTypes = BuildingPureFunctions.getNextBuildingSteps(buildingType, PlayerPureFunctions.getBuildingTypes(p, SpaceRazePanel.gameWorld));
 		 }
 		 else{
-			 buildingType = GameWorldHandler.getFactionByName(filterChoice.getSelectedItem(), p.getGalaxy().getGameWorld()).getBuildingTypeByName(buildingName);
-			 nextBuildingTypes = BuildingPureFunctions.getNextBuildingSteps(buildingType, GameWorldHandler.getFactionByName(filterChoice.getSelectedItem(), p.getGalaxy().getGameWorld()).getBuildings());
+			 buildingType = GameWorldHandler.getFactionByName(filterChoice.getSelectedItem(), SpaceRazePanel.gameWorld).getBuildingTypeByName(buildingName);
+			 nextBuildingTypes = BuildingPureFunctions.getNextBuildingSteps(buildingType, GameWorldHandler.getFactionByName(filterChoice.getSelectedItem(), SpaceRazePanel.gameWorld).getBuildings());
 		 }
 		 
     	
@@ -291,7 +291,7 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 			 DefaultListModel dlm = (DefaultListModel)vipsList.getModel();
 			 dlm.removeAllElements();
 			 List<VIPType> tmpVIPs = null;
-			 tmpVIPs = buildingType.getVipTypes().stream().map(vipUuid -> VipPureFunctions.getVipTypeByUuid(vipUuid, p.getGalaxy().getGameWorld())).toList();
+			 tmpVIPs = buildingType.getVipTypes().stream().map(vipUuid -> VipPureFunctions.getVipTypeByUuid(vipUuid, SpaceRazePanel.gameWorld)).toList();
 			 for (VIPType aVIPType : tmpVIPs) {
 				 dlm.addElement(aVIPType.getName());
 			 }
@@ -350,8 +350,8 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 		 tmpY += 18;
 		 
 		 if(buildingType.getParentBuildingType() != null){
-			 parentbutton.setToolTipText("Hit this button to see the parent building: " + BuildingPureFunctions.getBuildingTypeByUuid(buildingType.getParentBuildingType(), p.getGalaxy().getGameWorld()).getName());
-			 parentbutton.setText(BuildingPureFunctions.getBuildingTypeByUuid(buildingType.getParentBuildingType(), p.getGalaxy().getGameWorld()).getName());
+			 parentbutton.setToolTipText("Hit this button to see the parent building: " + BuildingPureFunctions.getBuildingTypeByUuid(buildingType.getParentBuildingType(), SpaceRazePanel.gameWorld).getName());
+			 parentbutton.setText(BuildingPureFunctions.getBuildingTypeByUuid(buildingType.getParentBuildingType(), SpaceRazePanel.gameWorld).getName());
 			 parentbutton.setBounds(column1X, tmpY, buttonWidth, 20);
 			 parentbutton.setVisible(true);
 			 
@@ -371,7 +371,7 @@ public class BuildingTypePanel extends SRBasePanel implements ListSelectionListe
 		 tmpY += 19;
 		 scrollPaneDetails.setLocation(column1X,tmpY);
 		 
-		 List<String> allStrings = BuildingPureFunctions.getAbilitiesStrings(buildingType, p.getGalaxy().getGameWorld());
+		 List<String> allStrings = BuildingPureFunctions.getAbilitiesStrings(buildingType, SpaceRazePanel.gameWorld);
 	        for (int i = 0; i < allStrings.size(); i++){
 	        	detailsArea.append(allStrings.get(i) + "\n");
 	        }

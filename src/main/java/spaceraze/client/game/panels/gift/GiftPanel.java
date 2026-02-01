@@ -14,9 +14,11 @@ import spaceraze.client.components.SRButton;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.orders.OrderMutator;
+import spaceraze.servlethelper.game.orders.OrderPureFunctions;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 
 /**
  * @author Paul Bodin
@@ -46,7 +48,7 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
     allGiftsList = new ListPanel();
     allGiftsList.setBounds(10, 10, 250, 350);
     allGiftsList.setListSelectionListener(this);
-    addPlayers(p.getGalaxy().getPlayers());
+    addPlayers(SpaceRazePanel.galaxy.getPlayers());
     allGiftsList.updateScrollList();
     add(allGiftsList);
 
@@ -72,10 +74,10 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
   private void addPlayers(List<Player> players){
 	  DefaultListModel dlm = allGiftsList.getModel();
 	  for (int i = 0; i < players.size(); i++){
-		  Player tempPlayer = (Player)players.get(i);
+		  Player tempPlayer = players.get(i);
 		  if (tempPlayer != p){ // can not give money to himself
-			  int giftSum = p.getOrders().findGift(tempPlayer);
-			  String rowText = tempPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(tempPlayer.getFactionUuid(), p.getGalaxy().getGameWorld()).getName() + ")";
+			  int giftSum = OrderPureFunctions.findGift(p.getOrders(), tempPlayer);
+			  String rowText = tempPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(tempPlayer.getFactionUuid(), SpaceRazePanel.gameWorld).getName() + ")";
 			  if (giftSum > 0){
 				  rowText += ", give:" + giftSum;
 			  }
@@ -93,7 +95,7 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
 	  Logger.fine("showButtons: " + index);
 	  Player giveToPlayer = (Player)otherPlayers.get(index);
 	  Logger.fine("Player found: " + giveToPlayer.getGovernorName());
-	  int amount = p.getOrders().findGift(giveToPlayer);
+	  int amount = OrderPureFunctions.findGift(p.getOrders(), giveToPlayer);
 	  if (amount > 0){
 		  // if amount is > 0, gift exists
 		  newButton.setEnabled(false);
@@ -127,15 +129,15 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
   	Logger.fine("deleteGift called");
   	Player giveToPlayer = (Player)otherPlayers.get(allGiftsList.getSelectedIndex());
   	// set gift to zero to remove it...
-  	p.getOrders().addNewTransaction(0,giveToPlayer);
-    client.updateTreasuryLabel();
+      OrderMutator.addNewTransaction(p.getOrders(), 0, giveToPlayer);
+  	client.updateTreasuryLabel();
   	updateGiftPanel();
   }
 
   private void performPopupGiftAction(){
 	  Logger.fine("performPopupAction called");
 	  Player giveToPlayer = (Player)otherPlayers.get(allGiftsList.getSelectedIndex());
-	  p.getOrders().addNewTransaction(popupGift.getSum(),giveToPlayer);
+      OrderMutator.addNewTransaction(p.getOrders(), popupGift.getSum(), giveToPlayer);
 	  client.updateTreasuryLabel();
 	  updateGiftPanel();
   }
@@ -143,7 +145,7 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
   private void updateGiftPanel(){
   	int index = allGiftsList.getSelectedIndex();
   	emptyList();
-  	addPlayers(p.getGalaxy().getPlayers());
+  	addPlayers(SpaceRazePanel.galaxy.getPlayers());
   	update(getGraphics());
   	allGiftsList.update(allGiftsList.getGraphics());
   	showButtons(index);
@@ -154,7 +156,7 @@ public class GiftPanel extends SRBasePanel implements ListSelectionListener, SRU
     Player giveToPlayer = otherPlayers.get(allGiftsList.getSelectedIndex());
 
     if (actionCommand.equalsIgnoreCase("edit gift")){
-    	int amount = p.getOrders().findGift(giveToPlayer);
+    	int amount = OrderPureFunctions.findGift(p.getOrders(), giveToPlayer);
     	popupGift = new GiftPopupPanel(actionCommand,this,giveToPlayer,amount);
     }else{
     	popupGift = new GiftPopupPanel(actionCommand,this,giveToPlayer);

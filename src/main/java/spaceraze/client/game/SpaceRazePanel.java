@@ -32,8 +32,10 @@ import spaceraze.client.game.panels.login.PlayerCreatedMessagePanel;
 import spaceraze.client.game.panels.login.PlayerSavedPanel;
 import spaceraze.client.mapeditor.MapEditorPanel;
 import spaceraze.client.panels.GeneralMessagePanel;
+import spaceraze.game.Galaxy;
+import spaceraze.game.Message;
+import spaceraze.game.Player;
 import spaceraze.map.GalaxyMap;
-import spaceraze.servlethelper.ReturnGames;
 import spaceraze.servlethelper.game.TransferWrapper;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
@@ -72,7 +74,7 @@ public class SpaceRazePanel extends SRBasePanel {
 	private ProgressPanel pp, pp2;
 	private int contentLength;
 	private boolean setLoginAtStart = false;
-	private GameWorld gameWorld;
+	public static GameWorld gameWorld;
 	private List<Message> sentMessage;
 	private List<Message> receivedMessage;
 	LoginFactionPanel aLoginFactionPanel;
@@ -322,7 +324,7 @@ public class SpaceRazePanel extends SRBasePanel {
 		} else {
 			// setFactionEmblem();
 			setFactionColor();
-			if (p.getGalaxy().getTurn() == 0) {
+			if (galaxy.getTurn() == 0) {
 				// sendPlayer2();
 				if (message.substring(0, 8).equals("oldlogin")) {
 					GeneralMessagePanel pcmp = new GeneralMessagePanel(
@@ -345,15 +347,15 @@ public class SpaceRazePanel extends SRBasePanel {
 				}
 				receivedMessage = getPlayerMessages();
 				sentMessage = getPlayerSentMessages();
-                galaxy = p.getGalaxy();
-                galaxyMap = getMap(galaxy.getMapUuid(), p.getGalaxy().getMapVersion(), galaxy.getMapFileName());
+                galaxy = galaxy;
+                galaxyMap = getMap(galaxy.getMapUuid(), galaxy.getMapVersion(), galaxy.getMapFileName());
 				showGUI();
 			}
 		}
 	}
 
 	private void setFactionColor() {
-		StyleGuide.colorCurrent = ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()).getPlanetHexColor());
+		StyleGuide.colorCurrent = ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), gameWorld).getPlanetHexColor());
 	}
 
 	// Används bara för drag 0
@@ -374,7 +376,7 @@ public class SpaceRazePanel extends SRBasePanel {
 	public void showGUI() {
 		Logger.info("showGUI anropad");
 
-		gameGuiPanel = new GameGUIPanel("används ej?", p, this, imageHandler, p.getGalaxy());
+		gameGuiPanel = new GameGUIPanel("används ej?", p, this, imageHandler, galaxy);
 		gameGuiPanel.setBounds(0, 0, getSize().width, getSize().height);
 
 		// TODO 2019-11-22 Removing Applet
@@ -528,7 +530,7 @@ public class SpaceRazePanel extends SRBasePanel {
 			GZIPOutputStream gzos = new GZIPOutputStream(con.getOutputStream());
 			ObjectOutputStream request = new ObjectOutputStream(gzos);
 
-			tw = new TransferWrapper(aMessage, p, message, gameId);
+			tw = new TransferWrapper(aMessage, p, message, gameId, SpaceRazePanel.galaxy.getTurn());
 
 			// Alt 1: skicka hela objektet
 			// request.writeObject(tw);

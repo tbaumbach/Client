@@ -21,8 +21,8 @@ import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.map.MapPlanet;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Planet;
-import spaceraze.world.Player;
+import spaceraze.game.Planet;
+import spaceraze.game.Player;
 import spaceraze.servlethelper.comparator.PlayerNameComparator;
 
 public class MapControls extends SRBasePanel implements ItemListener, MouseListener {
@@ -69,7 +69,7 @@ public class MapControls extends SRBasePanel implements ItemListener, MouseListe
 
 		centerchoice = new ComboBoxPanel();
 		centerchoice.setBounds(800 + x, 190, 110, 20);
-		addPlanets(p.getGalaxy().getPlanets(), centerchoice);
+		addPlanets(SpaceRazePanel.galaxy.getPlanets(), centerchoice);
 		centerchoice.setVisible(true);
 		centerchoice.addItemListener(this);
 		add(centerchoice);
@@ -151,7 +151,7 @@ public class MapControls extends SRBasePanel implements ItemListener, MouseListe
 
 		highlightChoice = new ComboBoxPanel();
 		highlightChoice.setBounds(800 + x, 310, 110, 20);
-		addPlayers(p.getGalaxy().getPlayers(), highlightChoice);
+		addPlayers(SpaceRazePanel.galaxy.getPlayers(), highlightChoice);
 		highlightChoice.setVisible(true);
 		highlightChoice.addItemListener(this);
 		add(highlightChoice);

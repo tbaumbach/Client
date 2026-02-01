@@ -19,17 +19,18 @@ import spaceraze.client.game.GameGUIPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.panels.planet.MiniShipPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.orders.OrderPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Galaxy;
-import spaceraze.world.Planet;
-import spaceraze.world.Player;
-import spaceraze.world.Spaceship;
-import spaceraze.world.Troop;
-import spaceraze.world.VIP;
+import spaceraze.game.Galaxy;
+import spaceraze.game.Planet;
+import spaceraze.game.Player;
+import spaceraze.game.Spaceship;
+import spaceraze.game.Troop;
+import spaceraze.game.VIP;
 import spaceraze.world.enums.SpaceshipRange;
 
 /**
@@ -123,23 +124,22 @@ public class ShipsPanel extends SRBasePanel implements SRUpdateablePanel, ListSe
 				shipTable.setValueAt("Retreating", i, 1);
 			}
 
-			if (SpaceshipPureFunctions.getRange(aShip, g) == SpaceshipRange.NONE){
+			if (SpaceshipPureFunctions.getRange(aShip, g, SpaceRazePanel.gameWorld) == SpaceshipRange.NONE){
 				shipTable.setValueAt("-", i, 2);
 			}else
 			if (SpaceshipPureFunctions.checkShipMove(aShip, player.getOrders())){
-				shipTable.setValueAt(PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, MiniShipPanel.getShipDestinationUuid(aShip, player.getGalaxy(), player.getOrders())), i, 2);
+				shipTable.setValueAt(PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, MiniShipPanel.getShipDestinationUuid(aShip, SpaceRazePanel.galaxy, player.getOrders())), i, 2);
 			}
 			Logger.finer("Scr1" + aShip.isScreened());
-			Logger.finer("Scr2" + player.getOrders().checkScreenedShip(aShip));
 	
 			
 			if (aShip.isScreened() == true)
 				tempbesiged = "Yes";
 			if (aShip.isScreened() == false)
 				tempbesiged = "No";
-			if (player.getOrders().checkScreenedShip(aShip) == 0)
+			if (!OrderPureFunctions.checkScreenedShip(player.getOrders(), aShip.getUuid()))
 				tempbesiged = "No";
-			if (player.getOrders().checkScreenedShip(aShip) >= 1)
+			if (OrderPureFunctions.checkScreenedShip(player.getOrders(), aShip.getUuid()))
 				tempbesiged = "Yes";
 			 
 			
@@ -185,7 +185,7 @@ public class ShipsPanel extends SRBasePanel implements SRUpdateablePanel, ListSe
 	}
 	
     private void addTroops(){
-    	List<Troop> allTroops = player.getGalaxy().findAllTroopsOnShip(currentss);
+    	List<Troop> allTroops = SpaceRazePanel.galaxy.findAllTroopsOnShip(currentss);
     	if (allTroops.size() == 0){
     		TroopInfoTextArea.setText("None");
     	}else{
@@ -197,13 +197,13 @@ public class ShipsPanel extends SRBasePanel implements SRUpdateablePanel, ListSe
     }
 
     private void addVIPs(){
-    	List<VIP> allVIPs = VipPureFunctions.findAllVIPsOnShip(currentss, player.getGalaxy().getAllVIPs());
+    	List<VIP> allVIPs = VipPureFunctions.findAllVIPsOnShip(currentss, SpaceRazePanel.galaxy.getAllVIPs());
     	if (allVIPs.size() == 0){
     		VIPInfoTextArea.setText("None");
     	}else{
     		VIPInfoTextArea.setText("");
     		for (VIP aVIP : allVIPs){
-    			VIPInfoTextArea.append(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getName() + "\n");
+    			VIPInfoTextArea.append(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), SpaceRazePanel.gameWorld).getName() + "\n");
     		}
     	}
     }

@@ -23,7 +23,9 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.game.*;
 import spaceraze.servlethelper.game.DiplomacyPureFunctions;
+import spaceraze.servlethelper.game.orders.OrderMutator;
 import spaceraze.servlethelper.game.planet.PlanetOrderStatusPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.player.CostPureFunctions;
@@ -35,9 +37,9 @@ import spaceraze.util.general.Logger;
 import spaceraze.world.*;
 import spaceraze.servlethelper.comparator.TroopTypeAndBuildCostComparator;
 import spaceraze.world.diplomacy.DiplomacyLevel;
-import spaceraze.world.orders.Orders;
-import spaceraze.world.orders.TroopToCarrierMovement;
-import spaceraze.world.orders.TroopToPlanetMovement;
+import spaceraze.game.orders.Orders;
+import spaceraze.game.orders.TroopToCarrierMovement;
+import spaceraze.game.orders.TroopToPlanetMovement;
 
 /**
  * Shows all ships at a planet and player can give orders to those ships
@@ -68,7 +70,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 
 	public MiniTroopPanel(List<Troop> troops, Player player, SpaceRazePanel client, Planet aPlanet) {
 		this.troops = troops;
-		Collections.sort(this.troops, new TroopTypeAndBuildCostComparator(player.getGalaxy().getGameWorld()));
+		Collections.sort(this.troops, new TroopTypeAndBuildCostComparator(SpaceRazePanel.gameWorld));
 		this.player = player;
 		this.setLayout(null);
 		this.client = client;
@@ -208,12 +210,12 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			prefix += dataStr;
 			if (TroopPureFunctions.checkTroopToPlanetMove(aTroop, player.getOrders())) {
 				prefix += "*";
-				dlm.addElement(prefix + aTroop.getName() + " (--> " + getTroopDestinationPlanetName(aTroop, player.getGalaxy(), player.getOrders())
+				dlm.addElement(prefix + aTroop.getName() + " (--> " + getTroopDestinationPlanetName(aTroop, SpaceRazePanel.galaxy, player.getOrders())
 						+ ")");
 			} else if (TroopPureFunctions.checkTroopToCarrierMove(aTroop, player.getOrders())) {
 				prefix += "*";
 				dlm.addElement(prefix + aTroop.getName() + " (--> "
-						+ getTroopDestinationCarrierName(aTroop, player.getGalaxy(), player.getOrders()) + ")");
+						+ getTroopDestinationCarrierName(aTroop, SpaceRazePanel.galaxy, player.getOrders()) + ")");
 			} else {
 				if (!aTroop.isSpaceshipTravel()) {
 					prefix += "-";
@@ -278,7 +280,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			Logger.finer("ae.getSource() instanceof SRButton");
 
 			if (action.equalsIgnoreCase("View Details")) {
-				client.showTroopTypeDetails(TroopPureFunctions.getTroopTypeByUuid(currentTroop.getTypeUuid(), player.getGalaxy().getGameWorld()).getName(), "Yours");
+				client.showTroopTypeDetails(TroopPureFunctions.getTroopTypeByUuid(currentTroop.getTypeUuid(), SpaceRazePanel.gameWorld).getName(), "Yours");
 			} else if (action.equalsIgnoreCase("Add to battleSim")) {
 				client.addToLandBattleSim(getTroopsAsString(), "A");
 				client.showLandBattleSim();
@@ -310,7 +312,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			if (semicolon) {
 				sb.append(";");
 			}
-			sb.append(TroopPureFunctions.getTroopTypeByUuid(aTroop.getTypeUuid(), player.getGalaxy().getGameWorld()).getName());
+			sb.append(TroopPureFunctions.getTroopTypeByUuid(aTroop.getTypeUuid(), SpaceRazePanel.gameWorld).getName());
 			String abilities = getBattleSimAbilities(aTroop);
 			// append () if needed
 			String vips = getAllBattleSimVipsOnTroop(aTroop);
@@ -363,10 +365,10 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 
 	public String getAllBattleSimVipsOnTroop(Troop aTroop) {
 		StringBuffer sb = new StringBuffer();
-		List<VIP> vipsOnTroop = VipPureFunctions.findAllVIPsOnTroop(aTroop, player.getGalaxy().getAllVIPs());
+		List<VIP> vipsOnTroop = VipPureFunctions.findAllVIPsOnTroop(aTroop, SpaceRazePanel.galaxy.getAllVIPs());
 		List<VIP> battleVips = new LinkedList<VIP>();
 		for (VIP aVIP : vipsOnTroop) {
-			if (VipPureFunctions.isLandBattleVip(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()))) {
+			if (VipPureFunctions.isLandBattleVip(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), SpaceRazePanel.gameWorld))) {
 				battleVips.add(aVIP);
 			}
 		}
@@ -374,7 +376,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			if (sb.length() > 0) {
 				sb.append(",");
 			}
-			sb.append(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getShortName());
+			sb.append(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), SpaceRazePanel.gameWorld).getShortName());
 		}
 		return sb.toString();
 	}
@@ -403,19 +405,19 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 				for (Troop aTroop : selectedTroops) {
 					if (!getTroopSelfDestruct(aTroop, player.getOrders())) {
 						addNewTroopToCarrierMove(aTroop, null, player.getOrders());
-						addNewTroopToPlanetMove(aTroop, null, player.getGalaxy().getTurn(), player.getOrders());
+						addNewTroopToPlanetMove(aTroop, null, SpaceRazePanel.galaxy.getTurn(), player.getOrders());
 						Logger.finest("New order, remove");
 					}
 				}
 			} else {
 				// destination is maybe a planet
-				Planet newDestination = PlanetPureFunctions.getPlanetByName(player.getGalaxy(), SpaceRazePanel.galaxyMap, destinationName);
+				Planet newDestination = PlanetPureFunctions.getPlanetByName(SpaceRazePanel.galaxy, SpaceRazePanel.galaxyMap, destinationName);
 				if (newDestination != null) {
 					// destination is a planet
 					for (Troop aTroop : selectedTroops) {
 						if (!getTroopSelfDestruct(aTroop, player.getOrders())) {
 							addNewTroopToCarrierMove(aTroop, null, player.getOrders());
-							addNewTroopToPlanetMove(aTroop, newDestination, player.getGalaxy().getTurn(), player.getOrders());
+							addNewTroopToPlanetMove(aTroop, newDestination, SpaceRazePanel.galaxy.getTurn(), player.getOrders());
 							Logger.finest("New order, add " + destinationName + " " + aTroop.getShortName());
 						}
 					}
@@ -424,7 +426,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 					Spaceship destinationCarrier = findSpaceship(destinationName);
 					for (Troop aTroop : selectedTroops) {
 						if (!getTroopSelfDestruct(aTroop, player.getOrders())) {
-							addNewTroopToPlanetMove(aTroop, null, player.getGalaxy().getTurn(), player.getOrders());
+							addNewTroopToPlanetMove(aTroop, null, SpaceRazePanel.galaxy.getTurn(), player.getOrders());
 							addNewTroopToCarrierMove(aTroop, destinationCarrier, player.getOrders());
 							Logger.finest("New order, add carrier move" + destinationName + " "
 									+ aTroop.getShortName());
@@ -466,9 +468,9 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 		if (cb == selfDestructCheckBox) {
 			if (cb.isSelected()) {
 				// set up troop for destruction
-				player.addTroopSelfDestruct(currentTroop);
+				player.getOrders().getTroopSelfDestructs().add(currentTroop.getUuid());
 				// remove any old moveorder for that ship
-				addNewTroopToPlanetMove(currentTroop, null, player.getGalaxy().getTurn(), player.getOrders());
+				addNewTroopToPlanetMove(currentTroop, null, SpaceRazePanel.galaxy.getTurn(), player.getOrders());
 				addNewTroopToCarrierMove(currentTroop, null, player.getOrders());
 				// set choice to "none"
 				if (destinationchoice.getItemCount() > 0) {
@@ -478,7 +480,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 				destinationchoice.setEnabled(false);
 			} else {
 				// remove this troop from selfdestruction
-				player.removeTroopSelfDestruct(currentTroop);
+				OrderMutator.removeTroopSelfDestruct(player.getOrders(), currentTroop);
 				// enable destinationchoice
 				if (currentTroop.isSpaceshipTravel()) {
 					destinationchoice.setEnabled(true);
@@ -507,7 +509,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 	private Spaceship findSpaceship(String findName) {
 		Spaceship ss = null;
 		int i = 0;
-		List<Spaceship> spaceships = SpaceshipPureFunctions.getPlayersSpaceshipsOnPlanet(player, planet, player.getGalaxy().getSpaceships());
+		List<Spaceship> spaceships = SpaceshipPureFunctions.getPlayersSpaceshipsOnPlanet(player, planet, SpaceRazePanel.galaxy.getSpaceships());
 		while ((ss == null) & (i < spaceships.size())) {
 			Spaceship temp = spaceships.get(i);
 			if (temp.getName().equalsIgnoreCase(findName)) {
@@ -571,7 +573,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			destinationchoice.setVisible(true);
 
 			// set properties and initial value
-			if (CostPureFunctions.isBroke(player, player.getGalaxy(), SpaceRazePanel.galaxyMap) | player.isRetreatingGovernor() | !aTroop.isSpaceshipTravel()
+			if (CostPureFunctions.isBroke(player, SpaceRazePanel.galaxy, SpaceRazePanel.galaxyMap, SpaceRazePanel.gameWorld) | player.isRetreatingGovernor() | !aTroop.isSpaceshipTravel()
 					| getTroopSelfDestruct(aTroop, player.getOrders())) {
 				destinationchoice.setEnabled(false);
 			} else {
@@ -580,14 +582,14 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 				addDestinations(destinationchoice, selectedTroops);
 				// if a troop has a full carrier as destination, we must add the carrier
 				// otherwise to the combobox
-				String tempDest = getTroopDestinationCarrierName(aTroop, player.getGalaxy(), player.getOrders());
+				String tempDest = getTroopDestinationCarrierName(aTroop, SpaceRazePanel.galaxy, player.getOrders());
 				if (!tempDest.equals("") & !destinationchoice.contains(tempDest)) {
 					destinationchoice.addItem(tempDest);
 				}
 			}
-			String tempDest = getTroopDestinationPlanetName(aTroop, player.getGalaxy(), player.getOrders());
+			String tempDest = getTroopDestinationPlanetName(aTroop, SpaceRazePanel.galaxy, player.getOrders());
 			if (tempDest.equals("")) {
-				tempDest = getTroopDestinationCarrierName(aTroop, player.getGalaxy(), player.getOrders());
+				tempDest = getTroopDestinationCarrierName(aTroop, SpaceRazePanel.galaxy, player.getOrders());
 			}
 			if (!tempDest.equalsIgnoreCase("")) {
 				destinationchoice.setSelectedItem(tempDest);
@@ -649,7 +651,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 					noSelfdestruct = false;
 				}
 			}
-			if (CostPureFunctions.isBroke(player, player.getGalaxy(), SpaceRazePanel.galaxyMap) | player.isRetreatingGovernor() | allCanMove | noSelfdestruct) {
+			if (CostPureFunctions.isBroke(player, SpaceRazePanel.galaxy, SpaceRazePanel.galaxyMap, SpaceRazePanel.gameWorld) | player.isRetreatingGovernor() | allCanMove | noSelfdestruct) {
 				destinationchoice.setEnabled(false);
 			} else {
 				destinationchoice.setVisible(true);
@@ -660,13 +662,13 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 	}
 
 	private void addVIPs() {
-		List<VIP> vipsOnTroop = VipPureFunctions.findAllVIPsOnTroop(currentTroop, player.getGalaxy().getAllVIPs());
+		List<VIP> vipsOnTroop = VipPureFunctions.findAllVIPsOnTroop(currentTroop, SpaceRazePanel.galaxy.getAllVIPs());
 		if (vipsOnTroop.size() == 0) {
 			VIPInfoTextArea.setText("None");
 		} else {
 			VIPInfoTextArea.setText("");
 			for (VIP aVip : vipsOnTroop) {
-				VIPInfoTextArea.append(VipPureFunctions.getVipTypeByUuid(aVip.getTypeUuid(), player.getGalaxy().getGameWorld()).getName() + "\n");
+				VIPInfoTextArea.append(VipPureFunctions.getVipTypeByUuid(aVip.getTypeUuid(), SpaceRazePanel.gameWorld).getName() + "\n");
 			}
 		}
 	}
@@ -705,7 +707,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 		} else
 		// else if planet is friendly (and non-neutral), planet move is not ok
 		if ((planet.getPlayerInControl() != null) && (planet.getPlayerInControl() != player)
-				&& DiplomacyPureFunctions.getDiplomacyState(player, planet.getPlayerInControl(), player.getGalaxy().getDiplomacyStates())
+				&& DiplomacyPureFunctions.getDiplomacyState(player, planet.getPlayerInControl(), SpaceRazePanel.galaxy.getDiplomacyStates())
 						.getCurrentLevel().isHigher(DiplomacyLevel.WAR)) {
 			Logger.fine("Planet friendly (or at least not war/ewar).");
 			planetMoveOk = false;
@@ -713,12 +715,12 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 		// else if planet is neutral or enemy...
 		// TODO Denna borde nte fungera då man inte kan lita på att det är en annan
 		// faction som �r fienden.
-		if (PlanetPureFunctions.isEnemyOrNeutralPlanet(player, planet, player.getGalaxy())) {
-			Logger.fine("planet.isEnemyOrNeutralPlanet(player.getFaction()): " + PlanetPureFunctions.isEnemyOrNeutralPlanet(player, planet, player.getGalaxy()));
+		if (PlanetPureFunctions.isEnemyOrNeutralPlanet(player, planet, SpaceRazePanel.galaxy)) {
+			Logger.fine("planet.isEnemyOrNeutralPlanet(player.getFaction()): " + PlanetPureFunctions.isEnemyOrNeutralPlanet(player, planet, SpaceRazePanel.galaxy));
 			// ...check if there are any defenders
-			if (player.getGalaxy().getShips(planet).size() > 0) {
+			if (SpaceRazePanel.galaxy.getShips(planet).size() > 0) {
 				Logger.fine(
-						"player.getGalaxy().getShips(planet).size(): " + player.getGalaxy().getShips(planet).size());
+						"SpaceRazePanel.galaxy.getShips(planet).size(): " + SpaceRazePanel.galaxy.getShips(planet).size());
 				// if there are, planet move is not ok, unless...
 				// ... the attacking player already have players on the planet planet move is ok
 				if (!playerHaveTroopsOnPlanet(planet)) {
@@ -765,7 +767,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 	 * @return
 	 */
 	private boolean playerHaveTroopsOnPlanet(Planet thePlanet) {
-		List<Troop> troopsOnPlanet = TroopPureFunctions.findAllTroopsOnPlanet(player.getGalaxy().getTroops(), planet);
+		List<Troop> troopsOnPlanet = TroopPureFunctions.findAllTroopsOnPlanet(SpaceRazePanel.galaxy.getTroops(), planet);
 		boolean found = false;
 		int index = 0;
 		while (!found & (index < troopsOnPlanet.size())) {
@@ -786,7 +788,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 	 * @return
 	 */
 	private boolean playerIsAloneAtPlanet(Planet thePlanet) {
-		List<Spaceship> shipsAtPlanet = SpaceshipPureFunctions.getShips(planet, false, player.getGalaxy());
+		List<Spaceship> shipsAtPlanet = SpaceshipPureFunctions.getShips(planet, false, SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld);
 		boolean found = false;
 		int index = 0;
 		while (!found & (index < shipsAtPlanet.size())) {
@@ -882,7 +884,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 			// for each carrier
 			for (Spaceship aCarrier : carriers) {
 				// count the number of free slots (including troops moving to the carrier)
-				int nrTroopsAssigned = TroopPureFunctions.getNoTroopsAssignedToCarrier(aCarrier, player, player.getGalaxy().getTroops());
+				int nrTroopsAssigned = TroopPureFunctions.getNoTroopsAssignedToCarrier(aCarrier, player, SpaceRazePanel.galaxy.getTroops());
 				int nrTroopsOrdered = countTroopToCarrierMoves(aCarrier, player.getOrders());
 				int freeSlots = aCarrier.getTroopCapacity() - nrTroopsAssigned - nrTroopsOrdered;
 				// count the number of selected troops in that carrier (who have been given
@@ -939,7 +941,7 @@ public class MiniTroopPanel extends SRBasePanel implements ActionListener, ListS
 
 	private List<Spaceship> getCarriers(int minFreeSlots) {
 		List<Spaceship> carriers = getCarriersWithFreeTroopSlotsInSystem(planet, player,
-				minFreeSlots, player.getGalaxy());
+				minFreeSlots, SpaceRazePanel.galaxy);
 		return carriers;
 	}
 

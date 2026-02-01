@@ -5,7 +5,7 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.interfaces.SRUpdateablePanel;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 
 @SuppressWarnings("serial")
 public class NotesPanel extends SRBasePanel implements SRUpdateablePanel{

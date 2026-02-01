@@ -13,8 +13,15 @@ import spaceraze.client.ColorConverter;
 import spaceraze.client.components.HighlightPanel;
 import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.game.Galaxy;
+import spaceraze.game.Player;
+import spaceraze.game.report.old.CanBeLostInSpace;
+import spaceraze.game.report.old.Highlight;
+import spaceraze.game.report.old.Report;
 import spaceraze.servlethelper.game.ResearchPureFunctions;
+import spaceraze.servlethelper.game.orders.OrderPureFunctions;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
@@ -50,7 +57,7 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
     setLayout(null);
        
 //    lastturn = currentPlayer.getGalaxy().getTurn() - 1;
-    lastturn = currentPlayer.getGalaxy().getTurn();
+    lastturn = SpaceRazePanel.galaxy.getTurn();
     String titleStr = "Highlights";
 	int xoffset = 0;
     if (lastturn > 1){
@@ -189,7 +196,7 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
   		}
   		
 //  		List allFactions = curPlayer.getGalaxy().getActiveFactions(curPlayer.getFaction());
-  		List<Faction> allFactions = curPlayer.getGalaxy().getFactions();
+  		List<Faction> allFactions = SpaceRazePanel.gameWorld.getFactions();
 
   		for (Faction aFaction : allFactions) {
   			lisList = getLostInSpace(lastReport.getLostShips(),aFaction.getName(),curPlayer);
@@ -278,7 +285,7 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
 						lisList.add(aLis);
 					}
 				}else
-				if (GameWorldHandler.getFactionByUuid(galaxy.getPlayerByGovenorName(aLis.getOwner()).getFactionUuid(), galaxy.getGameWorld()).getName().equalsIgnoreCase(aFactionName) & (galaxy.getPlayerByGovenorName(aLis.getOwner()) != aPlayer)){
+				if (GameWorldHandler.getFactionByUuid(galaxy.getPlayerByGovenorName(aLis.getOwner()).getFactionUuid(), SpaceRazePanel.gameWorld).getName().equalsIgnoreCase(aFactionName) & (galaxy.getPlayerByGovenorName(aLis.getOwner()) != aPlayer)){
 					lisList.add(aLis);
 				}
 			}else
@@ -296,9 +303,9 @@ public class HighlightsPanel extends SRBasePanel implements SRUpdateablePanel{
 	  researchLabels.clear();
 	  List<ResearchAdvantage> tmpAdvantages = null;
 	  boolean firstOnGoingResearch=true;
-	  tmpAdvantages = ResearchPureFunctions.getAllAdvantagesThatIsReadyToBeResearchOn(curPlayer, GameWorldHandler.getFactionByUuid(curPlayer.getFactionUuid(), galaxy.getGameWorld()));
+	  tmpAdvantages = ResearchPureFunctions.getAllAdvantagesThatIsReadyToBeResearchOn(curPlayer, GameWorldHandler.getFactionByUuid(curPlayer.getFactionUuid(), SpaceRazePanel.gameWorld));
 	  for(int i = 0; i < tmpAdvantages.size(); i++){
-		  if(curPlayer.getOrders().checkResearchOrder(tmpAdvantages.get(i).getName())){
+		  if(OrderPureFunctions.checkResearchOrder(curPlayer.getOrders(), tmpAdvantages.get(i).getName())){
 			  if(firstOnGoingResearch){
 				  SRLabel tempResearchPanel = new SRLabel("Present research");
 				  researchLabels.add(tempResearchPanel);

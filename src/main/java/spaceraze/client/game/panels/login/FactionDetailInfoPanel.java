@@ -7,13 +7,15 @@ import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.servlethelper.game.AlignmentPureFunctions;
+import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Functions;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Faction;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 
 public class FactionDetailInfoPanel extends SRBasePanel {
 	private static final long serialVersionUID = 1L;
@@ -155,9 +157,9 @@ public class FactionDetailInfoPanel extends SRBasePanel {
 			openPlanetBonusLbl2.setText(String.valueOf(f.getOpenPlanetBonus()));
 			closedPlanetBonusLbl2.setText(String.valueOf(f.getClosedPlanetBonus()));
 			resistanceBonusLbl2.setText(String.valueOf(f.getResistanceBonus()));
-			alignmentLbl2.setText(AlignmentPureFunctions.findAlignmentByUuid(f.getAlignment(), f.getGameWorld().getAlignments()).getName());
+			alignmentLbl2.setText(AlignmentPureFunctions.findAlignmentByUuid(f.getAlignment(), SpaceRazePanel.gameWorld.getAlignments()).getName());
 			corrLbl2.setText(f.getCorruptionPoint() != null ? f.getCorruptionPoint().getDescription() : "None");
-			governorVIPTypeLbl2.setText(VipPureFunctions.getVipTypeByUuid(f.getGovernorVIPType(), f.getGameWorld()).getName());
+			governorVIPTypeLbl2.setText(VipPureFunctions.getVipTypeByUuid(f.getGovernorVIPType(), SpaceRazePanel.gameWorld).getName());
 			nrStartingRandomVIPsLbl2.setText(String.valueOf(f.getNrStartingRandomVIPs()));
 			techBonusLbl2.setText(String.valueOf(f.getTechBonus()));
 			xenomorphLbl2.setText(Functions.getYesNo(f.isAlien()));
@@ -175,13 +177,13 @@ public class FactionDetailInfoPanel extends SRBasePanel {
 
 		if (f != null) {
 			nameLbl2.setText(String.valueOf(f.getName()));
-			nameLbl2.setForeground(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()).getPlanetHexColor()));
+			nameLbl2.setForeground(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(p.getFactionUuid(), SpaceRazePanel.gameWorld).getPlanetHexColor()));
 			openPlanetBonusLbl2.setText(String.valueOf(p.getOpenPlanetBonus()));
 			closedPlanetBonusLbl2.setText(String.valueOf(p.getClosedPlanetBonus()));
 			resistanceBonusLbl2.setText(String.valueOf(p.getResistanceBonus()));
-            alignmentLbl2.setText(AlignmentPureFunctions.findAlignmentByUuid(f.getAlignment(), f.getGameWorld().getAlignments()).getName());
-			corrLbl2.setText(p.getCorruptionPoint() != null ? p.getCorruptionPoint().getDescription() : "None");
-			governorVIPTypeLbl2.setText(VipPureFunctions.getVipTypeByUuid(f.getGovernorVIPType(), f.getGameWorld()).getName());
+            alignmentLbl2.setText(AlignmentPureFunctions.findAlignmentByUuid(f.getAlignment(), SpaceRazePanel.gameWorld.getAlignments()).getName());
+			corrLbl2.setText(p.getCorruptionPointUuid() != null ? PlayerPureFunctions.getCorruptionPoint(SpaceRazePanel.gameWorld, p.getFactionUuid(), p.getCorruptionPointUuid()).getDescription() : "None");
+			governorVIPTypeLbl2.setText(VipPureFunctions.getVipTypeByUuid(f.getGovernorVIPType(), SpaceRazePanel.gameWorld).getName());
 			nrStartingRandomVIPsLbl2.setText(String.valueOf(f.getNrStartingRandomVIPs()));
 			techBonusLbl2.setText(String.valueOf(p.getTechBonus()));
 			xenomorphLbl2.setText(Functions.getYesNo(f.isAlien()));

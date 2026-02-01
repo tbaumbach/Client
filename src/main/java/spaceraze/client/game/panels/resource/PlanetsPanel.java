@@ -20,12 +20,12 @@ import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Galaxy;
-import spaceraze.world.Planet;
-import spaceraze.world.Player;
-import spaceraze.world.Spaceship;
-import spaceraze.world.Troop;
-import spaceraze.world.VIP;
+import spaceraze.game.Galaxy;
+import spaceraze.game.Planet;
+import spaceraze.game.Player;
+import spaceraze.game.Spaceship;
+import spaceraze.game.Troop;
+import spaceraze.game.VIP;
 
 /**
  * 
@@ -184,7 +184,7 @@ public class PlanetsPanel extends SRBasePanel implements SRUpdateablePanel, List
 	// TODO (Paul) ej använd, ska vi visa trupper i planetlistan?
     @SuppressWarnings("unused")
 	private void addTroops(){
-    	List<Troop> allTroops = player.getGalaxy().findAllTroopsOnShip(currentss);
+    	List<Troop> allTroops = SpaceRazePanel.galaxy.findAllTroopsOnShip(currentss);
     	if (allTroops.size() == 0){
     		TroopInfoTextArea.setText("None");
     	}else{
@@ -198,13 +198,13 @@ public class PlanetsPanel extends SRBasePanel implements SRUpdateablePanel, List
 	// TODO (Paul) ej använd, ska vi visa VIP:ar i planetlistan?
     @SuppressWarnings("unused")
 	private void addVIPs(){
-    	List<VIP> allVIPs = VipPureFunctions.findAllVIPsOnShip(currentss, player.getGalaxy().getAllVIPs());
+    	List<VIP> allVIPs = VipPureFunctions.findAllVIPsOnShip(currentss, SpaceRazePanel.galaxy.getAllVIPs());
     	if (allVIPs.size() == 0){
     		VIPInfoTextArea.setText("None");
     	}else{
     		VIPInfoTextArea.setText("");
     		for (VIP aVIP : allVIPs){
-    			VIPInfoTextArea.append(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getName() + "\n");
+    			VIPInfoTextArea.append(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), SpaceRazePanel.gameWorld).getName() + "\n");
     		}
     	}
     }

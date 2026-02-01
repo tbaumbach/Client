@@ -8,10 +8,11 @@ import spaceraze.client.components.ComboBoxPanel;
 import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.scrollable.TextAreaPanel;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.game.report.old.ReportLevel;
 import spaceraze.util.general.Logger;
-import spaceraze.world.Player;
-import spaceraze.world.spacebattle.ReportLevel;
+import spaceraze.game.Player;
 
 public class InfoPanel extends SRBasePanel implements SRUpdateablePanel, ItemListener{
 	private static final long serialVersionUID = 1L;
@@ -33,11 +34,11 @@ public class InfoPanel extends SRBasePanel implements SRUpdateablePanel, ItemLis
 
       turnChoice = new ComboBoxPanel();
       turnChoice.setBounds(130,10,120,20);
-      for (int i = p.getGalaxy().getTurn(); i > 0; i--){
+      for (int i = SpaceRazePanel.galaxy.getTurn(); i > 0; i--){
         turnChoice.addItem(String.valueOf(i));
       }
       turnChoice.addItemListener(this);
-      if (p.getGalaxy().getTurn() == 0){
+      if (SpaceRazePanel.galaxy.getTurn() == 0){
         turnChoice.setEnabled(false);
       }
       add(turnChoice);
@@ -52,7 +53,7 @@ public class InfoPanel extends SRBasePanel implements SRUpdateablePanel, ItemLis
     	  reportLevelChoice.addItem(aReportLevel.toString());
       }
       reportLevelChoice.addItemListener(this);
-      if (p.getGalaxy().getTurn() == 0){
+      if (SpaceRazePanel.galaxy.getTurn() == 0){
     	  reportLevelChoice.setEnabled(false);
       }
       if (p.getReportLevel() == null){
@@ -63,7 +64,7 @@ public class InfoPanel extends SRBasePanel implements SRUpdateablePanel, ItemLis
 
       infoarea = new TextAreaPanel();
       infoarea.setBounds(10,35,715,535);
-      setFields(p.getGalaxy().getTurn());
+      setFields(SpaceRazePanel.galaxy.getTurn());
       add(infoarea);
     }
     

@@ -15,11 +15,16 @@ import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.AlignmentPureFunctions;
+import spaceraze.servlethelper.game.BlackMarketPureFunctions;
+import spaceraze.servlethelper.game.orders.OrderMutator;
+import spaceraze.servlethelper.game.orders.OrderPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
+import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
+import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.Logger;
-import spaceraze.world.BlackMarketBid;
-import spaceraze.world.BlackMarketOffer;
-import spaceraze.world.Player;
+import spaceraze.game.BlackMarketBid;
+import spaceraze.game.BlackMarketOffer;
+import spaceraze.game.Player;
 
 /**
  * @author Paul Bodin
@@ -82,16 +87,16 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
     DefaultListModel dlm = allOffersList.getModel();
     for (int i = 0; i < currentOffers.size(); i++){
       BlackMarketOffer anOffer = currentOffers.get(i);
-      BlackMarketBid tempBid = p.getBidToOffer(anOffer);
+      BlackMarketBid tempBid = OrderPureFunctions.getBidToOffer(p.getOrders(), anOffer);
       offersInList.add(anOffer);
       if (tempBid != null){
       	if (anOffer.isHotStuff() || anOffer.isShipBlueprint()){
-      		dlm.addElement(anOffer.getString() + " (bid: " + tempBid.getCost() + ")");
+      		dlm.addElement(BlackMarketPureFunctions.getDescription(anOffer, SpaceRazePanel.gameWorld) + " (bid: " + tempBid.getCost() + ")");
       	}else{
-      		dlm.addElement(anOffer.getString() + " (bid: " + tempBid.getCost() + ", destination:  " + tempBid.getDestinationString() + ")");
+      		dlm.addElement(BlackMarketPureFunctions.getDescription(anOffer, SpaceRazePanel.gameWorld) + " (bid: " + tempBid.getCost() + ", destination:  " + tempBid.getDestinationString() + ")");
       	}
       }else{
-      	dlm.addElement(anOffer.getString());
+      	dlm.addElement(BlackMarketPureFunctions.getDescription(anOffer, SpaceRazePanel.gameWorld));
       }
     }
   }
@@ -103,7 +108,7 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
   private void showButtons(int index){
   	Logger.fine("showButtons: " + index);
   	BlackMarketOffer tempOffer = offersInList.get(index);
-    BlackMarketBid tempBid = p.getBidToOffer(tempOffer);
+    BlackMarketBid tempBid = OrderPureFunctions.getBidToOffer(p.getOrders(), tempOffer);
 	int amount = 0;
 	if (tempBid != null){
 		amount = tempBid.getCost();
@@ -116,7 +121,7 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
 	}else{
 		if (tempOffer.isVIP()){
 			// if amount is = 0, no bid exists
-			if (AlignmentPureFunctions.canHaveVip(tempOffer.getVIPType().getAlignment(), AlignmentPureFunctions.getPlayerAlignment(p, p.getGalaxy().getGameWorld()))){
+			if (AlignmentPureFunctions.canHaveVip(VipPureFunctions.getVipTypeByUuid(tempOffer.getVipTypeUuid(), SpaceRazePanel.gameWorld).getAlignment(), AlignmentPureFunctions.getPlayerAlignment(p, SpaceRazePanel.gameWorld))){
 				newButton.setEnabled(true);
 			}else{		
 				newButton.setEnabled(false);
@@ -141,11 +146,11 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
   	if (action.equalsIgnoreCase("View Details")){
   		BlackMarketOffer currentOffer = offersInList.get(allOffersList.getSelectedIndex());
   		if(currentOffer != null && (currentOffer.isShip() | currentOffer.isShipBlueprint())){
-  			client.showShiptypeDetails(currentOffer.getShipType().getName(), "All (sort by name)");
+  			client.showShiptypeDetails(SpaceshipPureFunctions.getSpaceshipTypeByUuid(currentOffer.getShipType(), SpaceRazePanel.gameWorld).getName(), "All (sort by name)");
   		}else if(currentOffer != null && currentOffer.isVIP()){
-  			client.showVIPTypeDetails(currentOffer.getVIPType().getName(), "All");
+  			client.showVIPTypeDetails(VipPureFunctions.getVipTypeByUuid(currentOffer.getVipTypeUuid(), SpaceRazePanel.gameWorld).getName(), "All");
   		}else if(currentOffer != null && currentOffer.isTroop()){
-  			client.showTroopTypeDetails(currentOffer.getString(), "All (sort by name)");
+  			client.showTroopTypeDetails(BlackMarketPureFunctions.getDescription(currentOffer, SpaceRazePanel.gameWorld), "All (sort by name)");
   		}
   	}else
   	if (action.equalsIgnoreCase("cancel")){
@@ -165,7 +170,7 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
   	Logger.fine("deleteBid called");
   	BlackMarketOffer currentOffer = offersInList.get(allOffersList.getSelectedIndex());
   	// set bid to zero to remove it...
-    p.getOrders().addNewBlackMarketBid(0,currentOffer,null,p);
+    OrderMutator.addNewBlackMarketBid(p.getOrders(), 0,currentOffer,null,p);
     client.updateTreasuryLabel();
   	updateGiftPanel();
   }
@@ -175,9 +180,9 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
   	BlackMarketOffer currentOffer = offersInList.get(allOffersList.getSelectedIndex());
   	int tempSum = popup.getSum();
     if (currentOffer.isHotStuff() || currentOffer.isShipBlueprint()){
-        p.getOrders().addNewBlackMarketBid(tempSum,currentOffer,null,p);
+        OrderMutator.addNewBlackMarketBid(p.getOrders(), tempSum,currentOffer,null,p);
     }else{
-        p.getOrders().addNewBlackMarketBid(tempSum,currentOffer, PlanetPureFunctions.getMapPlanetByName(SpaceRazePanel.galaxyMap,  popup.getDestination()).getUuid(), p);
+        OrderMutator.addNewBlackMarketBid(p.getOrders(), tempSum,currentOffer, PlanetPureFunctions.getMapPlanetByName(SpaceRazePanel.galaxyMap,  popup.getDestination()).getUuid(), p);
     }
     client.updateTreasuryLabel();
   	updateGiftPanel();
@@ -195,7 +200,7 @@ public class BlackMarketPanel extends SRBasePanel implements ListSelectionListen
   private void openPopup(String actionCommand){
   	Logger.fine("openPopup called: " + actionCommand);
   	BlackMarketOffer tempOffer = offersInList.get(allOffersList.getSelectedIndex());
-    BlackMarketBid tempBid = p.getBidToOffer(tempOffer);
+    BlackMarketBid tempBid = OrderPureFunctions.getBidToOffer(p.getOrders(), tempOffer);
 
     if (actionCommand.equalsIgnoreCase("edit bid")){
     	popup = new BlackMarketPopupPanel(actionCommand,this,p,tempOffer,tempBid);

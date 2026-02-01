@@ -18,7 +18,7 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.game.GameGUIPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 
 //TODO 2020-01-26 not in use. remove???
 public class ResearchLeftPanel extends SRBasePanel implements ItemListener, ActionListener {

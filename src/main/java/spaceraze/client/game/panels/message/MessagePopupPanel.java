@@ -11,11 +11,12 @@ import spaceraze.client.components.BasicPopupPanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.game.ShowMapPlanet;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.map.MapCanvas;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 
 /**
  * @author wmpabod
@@ -57,12 +58,12 @@ public class MessagePopupPanel extends BasicPopupPanel implements ShowMapPlanet,
     	add(mapLabel);
 
     	mapCanvas = new MapCanvas(p,this,true);
-        mapCanvas.setPlanets(p.getGalaxy().getPlanets(),p);
-        mapCanvas.setSpaceships(SpaceshipPureFunctions.getPlayersSpaceships(p, p.getGalaxy()));
-        mapCanvas.setOwnVips(p.getGalaxy().getPlayersVips(p));
-        mapCanvas.setOwnTroops(TroopPureFunctions.getPlayersTroops(p, p.getGalaxy()));
-        mapCanvas.setOthersVips(p.getGalaxy().getAllVIPs());
-        mapCanvas.setConnections(p.getGalaxy().getPlanetConnections(), p.getGalaxy());
+        mapCanvas.setPlanets(SpaceRazePanel.galaxy.getPlanets(),p);
+        mapCanvas.setSpaceships(SpaceshipPureFunctions.getPlayersSpaceships(p, SpaceRazePanel.galaxy));
+        mapCanvas.setOwnVips(SpaceRazePanel.galaxy.getPlayersVips(p));
+        mapCanvas.setOwnTroops(TroopPureFunctions.getPlayersTroops(p, SpaceRazePanel.galaxy));
+        mapCanvas.setOthersVips(SpaceRazePanel.galaxy.getAllVIPs());
+        mapCanvas.setConnections(SpaceRazePanel.galaxy.getPlanetConnections(), SpaceRazePanel.galaxy);
         mapCanvas.computeNewOrigo();
 	    mapCanvas.setBounds(10, 310, 680, 300);
 	    mapCanvas.setInitialZoom(-20);

@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Highlight;
+import spaceraze.game.report.old.Highlight;
 
 /**
  * @author WMPABOD

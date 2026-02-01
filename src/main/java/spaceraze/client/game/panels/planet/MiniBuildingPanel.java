@@ -20,9 +20,12 @@ import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.components.scrollable.TextAreaPanel;
 import spaceraze.client.game.SpaceRazePanel;
-import spaceraze.servlethelper.game.BuildingPureFunctions;
+import spaceraze.game.*;
+import spaceraze.servlethelper.game.building.BuildingPureFunctions;
+import spaceraze.servlethelper.game.expenses.ExpenseMutator;
 import spaceraze.servlethelper.game.expenses.ExpensePureFunction;
 import spaceraze.servlethelper.game.orders.OrderMutator;
+import spaceraze.servlethelper.game.orders.OrderPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
@@ -35,8 +38,8 @@ import spaceraze.servlethelper.comparator.SpaceshipTypeSizeComparator;
 import spaceraze.servlethelper.comparator.VIPTypeComparator;
 import spaceraze.servlethelper.comparator.trooptype.TroopTypeComparator;
 import spaceraze.world.enums.TypeOfTroop;
-import spaceraze.world.orders.Expense;
-import spaceraze.world.orders.Orders;
+import spaceraze.game.orders.Expense;
+import spaceraze.game.orders.Orders;
 
 public class MiniBuildingPanel extends SRBasePanel implements ActionListener, ListSelectionListener {
 	private static final long serialVersionUID = 1L;
@@ -79,11 +82,11 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		buildnewBuildingChoice = new ComboBoxPanel();
 		buildnewBuildingChoice.setBounds(5, 23, 294, 20);
 		// ej kunna bygga ny vid abandon, bel�gring och fiendetrupper
-		boolean enemyTroopsOnPlanet = TroopPureFunctions.findOtherTroopsPlayersOnRazedPlanet(player, aPlanet, player.getGalaxy().getTroops())
+		boolean enemyTroopsOnPlanet = TroopPureFunctions.findOtherTroopsPlayersOnRazedPlanet(player, aPlanet, SpaceRazePanel.galaxy.getTroops())
 				.size() > 0;
 		boolean underSiege = aPlanet.isBesieged();
-		boolean abandonPlanet = player.getOrders().isAbandonPlanet(aPlanet);
-		if (enemyTroopsOnPlanet | underSiege | abandonPlanet) {
+		boolean abandonPlanet = OrderPureFunctions.isAbandonPlanet(player.getOrders(), aPlanet);
+		if (enemyTroopsOnPlanet || underSiege || abandonPlanet) {
 			buildnewBuildingChoice.setEnabled(false);
 		} else {
 			fillNewBuildingsChoice();
@@ -113,7 +116,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 
 		DefaultListModel dlm = (DefaultListModel) buildingList.getModel();
 		for (int i = 0; i < allBuildings.size(); i++) {
-			dlm.addElement(BuildingPureFunctions.getBuildingTypeByUuid(allBuildings.get(i).getTypeUuid(), player.getGalaxy().getGameWorld()).getName());
+			dlm.addElement(BuildingPureFunctions.getBuildingTypeByUuid(allBuildings.get(i).getTypeUuid(), SpaceRazePanel.gameWorld).getName());
 		}
 		buildingList.updateScrollList();
 
@@ -217,10 +220,10 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		add(detailsButton);
 
 		Orders o = player.getOrders();
-		if (BuildingPureFunctions.getNewBuilding(aPlanet, player, o.getExpenses()) != null) {
-			BuildingType buildingType = BuildingPureFunctions.getNewBuilding(aPlanet, player, o.getExpenses());
-			VIP tempEngineer = VipPureFunctions.findVIPBuildingBuildBonus(aPlanet, player, player.getOrders(), player.getGalaxy());
-			int vipBuildBonus = tempEngineer == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempEngineer.getTypeUuid(), player.getGalaxy().getGameWorld()).getBuildingBuildBonus();
+		if (BuildingPureFunctions.getNewBuilding(aPlanet, player, o.getExpenses(), SpaceRazePanel.gameWorld) != null) {
+			BuildingType buildingType = BuildingPureFunctions.getNewBuilding(aPlanet, player, o.getExpenses(), SpaceRazePanel.gameWorld);
+			VIP tempEngineer = VipPureFunctions.findVIPBuildingBuildBonus(aPlanet, player, player.getOrders(), SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld);
+			int vipBuildBonus = tempEngineer == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempEngineer.getTypeUuid(), SpaceRazePanel.gameWorld).getBuildingBuildBonus();
 			int cost = BuildingPureFunctions.getBuildCost(buildingType, vipBuildBonus);
 			buildnewBuildingChoice.setSelectedItem(buildingType.getName() + " (cost: " + cost + ")");
 			detailsNewBuildingChoice.setVisible(true);
@@ -428,7 +431,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 					// g�r inget
 				} else {
 
-					if (i == 0 && shipTypeChoice[i].getSelectedIndex() <= BuildingPureFunctions.getUpgradableBuildingTypes(player.getGalaxy(), player, currentBuildingType, currentBuilding, aPlanet, null).size() + 1) {// i == 0 är första
+					if (i == 0 && shipTypeChoice[i].getSelectedIndex() <= BuildingPureFunctions.getUpgradableBuildingTypes(SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld, player, currentBuildingType, currentBuilding, aPlanet, null).size() + 1) {// i == 0 är första
 																						// valet(selectboxen) i
 																						// comboBoxen och där fins
 																						// möjligheten att göra en
@@ -438,10 +441,10 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 						System.out.println("currentBuilding " + currentBuilding.getUuid() + " "
 								+ currentBuildingType.getName());
 
-						addUpgradeBuilding(currentBuilding, PlayerPureFunctions.findOwnBuildingTypeByName(selected, player), player);
+						addUpgradeBuilding(currentBuilding, PlayerPureFunctions.findOwnBuildingTypeByName(selected, player, SpaceRazePanel.gameWorld), player);
 					} else { // eller skeppsbygge */
 						SpaceshipType tempsst = getShipType(selected);
-						player.addBuildShip(currentBuilding, tempsst); // l�gg till en ny order f�r denna choice
+						player.getOrders().getExpenses().add(ExpenseMutator.buildSpaceship(tempsst.getUuid(), player.getUuid(), currentBuilding));
 					}
 				}
 			}
@@ -458,16 +461,15 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 					// g�r inget
 				} else {
 					if (i == 0
-							&& troopTypeChoice[i].getSelectedIndex() <= BuildingPureFunctions.getUpgradableBuildingTypes(player.getGalaxy(), player, currentBuildingType, currentBuilding, aPlanet, null).size() + 1
-							&& BuildingPureFunctions.getUpgradableBuildingTypes(player.getGalaxy(), player, currentBuildingType, currentBuilding, aPlanet, null).size() > 0) {// i == 0 är första valet(selectboxen) i comboBoxen och där fins
+							&& troopTypeChoice[i].getSelectedIndex() <= BuildingPureFunctions.getUpgradableBuildingTypes(SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld, player, currentBuildingType, currentBuilding, aPlanet, null).size() + 1
+							&& BuildingPureFunctions.getUpgradableBuildingTypes(SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld, player, currentBuildingType, currentBuilding, aPlanet, null).size() > 0) {// i == 0 är första valet(selectboxen) i comboBoxen och där fins
 													// möjligheten att göra en uppdatering till en ny byggnad.
 						// Is a upgrade (Building)
 						System.out.println("currentBuilding " + currentBuilding.getUuid() + " "
 								+ currentBuildingType.getName());
-						addUpgradeBuilding(currentBuilding, PlayerPureFunctions.findOwnBuildingTypeByName(selected, player), player);
+						addUpgradeBuilding(currentBuilding, PlayerPureFunctions.findOwnBuildingTypeByName(selected, player, SpaceRazePanel.gameWorld), player);
 					} else { // eller troopbygge */
-						player.addBuildTroop(currentBuilding, PlayerPureFunctions.findOwnTroopType(TroopPureFunctions.getTroopTypeByName(selected, player.getGalaxy().getGameWorld()).getUuid(), player, player.getGalaxy())); // lägg till en ny order för denna choice
-
+						OrderMutator.addBuildTroop(player.getOrders(), currentBuilding, PlayerPureFunctions.findOwnTroopType(TroopPureFunctions.getTroopTypeByName(selected, SpaceRazePanel.gameWorld).getUuid(), player, SpaceRazePanel.gameWorld), player);
 					}
 				}
 			}
@@ -484,18 +486,17 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			if (selected.equalsIgnoreCase("None") || selected.startsWith("---")) {
 				// g�r inget
 			} else {
-				if (VIPTypeChoice[0].getSelectedIndex() <= BuildingPureFunctions.getUpgradableBuildingTypes(player.getGalaxy(), player, currentBuildingType, currentBuilding, aPlanet, null).size()) {// i == 0 är första valet(selectboxen) i
+				if (VIPTypeChoice[0].getSelectedIndex() <= BuildingPureFunctions.getUpgradableBuildingTypes(SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld, player, currentBuildingType, currentBuilding, aPlanet, null).size()) {// i == 0 är första valet(selectboxen) i
 																				// comboBoxen och där fins möjligheten
 																				// att göra en uppdatering till en ny
 																				// byggnad.
 					// Is a upgrade (Building)
 					System.out.println("currentBuilding " + currentBuilding.getUuid() + " "
 							+ currentBuildingType.getName());
-					addUpgradeBuilding(currentBuilding, PlayerPureFunctions.findOwnBuildingTypeByName(selected, player), player);
+					addUpgradeBuilding(currentBuilding, PlayerPureFunctions.findOwnBuildingTypeByName(selected, player, SpaceRazePanel.gameWorld), player);
 				} else { // eller VIPsbygge */
 					VIPType vipType = getVIPType(selected);
-					player.addBuildVIP(currentBuilding, vipType); // lägg till en ny order för denna choice
-
+					OrderMutator.addBuildVIP(player.getOrders(), currentBuilding, vipType, player);
 				}
 			}
 
@@ -514,9 +515,9 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 				System.out.println("currentBuilding " + currentBuilding.getUuid() + " "
 						+ currentBuildingType.getName());
 				System.out.println("currentBuildingType.getNextBuildingType(selected) "
-						+ PlayerPureFunctions.findOwnBuildingTypeByName(selected, player).getName());
+						+ PlayerPureFunctions.findOwnBuildingTypeByName(selected, player, SpaceRazePanel.gameWorld).getName());
 
-				addUpgradeBuilding(currentBuilding, PlayerPureFunctions.findOwnBuildingTypeByName(selected, player), player);
+				addUpgradeBuilding(currentBuilding, PlayerPureFunctions.findOwnBuildingTypeByName(selected, player, SpaceRazePanel.gameWorld), player);
 
 			}
 		}
@@ -530,9 +531,9 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 	}
 
 	private void addUpgradeBuilding(Building currentBuilding, BuildingType newBuilding, Player aPlayer) {
-		// skapa ny order om inte varvet redan �r satt att uppgradera
+		// skapa ny order om inte varvet redan är satt att uppgradera
 		if (!ExpensePureFunction.alreadyUpgrading(aPlayer.getOrders(), currentBuilding)) {
-			aPlayer.getOrders().getExpenses().add(new Expense("building", newBuilding, aPlayer.getName(), currentBuilding.getLocation(), currentBuilding));
+			aPlayer.getOrders().getExpenses().add(ExpenseMutator.createBuilding(newBuilding.getUuid(), aPlayer.getUuid(), currentBuilding.getLocation().getMapPlanetUuid(), currentBuilding.getUuid()));
 		}
 	}
 
@@ -556,7 +557,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 				VIPTypeChoice[0].setEnabled(false);
 				upgradeBuildingTypeChoice[0].setEnabled(false);
 				// add selfdestruct order
-				player.addBuildingSelfDestruct(currentBuilding);
+				player.getOrders().getBuildingSelfDestructs().add(currentBuilding.getUuid());
 				// visa choisarna, nu med den nya ordern
 				showBuilding(buildingList.getSelectedIndex());
 				// ändra översta choicen till "none"
@@ -577,7 +578,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 				shipTypeChoice[0].setEnabled(true);
 				upgradeBuildingTypeChoice[0].setEnabled(true);
 				// remove selfdestruct order
-				player.removeBuildingSelfDestruct(currentBuilding);
+				OrderMutator.removeBuildingSelfDestruct(player.getOrders(), currentBuilding);
 			}
 			// update treasury label...
 			client.updateTreasuryLabel();
@@ -585,8 +586,8 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 	}
 
 	private void newBuildingOrder() {
-		player.removeNewBuilding(aPlanet);
-		String selected = (String) buildnewBuildingChoice.getSelectedItem();
+		OrderMutator.removeNewBuilding(player.getOrders(), aPlanet.getMapPlanetUuid());
+		String selected = buildnewBuildingChoice.getSelectedItem();
 		// remove paranthesis with cost...
 		int index = selected.indexOf("(");
 		if (index > -1) {
@@ -596,7 +597,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			detailsNewBuildingChoice.setVisible(false);
 			// g�r inget
 		} else {
-			player.addNewBuilding(aPlanet, PlayerPureFunctions.findOwnBuildingTypeByName(selected, player));
+			player.getOrders().getExpenses().add(ExpenseMutator.createBuilding(PlayerPureFunctions.findOwnBuildingTypeByName(selected, player, SpaceRazePanel.gameWorld).getUuid(), player.getUuid(), aPlanet.getMapPlanetUuid(), null));
 			detailsNewBuildingChoice.setVisible(true);
 			// uppdatera "left to spend" och send-knappen
 
@@ -606,7 +607,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 	}
 
 	private void showNewBuildingDetails() {
-		String selected = (String) buildnewBuildingChoice.getSelectedItem();
+		String selected = buildnewBuildingChoice.getSelectedItem();
 		int index = selected.indexOf("(");
 		if (index > -1) {
 			selected = selected.substring(0, index - 1);
@@ -618,7 +619,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 	}
 
 	private void showVIPDetails() {
-		String selected = (String) VIPTypeChoice[0].getSelectedItem();
+		String selected = VIPTypeChoice[0].getSelectedItem();
 		int index = selected.indexOf("(");
 		if (index > -1) {
 			selected = selected.substring(0, index - 1);
@@ -653,7 +654,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		Logger.fine("showBuilding");
 		// currentBuilding = findWharf(index);
 		currentBuilding = allBuildings.get(index);
-		currentBuildingType = PlayerPureFunctions.findBuildingTypeByUuid(currentBuilding.getTypeUuid(), player);
+		currentBuildingType = PlayerPureFunctions.findBuildingTypeByUuid(currentBuilding.getTypeUuid(), player, SpaceRazePanel.gameWorld);
 		if (currentBuilding != null) {
 			Logger.finer("currentBuilding: " + currentBuildingType.getName());
 			nameLabel.setText("Name: " + currentBuildingType.getName());
@@ -670,10 +671,10 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 
 			String statusString = "";
 			// Kolla om man kan bygga i byggnaden
-			boolean enemyTroopsOnPlanet = TroopPureFunctions.findOtherTroopsPlayersOnRazedPlanet(player, currentBuilding.getLocation(), player.getGalaxy().getTroops()).size() > 0;
+			boolean enemyTroopsOnPlanet = TroopPureFunctions.findOtherTroopsPlayersOnRazedPlanet(player, currentBuilding.getLocation(), SpaceRazePanel.galaxy.getTroops()).size() > 0;
 			boolean underSiege = currentBuilding.getLocation().isBesieged()
 					&& currentBuildingType.isInOrbit();
-			boolean abandonPlanet = player.getOrders().isAbandonPlanet(aPlanet);
+			boolean abandonPlanet = OrderPureFunctions.isAbandonPlanet(player.getOrders(), aPlanet);
 			if (enemyTroopsOnPlanet) {
 				statusString = "Can't build any units if planet have ongoing ground battles.";
 				Logger.finer("Planet have ongoing ground battles so buildigns can not build any units at this time.");
@@ -769,7 +770,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			}
 
 			// show and set selfdestruct cb
-			selfDestructCheckBox.setSelected(player.getBuildingSelfDestruct(currentBuilding));
+			selfDestructCheckBox.setSelected(OrderPureFunctions.isBuildingSelfDestruct(player.getOrders(), currentBuilding));
 			boolean destructable = false;
 			if (currentBuildingType.isSelfDestructible()) {
 				destructable = true;
@@ -780,7 +781,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			}
 
 			if (!currentBuildingType.isInOrbit()
-					&& player.getGalaxy().isOngoingGroundBattle(currentBuilding.getLocation(), player)) {
+					&& SpaceRazePanel.galaxy.isOngoingGroundBattle(currentBuilding.getLocation(), player)) {
 				destructable = false;
 			}
 
@@ -791,7 +792,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 
 			abilitiesLabel.setText("Building abilities:");
 			abilitiesTextArea.setText("");
-			List<String> allStrings = BuildingPureFunctions.getAbilitiesStrings(currentBuildingType, player.getGalaxy().getGameWorld());
+			List<String> allStrings = BuildingPureFunctions.getAbilitiesStrings(currentBuildingType, SpaceRazePanel.gameWorld);
 			for (int i = 0; i < allStrings.size(); i++) {
 				abilitiesTextArea.append(allStrings.get(i) + "\n");
 				Logger.finer("Building abilities: " + allStrings.get(i));
@@ -862,10 +863,10 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		int tempMaxTonnage = slotsleft * 300;
 
 		if (ExpensePureFunction.alreadyUpgrading(playersOrders, currentBuilding)) {
-			BuildingType buildingType = BuildingPureFunctions.getUpgradeBuilding(currentBuilding, player, playersOrders.getExpenses());
+			BuildingType buildingType = BuildingPureFunctions.getUpgradeBuilding(currentBuilding, player, playersOrders.getExpenses(), SpaceRazePanel.gameWorld);
 			tempBuild = VipPureFunctions.findVIPBuildingBuildBonus(currentBuilding.getLocation(), player,
-					player.getOrders(), player.getGalaxy());
-			int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), player.getGalaxy().getGameWorld()).getBuildingBuildBonus();
+					player.getOrders(), SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld);
+			int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), SpaceRazePanel.gameWorld).getBuildingBuildBonus();
 			int cost = BuildingPureFunctions.getBuildCost(buildingType, vipBuildBonus);
 			addShipTypes(shipTypeChoice[index], showUpgrade, slotsleft);
 			shipTypeChoice[0].setSelectedItem(
@@ -896,8 +897,8 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 				tempMaxTonnage = slotsleft * 300;
 				// compute cost
 				tempBuild = VipPureFunctions.findVIPShipBuildBonus(currentBuilding.getLocation(), player,
-						player.getOrders(), player.getGalaxy());
-				int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), player.getGalaxy().getGameWorld()).getShipBuildBonus();
+						player.getOrders(), SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld);
+				int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), SpaceRazePanel.gameWorld).getShipBuildBonus();
 				int cost = SpaceshipPureFunctions.getBuildCost(tempsst, vipBuildBonus);
 				// set selected
 				shipTypeChoice[index]
@@ -968,7 +969,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		List<SpaceshipType> allsst = new ArrayList<>();
 		for (Expense expense : player.getOrders().getExpenses()){
 			if (ExpensePureFunction.isBuildingBuildingShip(expense, currentBuilding)){
-				allsst.add(PlayerPureFunctions.findOwnSpaceshipType(expense.getSpaceshipTypeUuid(), player, player.getGalaxy()));
+				allsst.add(PlayerPureFunctions.findOwnSpaceshipType(expense.getSpaceshipTypeUuid(), player, SpaceRazePanel.gameWorld));
 			}
 		}
 		return allsst;
@@ -978,7 +979,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		Vector<TroopType> alltp = new Vector<TroopType>();
 		for (Expense expense : player.getOrders().getExpenses()){
 			if (ExpensePureFunction.isBuildingBuildingTroop(expense, currentBuilding)){
-				TroopType aTroopType = PlayerPureFunctions.findOwnTroopType(expense.getTroopTypeUuid(), player, player.getGalaxy());
+				TroopType aTroopType = PlayerPureFunctions.findOwnTroopType(expense.getTroopTypeUuid(), player, SpaceRazePanel.gameWorld);
 				alltp.addElement(aTroopType);
 			}
 		}
@@ -1000,10 +1001,10 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		System.out.println(
 				"playersOrders.alreadyUpgrading(currentBuilding): " + ExpensePureFunction.alreadyUpgrading(playersOrders, currentBuilding));
 		if (ExpensePureFunction.alreadyUpgrading(playersOrders, currentBuilding)) {
-			BuildingType buildingType = BuildingPureFunctions.getUpgradeBuilding(currentBuilding, player, playersOrders.getExpenses());
+			BuildingType buildingType = BuildingPureFunctions.getUpgradeBuilding(currentBuilding, player, playersOrders.getExpenses(), SpaceRazePanel.gameWorld);
 			tempBuild = VipPureFunctions.findVIPBuildingBuildBonus(currentBuilding.getLocation(), player,
-					player.getOrders(), player.getGalaxy());
-			int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), player.getGalaxy().getGameWorld()).getBuildingBuildBonus();
+					player.getOrders(), SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld);
+			int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), SpaceRazePanel.gameWorld).getBuildingBuildBonus();
 			int cost = BuildingPureFunctions.getBuildCost(buildingType, vipBuildBonus);
 			addTroopTypes(troopTypeChoice[index], showUpgrade);
 			troopTypeChoice[0].setSelectedItem(
@@ -1035,8 +1036,8 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 				// compute cost
 
 				tempBuild = VipPureFunctions.findVIPTroopBuildBonus(currentBuilding.getLocation(), player,
-						player.getOrders(), player.getGalaxy());
-				int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), player.getGalaxy().getGameWorld()).getTroopBuildBonus();
+						player.getOrders(), SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld);
+				int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), SpaceRazePanel.gameWorld).getTroopBuildBonus();
 				int cost = TroopPureFunctions.getCostBuild(troopType, vipBuildBonus);
 				// set selected
 				troopTypeChoice[index].setSelectedItem(
@@ -1092,7 +1093,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			addUpgradeBuildTypes(VIPTypeChoice[0], true);
 		}
 
-		List<VIPType> copyAllTypes = currentBuildingType.getVipTypes().stream().map(vipUuid -> VipPureFunctions.getVipTypeByUuid(vipUuid, player.getGalaxy().getGameWorld())).toList();
+		List<VIPType> copyAllTypes = currentBuildingType.getVipTypes().stream().map(vipUuid -> VipPureFunctions.getVipTypeByUuid(vipUuid, SpaceRazePanel.gameWorld)).toList();
 		Collections.sort(copyAllTypes, new VIPTypeComparator());
 		Collections.reverse(copyAllTypes);
 
@@ -1117,10 +1118,10 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		}
 
 		if (ExpensePureFunction.alreadyUpgrading(playersOrders, currentBuilding)) {
-			BuildingType buildingType = BuildingPureFunctions.getUpgradeBuilding(currentBuilding, player, playersOrders.getExpenses());
+			BuildingType buildingType = BuildingPureFunctions.getUpgradeBuilding(currentBuilding, player, playersOrders.getExpenses(), SpaceRazePanel.gameWorld);
 			VIP tempBuild = VipPureFunctions.findVIPBuildingBuildBonus(currentBuilding.getLocation(), player,
-					player.getOrders(), player.getGalaxy());
-			int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), player.getGalaxy().getGameWorld()).getTroopBuildBonus();
+					player.getOrders(), SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld);
+			int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), SpaceRazePanel.gameWorld).getTroopBuildBonus();
 			int cost = BuildingPureFunctions.getBuildCost(buildingType, vipBuildBonus);
 			VIPTypeChoice[0].setSelectedItem(
 					buildingType.getName() + " (cost: " + cost + ") " + getUniqueString(buildingType));
@@ -1156,7 +1157,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		Orders playersOrders = player.getOrders();
 
 		VIP tempBuild = VipPureFunctions.findVIPBuildingBuildBonus(currentBuilding.getLocation(), player,
-				player.getOrders(), player.getGalaxy());
+				player.getOrders(), SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld);
 
 		upgradeBuildingTypeChoice[0].addItem("None");
 		addUpgradeBuildTypes(upgradeBuildingTypeChoice[0], false);
@@ -1164,8 +1165,8 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		// System.out.println("efter alltypes");
 
 		if (ExpensePureFunction.alreadyUpgrading(playersOrders, currentBuilding)) {
-			BuildingType buildingType = BuildingPureFunctions.getUpgradeBuilding(currentBuilding, player, playersOrders.getExpenses());
-			int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), player.getGalaxy().getGameWorld()).getBuildingBuildBonus();
+			BuildingType buildingType = BuildingPureFunctions.getUpgradeBuilding(currentBuilding, player, playersOrders.getExpenses(), SpaceRazePanel.gameWorld);
+			int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), SpaceRazePanel.gameWorld).getBuildingBuildBonus();
 			int cost = BuildingPureFunctions.getBuildCost(buildingType, vipBuildBonus);
 			upgradeBuildingTypeChoice[0].setSelectedItem(
 					buildingType.getName() + " (cost: " + cost + ") " + getUniqueString(buildingType));
@@ -1178,7 +1179,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 
 		PlayerBuildingImprovement improvement = PlayerPureFunctions.findBuildingImprovementByUuid(currentBuildingType.getUuid(), player);
 		List<BuildingType> upgradableBuildingTypes =
-				BuildingPureFunctions.getUpgradableBuildingTypes(player.getGalaxy(), player, currentBuildingType, currentBuilding, aPlanet, improvement);
+				BuildingPureFunctions.getUpgradableBuildingTypes(SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld, player, currentBuildingType, currentBuilding, aPlanet, improvement);
 		if (!upgradableBuildingTypes.isEmpty()) {
 			//TODO 2020-05-24 Why clone?
 			List<BuildingType> allTypes = Functions
@@ -1187,12 +1188,12 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 			Collections.reverse(allTypes);
 
 			VIP tempVIP = VipPureFunctions.findVIPBuildingBuildBonus(currentBuilding.getLocation(), player,
-					player.getOrders(), player.getGalaxy());
+					player.getOrders(), SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld);
 
 			if (allTypes.size() > 0 && addDescriptionItem) {
 				unitTypeChoice.addItem(getItemDescription("buildings"));
 			}
-			int vipBuildBonus = tempVIP == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getBuildingBuildBonus();
+			int vipBuildBonus = tempVIP == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempVIP.getTypeUuid(), SpaceRazePanel.gameWorld).getBuildingBuildBonus();
 			for (int i = 0; i < allTypes.size(); i++) {
 				int cost = BuildingPureFunctions.getBuildCost(allTypes.get(i), vipBuildBonus);
 				unitTypeChoice.addItem(
@@ -1211,9 +1212,9 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		// boolean engineer = false;
 
 		VIP tempBuild = VipPureFunctions.findVIPShipBuildBonus(currentBuilding.getLocation(), player,
-				player.getOrders(), player.getGalaxy());
+				player.getOrders(), SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld);
 		// VIP tempUpgrade =
-		// player.getGalaxy().findVIPUpgradeWharfBonus(currentBuilding.getLocation(),player,player.getOrders());
+		// SpaceRazePanel.galaxy.findVIPUpgradeWharfBonus(currentBuilding.getLocation(),player,player.getOrders());
 		boolean underSiege = currentBuilding.getLocation().isBesieged()
 				&& currentBuildingType.isInOrbit();
 		if (showUpgrade & !underSiege) {
@@ -1221,7 +1222,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		}
 		// System.out.println("efter upgrade");
 		// Vector alltypes = player.getSpaceshipTypes(); Old
-		List<SpaceshipType> alltypes = PlayerPureFunctions.getAvailableSpaceshipTypes(player.getGalaxy(), player);
+		List<SpaceshipType> alltypes = PlayerPureFunctions.getAvailableSpaceshipTypes(SpaceRazePanel.galaxy, player, SpaceRazePanel.gameWorld);
 		//List<SpaceshipType> alltypes = player.getAvailableSpaceshipTypes();
 		//List<SpaceshipType> copyAllTypes = alltypes.stream().collect(Collectors.toList());
 		Collections.sort(alltypes, new SpaceshipTypeSizeComparator());
@@ -1230,7 +1231,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		String shipSize = "";
 		for (SpaceshipType tempsst : alltypes) {
 			if (tempsst.getSize().getSlots() <= slotsleft) {
-				int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), player.getGalaxy().getGameWorld()).getShipBuildBonus();
+				int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), SpaceRazePanel.gameWorld).getShipBuildBonus();
 				int cost = SpaceshipPureFunctions.getBuildCost(tempsst, vipBuildBonus);
 
 				if (!tempsst.getSize().getDescription().equals(shipSize)) {
@@ -1250,21 +1251,21 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		// System.out.println("efter none");
 
 		// VIP tempBuild =
-		// player.getGalaxy().findVIPBuildBuildingBonus(currentBuilding.getLocation(),player,player.getOrders());
+		// SpaceRazePanel.galaxy.findVIPBuildBuildingBonus(currentBuilding.getLocation(),player,player.getOrders());
 		boolean underSiege = currentBuilding.getLocation().isBesieged()
 				&& currentBuildingType.isInOrbit();
 		if (showUpgrade & !underSiege) {
 			addUpgradeBuildTypes(trooptypechoice, true);
 		}
 		// System.out.println("efter upgrade");
-		List<TroopType> alltypes = PlayerPureFunctions.getAvailableTroopTypes(player.getGalaxy(), player);
+		List<TroopType> alltypes = PlayerPureFunctions.getAvailableTroopTypes(SpaceRazePanel.galaxy, player, SpaceRazePanel.gameWorld);
 		Logger.finer("player.getAvailableTroopTypes().size(): " + alltypes.size());
 		List<TroopType> copyAllTypes = alltypes.stream().collect(Collectors.toList());
 		Collections.sort(copyAllTypes, new TroopTypeComparator());
 		Collections.reverse(copyAllTypes);
 
 		VIP tempBuild = VipPureFunctions.findVIPTroopBuildBonus(currentBuilding.getLocation(), player,
-				player.getOrders(), player.getGalaxy());
+				player.getOrders(), SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld);
 
 		if (trooptypechoice.getItemCount() > 1 && copyAllTypes.size() > 0) {
 			trooptypechoice.addItem(getItemDescription("Troops"));
@@ -1273,7 +1274,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		// System.out.println("efter alltypes");
 		for (TroopType tempTP : copyAllTypes) {
 			if (canBuildTypeOfTroop(currentBuildingType, tempTP.getTypeOfTroop())) {
-				int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), player.getGalaxy().getGameWorld()).getTroopBuildBonus();
+				int vipBuildBonus = tempBuild == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempBuild.getTypeUuid(), SpaceRazePanel.gameWorld).getTroopBuildBonus();
 				int cost =TroopPureFunctions.getCostBuild(tempTP, vipBuildBonus);
 				trooptypechoice.addItem(tempTP.getName() + " (cost: " + cost + ") " + getUniqueString(tempTP));
 			}
@@ -1291,7 +1292,7 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 	}
 
 	private SpaceshipType getShipType(String typeName) {
-		List<SpaceshipType> allShipTypes = PlayerPureFunctions.getAvailableSpaceshipTypes(player.getGalaxy(), player);
+		List<SpaceshipType> allShipTypes = PlayerPureFunctions.getAvailableSpaceshipTypes(SpaceRazePanel.galaxy, player, SpaceRazePanel.gameWorld);
 		return allShipTypes.stream().filter(ship -> ship.getName().equalsIgnoreCase(typeName)).findFirst().orElse(null);
 	}
 
@@ -1300,12 +1301,12 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 		// find shiptype
 		VIPType vipType = null;
 		// Vector allshiptypes = player.getSpaceshipTypes(); old
-		List<VIPType> allVIPTypes = player.getGalaxy().getGameWorld().getVipTypes();
+		List<VIPType> allVIPTypes = SpaceRazePanel.gameWorld.getVipTypes();
 		int i = 0;
 		while (vipType == null && i < allVIPTypes.size()) {
 			VIPType temp = allVIPTypes.get(i);
-			if (temp.getName().equalsIgnoreCase(aTypeName) && (VipPureFunctions.isConstructable(player, player.getGalaxy(), temp)
-					|| aTypeName.equalsIgnoreCase(VipPureFunctions.getVipTypeByUuid(ExpensePureFunction.getVIPBuild(player.getOrders(), currentBuilding), player.getGalaxy().getGameWorld()).getName()))) {
+			if (temp.getName().equalsIgnoreCase(aTypeName) && (VipPureFunctions.isConstructable(player, SpaceRazePanel.galaxy, temp, SpaceRazePanel.gameWorld)
+					|| aTypeName.equalsIgnoreCase(VipPureFunctions.getVipTypeByUuid(ExpensePureFunction.getVIPBuild(player.getOrders(), currentBuilding), SpaceRazePanel.gameWorld).getName()))) {
 				vipType = temp;
 			}
 			i++;
@@ -1315,12 +1316,12 @@ public class MiniBuildingPanel extends SRBasePanel implements ActionListener, Li
 
 	private void fillNewBuildingsChoice() {
 		buildnewBuildingChoice.removeAllItems();
-		VIP tempEngineer = VipPureFunctions.findVIPBuildingBuildBonus(aPlanet, player, player.getOrders(), player.getGalaxy());
+		VIP tempEngineer = VipPureFunctions.findVIPBuildingBuildBonus(aPlanet, player, player.getOrders(), SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld);
 
-		List<BuildingType> tempBuildingTypes = BuildingPureFunctions.getAvailableBuildingsToConstruct(player.getGalaxy(), player, aPlanet);
+		List<BuildingType> tempBuildingTypes = BuildingPureFunctions.getAvailableBuildingsToConstruct(SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld, player, aPlanet);
 		buildnewBuildingChoice.addItem("None");
 		for (BuildingType buildingType : tempBuildingTypes) {
-			int vipBuildBonus = tempEngineer == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempEngineer.getTypeUuid(), player.getGalaxy().getGameWorld()).getBuildingBuildBonus();
+			int vipBuildBonus = tempEngineer == null ? 0 : VipPureFunctions.getVipTypeByUuid(tempEngineer.getTypeUuid(), SpaceRazePanel.gameWorld).getBuildingBuildBonus();
 			int cost = BuildingPureFunctions.getBuildCost(buildingType, vipBuildBonus);
 			buildnewBuildingChoice.addItem(buildingType.getName() + " (cost: " + cost + ")");
 		}

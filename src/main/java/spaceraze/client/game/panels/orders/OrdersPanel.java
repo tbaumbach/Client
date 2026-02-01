@@ -12,8 +12,9 @@ import spaceraze.client.components.scrollable.TextAreaPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.panels.resource.VIPsPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.game.*;
 import spaceraze.map.MapPlanet;
-import spaceraze.servlethelper.game.BuildingPureFunctions;
+import spaceraze.servlethelper.game.building.BuildingPureFunctions;
 import spaceraze.servlethelper.game.expenses.ExpensePureFunction;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
@@ -21,15 +22,15 @@ import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.map.GalaxyMapPureFunctions;
 import spaceraze.world.*;
-import spaceraze.world.orders.Expense;
-import spaceraze.world.orders.Orders;
-import spaceraze.world.orders.PlanetNotesChange;
-import spaceraze.world.orders.ResearchOrder;
-import spaceraze.world.orders.ShipMovement;
-import spaceraze.world.orders.ShipToCarrierMovement;
-import spaceraze.world.orders.TroopToCarrierMovement;
-import spaceraze.world.orders.TroopToPlanetMovement;
-import spaceraze.world.orders.VIPMovement;
+import spaceraze.game.orders.Expense;
+import spaceraze.game.orders.Orders;
+import spaceraze.game.orders.PlanetNotesChange;
+import spaceraze.game.orders.ResearchOrder;
+import spaceraze.game.orders.ShipMovement;
+import spaceraze.game.orders.ShipToCarrierMovement;
+import spaceraze.game.orders.TroopToCarrierMovement;
+import spaceraze.game.orders.TroopToPlanetMovement;
+import spaceraze.game.orders.VIPMovement;
 
 @SuppressWarnings("serial")
 public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
@@ -46,10 +47,10 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     this.id = id;
     this.orders = orders;
     this.setLayout(null);
-    g = p.getGalaxy();
+    g = SpaceRazePanel.galaxy;
     this.aPlayer = p;
 
-    title = new SRLabel("Current orders for turn " + p.getGalaxy().getTurn());
+    title = new SRLabel("Current orders for turn " + SpaceRazePanel.galaxy.getTurn());
     title.setBounds(10,10,200,15);
     add(title);
 
@@ -72,7 +73,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
 	    infoarea.append(sepLine);
 	    for (int i = 0; i < temp.size(); i++){
 	      Expense tempExpense = temp.get(i);
-	      infoarea.append(ExpensePureFunction.getText(g, ExpensePureFunction.getCost(tempExpense, g, aPlayer, SpaceRazePanel.galaxyMap), tempExpense, SpaceRazePanel.galaxyMap) + "\n");
+	      infoarea.append(ExpensePureFunction.getText(g, ExpensePureFunction.getCost(tempExpense, g, aPlayer, SpaceRazePanel.galaxyMap, SpaceRazePanel.gameWorld), tempExpense, SpaceRazePanel.galaxyMap, SpaceRazePanel.gameWorld) + "\n");
 	    }
 	    infoarea.append("\n");
     }
@@ -93,7 +94,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	infoarea.append("\n");
     }
 
-    if (g.hasTroops()){
+    if (g.hasTroops(SpaceRazePanel.gameWorld)){
     	List<TroopToCarrierMovement> ttcm = orders.getTroopToCarrierMoves();
     	List<TroopToPlanetMovement> ttpm = orders.getTroopToPlanetMoves();
         if ((ttcm.size() > 0) | (ttpm.size() > 0)){
@@ -158,7 +159,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	infoarea.append("Selfdestruct VIPs" + "\n");
     	infoarea.append(sepLine);
     	for (int v = 0; v < tempVIPs.size(); v++){
-    		VIPType tempVIP = VipPureFunctions.getVipTypeByUuid(tempVIPs.get(v), g.getGameWorld());
+    		VIPType tempVIP = VipPureFunctions.getVipTypeByUuid(tempVIPs.get(v), SpaceRazePanel.gameWorld);
     		infoarea.append("VIP " + tempVIP.getName() + " is to be retired." + "\n");
     	}
     	infoarea.append("\n");
@@ -171,7 +172,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
     	infoarea.append(sepLine);
     	for (int n = 0; n < tempBuildings.size(); n++){
     		Building tempBuilding = BuildingPureFunctions.findBuilding(tempBuildings.get(n), aPlayer, g);
-    		infoarea.append("Building " + BuildingPureFunctions.getBuildingTypeByUuid(tempBuilding.getTypeUuid(), g.getGameWorld()).getName() + " at " + PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, tempBuilding.getLocation().getMapPlanetUuid()) + " is to be destroyed." + "\n");
+    		infoarea.append("Building " + BuildingPureFunctions.getBuildingTypeByUuid(tempBuilding.getTypeUuid(), SpaceRazePanel.gameWorld).getName() + " at " + PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, tempBuilding.getLocation().getMapPlanetUuid()) + " is to be destroyed." + "\n");
     	}
     	infoarea.append("\n");
     }
@@ -256,7 +257,7 @@ public class OrdersPanel extends SRBasePanel implements SRUpdateablePanel{
 	}
 
 	private String getText(VIPMovement vipMovement, Galaxy aGalaxy) {
-		return "Move " + VipPureFunctions.getVipTypeByUuid(VipPureFunctions.findVIP(vipMovement.getVipKey(), aGalaxy).getTypeUuid(), aGalaxy.getGameWorld()).getName() + " from " + VipPureFunctions.getLocationString(VipPureFunctions.findVIP(vipMovement.getVipKey(), aGalaxy), SpaceRazePanel.galaxyMap) + " to " + VIPsPanel.getDestinationName(vipMovement, aGalaxy, SpaceRazePanel.galaxyMap) + ".";
+		return "Move " + VipPureFunctions.getVipTypeByUuid(VipPureFunctions.findVIP(vipMovement.getVipKey(), aGalaxy).getTypeUuid(), SpaceRazePanel.gameWorld).getName() + " from " + VipPureFunctions.getLocationString(VipPureFunctions.findVIP(vipMovement.getVipKey(), aGalaxy), SpaceRazePanel.galaxyMap) + " to " + VIPsPanel.getDestinationName(vipMovement, aGalaxy, SpaceRazePanel.galaxyMap) + ".";
 	}
 
 	public String getText(ShipToCarrierMovement shipToCarrierMovement, Galaxy aGalaxy) {

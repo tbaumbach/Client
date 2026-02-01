@@ -10,7 +10,7 @@ import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.game.ImageHandler;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Message;
+import spaceraze.game.Message;
 
 /**
  * <p>

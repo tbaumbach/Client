@@ -23,14 +23,16 @@ import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.panels.planet.MiniShipPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.servlethelper.game.orders.OrderMutator;
+import spaceraze.servlethelper.game.orders.OrderPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.Logger;
-import spaceraze.world.Galaxy;
-import spaceraze.world.Player;
-import spaceraze.world.Spaceship;
-import spaceraze.world.VIP;
+import spaceraze.game.Galaxy;
+import spaceraze.game.Player;
+import spaceraze.game.Spaceship;
+import spaceraze.game.VIP;
 
 /**
  * @author WMPABOD
@@ -54,7 +56,7 @@ public class RetreatsPanel extends SRBasePanel implements SRUpdateablePanel, Act
 	    this.id = id;
 	    this.setLayout(null);
 	    player = p;
-	    retreatingShips = getRetreatingShips(p, p.getGalaxy());
+	    retreatingShips = getRetreatingShips(p, SpaceRazePanel.galaxy);
 	    
 	    title = new SRLabel("Retreating spaceships");
 	    title.setBounds(10,10,200,15);
@@ -103,7 +105,7 @@ public class RetreatsPanel extends SRBasePanel implements SRUpdateablePanel, Act
 	    for(int i = 0; i < retreatingShips.size(); i++){
         	Spaceship tempss = ((Spaceship)retreatingShips.get(i));
         	String suffix = "";
-        	if(player.getShipSelfDestruct(tempss)){
+        	if(OrderPureFunctions.isShipSelfDestruct(player.getOrders(), tempss)){
         		suffix = " (will selfdestruct)";
         	}
         	dlm.addElement(tempss.getName() + " is retreating and just left " + PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, tempss.getOldLocation().getMapPlanetUuid()) + suffix);
@@ -145,19 +147,19 @@ public class RetreatsPanel extends SRBasePanel implements SRUpdateablePanel, Act
     private void newOrder(CheckBoxPanel cb){
     	if (cb.isSelected()){
     		// set up ship for destruction
-    		player.addShipSelfDestruct(currentss);
+			player.getOrders().getShipSelfDestructs().add(currentss.getUuid());
     		// remove any old moveorder for that ship
     		MiniShipPanel.addNewShipMove(currentss,null, player.getOrders());
     	}else{
-            player.removeShipSelfDestruct(currentss);
-    	}
+			OrderMutator.removeShipSelfDestruct(player.getOrders(), currentss);
+        }
     }
 
     private void showSpaceship(int index){
     	Spaceship ss = (Spaceship)retreatingShips.get(index);
     	currentss = ss;
     	// show and set selfdestruct cb
-    	selfDestructCheckBox.setSelected(player.getShipSelfDestruct(ss));
+    	selfDestructCheckBox.setSelected(OrderPureFunctions.isShipSelfDestruct(player.getOrders(), ss));
     	selfDestructCheckBox.setVisible(true);
 
         dcLabel.setText("Hits: " + ss.getCurrentDc()+ "/" +ss.getDamageCapacity());
@@ -172,13 +174,13 @@ public class RetreatsPanel extends SRBasePanel implements SRUpdateablePanel, Act
       }
 
     private void addVIPs(){
-    	List<VIP> allVIPs = VipPureFunctions.findAllVIPsOnShip(currentss, player.getGalaxy().getAllVIPs());
+    	List<VIP> allVIPs = VipPureFunctions.findAllVIPsOnShip(currentss, SpaceRazePanel.galaxy.getAllVIPs());
     	if (allVIPs.size() == 0){
     		VIPInfoTextArea.setText("None");
     	}else{
     		VIPInfoTextArea.setText("");
     		for (VIP aVIP : allVIPs){
-    			VIPInfoTextArea.append(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getName() + "\n");
+    			VIPInfoTextArea.append(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), SpaceRazePanel.gameWorld).getName() + "\n");
     		}
     	}
     }

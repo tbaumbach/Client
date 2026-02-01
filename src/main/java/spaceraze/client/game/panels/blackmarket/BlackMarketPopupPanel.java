@@ -14,14 +14,15 @@ import spaceraze.client.components.SRTextField;
 import spaceraze.client.game.ShowMapPlanet;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.game.map.MapCanvas;
+import spaceraze.servlethelper.game.BlackMarketPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.util.general.Logger;
-import spaceraze.world.BlackMarketBid;
-import spaceraze.world.BlackMarketOffer;
-import spaceraze.world.Planet;
-import spaceraze.world.Player;
+import spaceraze.game.BlackMarketBid;
+import spaceraze.game.BlackMarketOffer;
+import spaceraze.game.Planet;
+import spaceraze.game.Player;
 
 /**
  * Pop up panel used for creation and edits of black market bids
@@ -56,7 +57,7 @@ public class BlackMarketPopupPanel extends BasicPopupPanel implements ActionList
 	    offerLabel.setBounds(10,40,100,20);
 	    add(offerLabel);
 
-	    offerNameLabel = new SRLabel(offer.getString());
+	    offerNameLabel = new SRLabel(BlackMarketPureFunctions.getDescription(offer, SpaceRazePanel.gameWorld));
 	    offerNameLabel.setBounds(130,40,150,20);
 	    add(offerNameLabel);
 
@@ -87,12 +88,12 @@ public class BlackMarketPopupPanel extends BasicPopupPanel implements ActionList
 	    	add(mapLabel);
 
 	    	mapCanvas = new MapCanvas(p,this,true);
-	        mapCanvas.setPlanets(p.getGalaxy().getPlanets(),p);
-	        mapCanvas.setSpaceships(SpaceshipPureFunctions.getPlayersSpaceships(p, p.getGalaxy()));
-	        mapCanvas.setOwnVips(p.getGalaxy().getPlayersVips(p));
-	        mapCanvas.setOwnTroops(TroopPureFunctions.getPlayersTroops(p, p.getGalaxy()));
-	        mapCanvas.setOthersVips(p.getGalaxy().getAllVIPs());
-	        mapCanvas.setConnections(p.getGalaxy().getPlanetConnections(), p.getGalaxy());
+	        mapCanvas.setPlanets(SpaceRazePanel.galaxy.getPlanets(),p);
+	        mapCanvas.setSpaceships(SpaceshipPureFunctions.getPlayersSpaceships(p, SpaceRazePanel.galaxy));
+	        mapCanvas.setOwnVips(SpaceRazePanel.galaxy.getPlayersVips(p));
+	        mapCanvas.setOwnTroops(TroopPureFunctions.getPlayersTroops(p, SpaceRazePanel.galaxy));
+	        mapCanvas.setOthersVips(SpaceRazePanel.galaxy.getAllVIPs());
+	        mapCanvas.setConnections(SpaceRazePanel.galaxy.getPlanetConnections(), SpaceRazePanel.galaxy);
 	        mapCanvas.computeNewOrigo();
 		    mapCanvas.setBounds(10, 155, 380, 300);
 		    mapCanvas.setInitialZoom(-20);
@@ -109,7 +110,7 @@ public class BlackMarketPopupPanel extends BasicPopupPanel implements ActionList
 	
 	private void addDestinations(){
 		offerDestinationChoice.addItem("None");
-		List<Planet> playersPlanets = PlanetPureFunctions.getPlayersPlanets(player, player.getGalaxy());
+		List<Planet> playersPlanets = PlanetPureFunctions.getPlayersPlanets(player, SpaceRazePanel.galaxy);
         for (Planet planet : playersPlanets) {
 		    if (!planet.isBesieged()){
 				offerDestinationChoice.addItem(PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, planet.getMapPlanetUuid()));

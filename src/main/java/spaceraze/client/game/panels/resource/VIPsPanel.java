@@ -22,11 +22,11 @@ import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.troop.TroopPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Galaxy;
-import spaceraze.world.Planet;
-import spaceraze.world.Player;
-import spaceraze.world.VIP;
-import spaceraze.world.orders.VIPMovement;
+import spaceraze.game.Galaxy;
+import spaceraze.game.Planet;
+import spaceraze.game.Player;
+import spaceraze.game.VIP;
+import spaceraze.game.orders.VIPMovement;
 
 @SuppressWarnings("serial")
 public class VIPsPanel extends SRBasePanel implements SRUpdateablePanel, ListSelectionListener{
@@ -67,9 +67,9 @@ public class VIPsPanel extends SRBasePanel implements SRUpdateablePanel, ListSel
 		
 		int i = 0;
 		for (VIP aVIP : VIPs) {
-			vipsTable.setValueAt(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getName(), i, 0);
+			vipsTable.setValueAt(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), SpaceRazePanel.gameWorld).getName(), i, 0);
 			vipsTable.setValueAt(VipPureFunctions.getLocationString(aVIP, SpaceRazePanel.galaxyMap), i, 1);
-	        String tempDest = getDestinationName(aVIP, player.getGalaxy(), player.getOrders().getVIPMoves(), SpaceRazePanel.galaxyMap);
+	        String tempDest = getDestinationName(aVIP, SpaceRazePanel.galaxy, player.getOrders().getVIPMoves(), SpaceRazePanel.galaxyMap);
 			vipsTable.setValueAt(tempDest, i, 2);
 			i++;
 		}

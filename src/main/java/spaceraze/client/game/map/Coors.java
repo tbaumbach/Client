@@ -6,13 +6,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import spaceraze.servlethelper.game.BuildingPureFunctions;
-import spaceraze.world.Building;
-import spaceraze.world.Planet;
-import spaceraze.world.Player;
-import spaceraze.world.Spaceship;
-import spaceraze.world.Troop;
-import spaceraze.world.VIP;
+import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.servlethelper.game.building.BuildingPureFunctions;
+import spaceraze.game.Building;
+import spaceraze.game.Planet;
+import spaceraze.game.Player;
+import spaceraze.game.Spaceship;
+import spaceraze.game.Troop;
+import spaceraze.game.VIP;
 
 public class Coors implements Serializable{
     static final long serialVersionUID = 1L;
@@ -237,7 +238,7 @@ public class Coors implements Serializable{
 				boolean ownPlanet = aPlanet.getPlayerInControl() == aPlayer;
 		//		Logger.finest(aPlanet + ", shipInSystem: " + shipInSystem);
 				if (ownPlanet | alwaysShow | spy | shipInSystem | troopInSystem){
-					retStr = retStr + BuildingPureFunctions.getBuildingTypeByUuid(building.getTypeUuid(), aPlayer.getGalaxy().getGameWorld()).getShortName();
+					retStr = retStr + BuildingPureFunctions.getBuildingTypeByUuid(building.getTypeUuid(), SpaceRazePanel.gameWorld).getShortName();
 					if(iter.hasNext()){
 						retStr = retStr + ", ";
 					}

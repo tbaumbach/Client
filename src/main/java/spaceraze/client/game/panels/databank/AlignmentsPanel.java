@@ -10,11 +10,12 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.servlethelper.comparator.AlignmentNameComparator;
 import spaceraze.servlethelper.game.AlignmentPureFunctions;
 import spaceraze.util.general.Functions;
 import spaceraze.world.Alignment;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
@@ -48,7 +49,7 @@ public class AlignmentsPanel extends SRBasePanel implements ListSelectionListene
     private final int yInterval = 20;
     
     public AlignmentsPanel(Player p, String id){
-      alignments = p.getGalaxy().getGameWorld().getAlignments().stream().collect(Collectors.toList());
+      alignments = SpaceRazePanel.gameWorld.getAlignments().stream().collect(Collectors.toList());
 	  Collections.sort(alignments,new AlignmentNameComparator<Alignment>());
       this.id = id;
 
@@ -173,7 +174,7 @@ public class AlignmentsPanel extends SRBasePanel implements ListSelectionListene
           descScrollPane.setVisible(true);
           // can have vip textarea
           canHaveVIPTextArea.setText("");
-          List<Alignment> canHaveVipList = AlignmentPureFunctions.getAlignments(anAlignment.getCanHaveVips(), anAlignment.getGameWorld());
+          List<Alignment> canHaveVipList = AlignmentPureFunctions.getAlignments(anAlignment.getCanHaveVips(), SpaceRazePanel.gameWorld);
 //    	  canHaveVIPTextArea.append(anAlignment.getName() + "\n");
           for (Alignment tmpAlignment : canHaveVipList) {
         	  canHaveVIPTextArea.append(tmpAlignment.getName() + "\n");
@@ -182,7 +183,7 @@ public class AlignmentsPanel extends SRBasePanel implements ListSelectionListene
           canHaveVIPScrollPane.setVisible(true);
           // hate duellist textarea
           hatesDuellistTextArea.setText("");
-          List<Alignment> hatesDuellistList = AlignmentPureFunctions.getAlignments(anAlignment.getHateDuellists(), anAlignment.getGameWorld());
+          List<Alignment> hatesDuellistList = AlignmentPureFunctions.getAlignments(anAlignment.getHateDuellists(), SpaceRazePanel.gameWorld);
           for (Alignment tmpAlignment : hatesDuellistList) {
         	  hatesDuellistTextArea.append(tmpAlignment.getName() + "\n");
           }

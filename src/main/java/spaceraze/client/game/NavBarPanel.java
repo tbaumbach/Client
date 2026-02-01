@@ -28,8 +28,8 @@ import spaceraze.client.game.panels.statistics.StatisticsPanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Galaxy;
-import spaceraze.world.Player;
+import spaceraze.game.Galaxy;
+import spaceraze.game.Player;
 
 @SuppressWarnings("serial")
 public class NavBarPanel extends SRBasePanel implements ChangeListener {
@@ -85,7 +85,7 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		ip.setName("Turn info");
 		panels.add(ip);
 
-		bmp = new BlackMarketPanel(player, client, "Black Market", player.getGalaxy().getCurrentOffers());
+		bmp = new BlackMarketPanel(player, client, "Black Market", SpaceRazePanel.galaxy.getCurrentOffers());
 		bmp.setName("Black Market");
 		panels.add(bmp);
 
@@ -93,7 +93,7 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		mep.setName("Messages");
 		panels.add(mep);
 
-		sp = new StatisticsPanel(player, player.getGalaxy(), "Statistics");
+		sp = new StatisticsPanel(player, SpaceRazePanel.galaxy, "Statistics");
 		sp.setName("Statistics");
 		panels.add(sp);
 
@@ -133,7 +133,7 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		tabbedPanel.setToolTipTextAt(panelIndex, "Current turns highlights");
 		panelIndex++;
 
-		if (!(player.isDefeated() | player.getGalaxy().isGameOver())) {
+		if (!(player.isDefeated() | SpaceRazePanel.galaxy.isGameOver())) {
 			tabbedPanel.addTab("Turn info", tempPanel("turn info"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "Current and old turns information");
 			panelIndex++;
@@ -143,7 +143,7 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		tabbedPanel.setToolTipTextAt(panelIndex, "Information about yours units and plantes");
 		panelIndex++;
 
-		if (!(player.isDefeated() | player.getGalaxy().isGameOver())) {
+		if (!(player.isDefeated() | SpaceRazePanel.galaxy.isGameOver())) {
 			tabbedPanel.addTab("Inc & exp", tempPanel("Inc & exp"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "Incom & expences");
 			panelIndex++;
@@ -157,7 +157,7 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		tabbedPanel.setToolTipTextAt(panelIndex, "Game world details and yours units data");
 		panelIndex++;
 
-		if (!(player.isDefeated() | player.getGalaxy().isGameOver())) {
+		if (!(player.isDefeated() | SpaceRazePanel.galaxy.isGameOver())) {
 			tabbedPanel.addTab("Black Market", tempPanel("Black Market"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "Bay stuff one the black market");
 			panelIndex++;
@@ -167,7 +167,7 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		tabbedPanel.setToolTipTextAt(panelIndex, "Send and recieve message to players in this game");
 		panelIndex++;
 
-		if (!(player.isDefeated() | player.getGalaxy().isGameOver())) {
+		if (!(player.isDefeated() | SpaceRazePanel.galaxy.isGameOver())) {
 			tabbedPanel.addTab("Gifts & Taxes", tempPanel("Gifts & Taxes"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "Give money to your friends in the game");
 			panelIndex++;
@@ -182,7 +182,7 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		panelIndex++;
 		/*
 		 * if
-		 * (!player.getGalaxy().getDiplomacyGameType().equals(DiplomacyGameType.DEATHMATCH)){
+		 * (!SpaceRazePanel.galaxy.getDiplomacyGameType().equals(DiplomacyGameType.DEATHMATCH)){
 		 * tabbedPanel.addTab("Diplomacy", tempPanel("diplomacy"));
 		 * tabbedPanel.setToolTipTextAt(panelIndex,
 		 * "Ses and change current diplomecy level"); panelIndex++; }
@@ -191,7 +191,7 @@ public class NavBarPanel extends SRBasePanel implements ChangeListener {
 		tabbedPanel.setToolTipTextAt(panelIndex, "Ses yours current turn orders");
 		panelIndex++;
 
-		if (player.getGalaxy().getGameWorld().isResearchWorld() && !(player.isDefeated() | player.getGalaxy().isGameOver())) {
+		if (SpaceRazePanel.gameWorld.isResearchWorld() && !(player.isDefeated() | SpaceRazePanel.galaxy.isGameOver())) {
 			tabbedPanel.addTab("Research", tempPanel("Research"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "Develop your faction");
 		}

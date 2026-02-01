@@ -20,7 +20,7 @@ import spaceraze.servlethelper.game.player.CostPureFunctions;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 
 /**
  * <p>
@@ -80,7 +80,7 @@ public class TurnInfoPanel extends SRBasePanel implements ActionListener {
 		abandonGameCheckBox.setBounds(780, 5, 110, 15);
 		abandonGameCheckBox.setSelected(p.getOrders().isAbandonGame());
 		abandonGameCheckBox.addActionListener(this);
-		if (p.isDefeated() | p.getGalaxy().gameEnded) {
+		if (p.isDefeated() | SpaceRazePanel.galaxy.gameEnded) {
 			abandonGameCheckBox.setEnabled(false);
 		}
 		add(abandonGameCheckBox);
@@ -115,13 +115,13 @@ public class TurnInfoPanel extends SRBasePanel implements ActionListener {
 	private String creatGameInfo() {
 		String gameInfo = "";
 
-		gameInfo = "Turn: " + p.getGalaxy().turn;
-		// gameInfo += " | " + "Map: " + p.getGalaxy().getMapNameFull();
+		gameInfo = "Turn: " + SpaceRazePanel.galaxy.turn;
+		// gameInfo += " | " + "Map: " + SpaceRazePanel.galaxy.getMapNameFull();
 		gameInfo += "  |  " + "Governor: " + p.getGovernorName();
-		gameInfo += "  |  " + "Faction: " + GameWorldHandler.getFactionByUuid(p.getFactionUuid(), p.getGalaxy().getGameWorld()).getName();
+		gameInfo += "  |  " + "Faction: " + GameWorldHandler.getFactionByUuid(p.getFactionUuid(), SpaceRazePanel.gameWorld).getName();
 		// gameInfo += " | " + "Game world: " +
-		// p.getGalaxy().getGameWorld().getFullName();
-		gameInfo += "  |  " + "Game: " + p.getGalaxy().getGameName();
+		// SpaceRazePanel.gameWorld.getFullName();
+		gameInfo += "  |  " + "Game: " + SpaceRazePanel.galaxy.getGameName();
 		gameInfo += "  | ";
 
 		return gameInfo;
@@ -135,16 +135,16 @@ public class TurnInfoPanel extends SRBasePanel implements ActionListener {
 		if (p.isDefeated()) {
 			treasuryLabel.setText("Left to spend: -");
 		} else {
-			if (CostPureFunctions.isBroke(p, p.getGalaxy(), SpaceRazePanel.galaxyMap)) {
+			if (CostPureFunctions.isBroke(p, SpaceRazePanel.galaxy, SpaceRazePanel.galaxyMap, SpaceRazePanel.gameWorld)) {
 				treasuryLabel.setText("Broke!");
 			} else {
-				treasuryLabel.setText("Left to spend: " + PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy(), SpaceRazePanel.galaxyMap));
+				treasuryLabel.setText("Left to spend: " + PlayerPureFunctions.getTreasuryAfterCosts(p, SpaceRazePanel.galaxy, SpaceRazePanel.galaxyMap, SpaceRazePanel.gameWorld));
 			}
 		}
 		// om spelaren är pank och har utgifter eller om han inte är pank men har för
 		// höga utgifter
-		if ((CostPureFunctions.isBroke(p, p.getGalaxy(), SpaceRazePanel.galaxyMap) & (ExpensePureFunction.getExpensesCost(p.getGalaxy(), p, SpaceRazePanel.galaxyMap) > 0))
-				| ((!CostPureFunctions.isBroke(p, p.getGalaxy(), SpaceRazePanel.galaxyMap)) & (PlayerPureFunctions.getTreasuryAfterCosts(p, p.getGalaxy(), SpaceRazePanel.galaxyMap) < 0))) {
+		if ((CostPureFunctions.isBroke(p, SpaceRazePanel.galaxy, SpaceRazePanel.galaxyMap, SpaceRazePanel.gameWorld) & (ExpensePureFunction.getExpensesCost(SpaceRazePanel.galaxy, p, SpaceRazePanel.galaxyMap, SpaceRazePanel.gameWorld) > 0))
+				| ((!CostPureFunctions.isBroke(p, SpaceRazePanel.galaxy, SpaceRazePanel.galaxyMap, SpaceRazePanel.gameWorld)) & (PlayerPureFunctions.getTreasuryAfterCosts(p, SpaceRazePanel.galaxy, SpaceRazePanel.galaxyMap, SpaceRazePanel.gameWorld) < 0))) {
 			sendbtn.setEnabled(false);
 		} else {
 			if (!client.getFinished()) {
@@ -157,7 +157,7 @@ public class TurnInfoPanel extends SRBasePanel implements ActionListener {
 		if ((ae.getSource() instanceof SRButton) & (ae.getActionCommand().equalsIgnoreCase("ok"))) { // anv. har tryckt
 																										// ok i
 																										// confirmpopup
-			p.setAbandonGame(true);
+			p.getOrders().setAbandonGame(true);
 			client.updateTreasuryLabel();
 		} else if ((ae.getSource() instanceof SRButton) & (ae.getActionCommand().equalsIgnoreCase("cancel"))) { // anv.
 																												// har
@@ -173,7 +173,7 @@ public class TurnInfoPanel extends SRBasePanel implements ActionListener {
 				popup.setPopupSize(350, 110);
 				popup.open(this);
 			} else {
-				p.setAbandonGame(false);
+				p.getOrders().setAbandonGame(false);
 				client.updateTreasuryLabel();
 			}
 		} else if (ae.getSource() == turnFinishedCheckBox) {

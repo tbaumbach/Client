@@ -7,10 +7,11 @@ import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRTabbedPane;
 import spaceraze.client.components.SRTabbedPaneUI;
 import spaceraze.client.game.GameGUIPanel;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
-import spaceraze.world.Player;
+import spaceraze.game.Player;
 
 /**
  * This panel contains the different battle sim panels, and the navigation buttons
@@ -41,13 +42,13 @@ public class BattleSimsPanel extends SRBasePanel implements ChangeListener,SRUpd
       tabbedPanel.setForeground(StyleGuide.colorCurrent);
       
       // create all panels
-      bsp = new BattleSimPanel(p.getGalaxy().getGameWorld().getShipTypes(), p, "Space Battles");
+      bsp = new BattleSimPanel(SpaceRazePanel.gameWorld.getShipTypes(), p, "Space Battles");
       
       tabbedPanel.addTab("Space Battles", bsp);
       tabbedPanel.setToolTipTextAt(0, "Do spaceships battle simulations");
       
-      if (p.getGalaxy().getGameWorld().isTroopGameWorld()){
-    	  bslp = new BattleSimLandPanel(p.getGalaxy().getTroopTypes(),p,"Land Battles");
+      if (SpaceRazePanel.gameWorld.isTroopGameWorld()){
+    	  bslp = new BattleSimLandPanel(SpaceRazePanel.galaxy.getTroopTypes(SpaceRazePanel.gameWorld),p,"Land Battles");
     	  
     	  tabbedPanel.addTab("Land Battles", bslp);
           tabbedPanel.setToolTipTextAt(1, "Do land battle simulations");

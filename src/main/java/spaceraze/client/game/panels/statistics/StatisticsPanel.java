@@ -16,7 +16,9 @@ import spaceraze.client.components.ComboBoxPanel;
 import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.scrollable.ListPanel;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
+import spaceraze.game.*;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
@@ -61,7 +63,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     		strGov.setBounds(10,70,90,20);
     		add(strGov);
 
-    		mostKills = new SRLabel(getMostKills().getOwner().getGovernorName() + " have a ship ("+ getMostKills().getName()  +") with most kills in the Galaxy ( " + getMostKills().getKills() + " Kills)." , ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(getMostKills().getOwner().getFactionUuid(), getMostKills().getOwner().getGalaxy().getGameWorld()).getPlanetHexColor()));
+    		mostKills = new SRLabel(getMostKills().getOwner().getGovernorName() + " have a ship ("+ getMostKills().getName()  +") with most kills in the Galaxy ( " + getMostKills().getKills() + " Kills)." , ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(getMostKills().getOwner().getFactionUuid(), SpaceRazePanel.gameWorld).getPlanetHexColor()));
     		mostKills.setBounds(70,70,500,20);
     		add(mostKills);
     	}
@@ -113,7 +115,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     		add(largestPlayerLbl);
     	}
 
-    	graphLbl = new SRLabel("Graph: " + StatisticType.PRODUCTION_PLAYER.getText());
+    	graphLbl = new SRLabel("Graph: " + spaceraze.game.StatisticType.PRODUCTION_PLAYER.getText());
     	graphLbl.setBounds(10,220,550,20);
     	add(graphLbl);
 
@@ -163,19 +165,19 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     	DefaultListModel dlm = (DefaultListModel)statisticTypesList.getModel();
 		boolean includeFactionProduction = getFactionGame(g) && g.getDiplomacyGameType() == DiplomacyGameType.FACTION;
     	if (!g.isGameOver() && g.getStatisticGameType() == StatisticGameType.PRODUCTION_ONLY){
-			dlm.addElement(StatisticType.PRODUCTION_PLAYER.getText());
+			dlm.addElement(spaceraze.game.StatisticType.PRODUCTION_PLAYER.getText());
 			if (includeFactionProduction){
-				dlm.addElement(StatisticType.PRODUCTION_FACTION.getText());
+				dlm.addElement(spaceraze.game.StatisticType.PRODUCTION_FACTION.getText());
 			}
     	}else{
     		boolean includeTroops = g.getTroops().size() > 0;
-    		for (String aStatisticTypeText : StatisticType.getTypeTexts()) {
-    			if (aStatisticTypeText.equals(StatisticType.TROOPS_NUMBER.getText())){
+    		for (String aStatisticTypeText : spaceraze.game.StatisticType.getTypeTexts()) {
+    			if (aStatisticTypeText.equals(spaceraze.game.StatisticType.TROOPS_NUMBER.getText())){
     				if (includeTroops){
     					dlm.addElement(aStatisticTypeText);
     				}
     			}else
-    				if (aStatisticTypeText.equals(StatisticType.PRODUCTION_FACTION.getText())){
+    				if (aStatisticTypeText.equals(spaceraze.game.StatisticType.PRODUCTION_FACTION.getText())){
     					if (includeFactionProduction){
     						dlm.addElement(aStatisticTypeText);
     					}
@@ -191,10 +193,10 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
 		boolean factionGame = false; // if any faction have more than one player
 		List<Faction> foundFactions = new LinkedList<Faction>();
 		for (Player aPlayer : galaxy.getPlayers()) {
-			if (foundFactions.contains(GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), galaxy.getGameWorld()))) {
+			if (foundFactions.contains(GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), SpaceRazePanel.gameWorld))) {
 				factionGame = true;
 			} else {
-				foundFactions.add(GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), galaxy.getGameWorld()));
+				foundFactions.add(GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), SpaceRazePanel.gameWorld));
 			}
 		}
 		return factionGame;
@@ -203,14 +205,14 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     private void fillPlayerList(){
     	highlightPlayerChoice.addItem("None");
     	for (Player aPlayer : g.getPlayers()) {
-    		highlightPlayerChoice.addItem(aPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), aPlayer.getGalaxy().getGameWorld()).getName() + ")");
+    		highlightPlayerChoice.addItem(aPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), SpaceRazePanel.gameWorld).getName() + ")");
     	}
     }
 
     private String getProdPercentageALL(Galaxy g){
     	Logger.fine("getProdPercentageALL");
 
-    	Faction greatestFaction = GameWorldHandler.getGreatestFactions(g).get(0);
+    	Faction greatestFaction = GameWorldHandler.getGreatestFactions(SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld).get(0);
 		tempColor = ColorConverter.getColorFromHexString(greatestFaction.getPlanetHexColor());
 		return greatestFaction.getName();
     }
@@ -223,7 +225,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     	List<Planet> planets = g.getPlanets();
     	for (Planet aPlanet : planets) {
     		if (aPlanet.getPlayerInControl() == p){
-    			if (GameWorldHandler.getFactionByUuid(aPlanet.getPlayerInControl().getFactionUuid(), g.getGameWorld()).isAlien()){
+    			if (GameWorldHandler.getFactionByUuid(aPlanet.getPlayerInControl().getFactionUuid(), SpaceRazePanel.gameWorld).isAlien()){
     				playerProd += aPlanet.getResistance();
     			}else{
     				playerProd += aPlanet.getPopulation();
@@ -232,7 +234,7 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     			if (aPlanet.getPlayerInControl() == null){
     				totalPop += aPlanet.getResistance();
     			}else{
-    				if (GameWorldHandler.getFactionByUuid(aPlanet.getPlayerInControl().getFactionUuid(), g.getGameWorld()).isAlien()){
+    				if (GameWorldHandler.getFactionByUuid(aPlanet.getPlayerInControl().getFactionUuid(), SpaceRazePanel.gameWorld).isAlien()){
     					totalPop += aPlanet.getResistance();
     				}else{
     					totalPop += aPlanet.getPopulation();
@@ -292,11 +294,11 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     public void updateGraph(){
     	// find chosen type of statistics
     	String selectedType = statisticTypesList.getSelectedItem();
-    	StatisticType chosenStatisticsType = StatisticType.findStatisticType(selectedType);
+    	spaceraze.game.StatisticType chosenStatisticsType = spaceraze.game.StatisticType.findStatisticType(selectedType);
     	String lblText = "Graph: " + selectedType;
     	// find selected highlighted player (if any)
     	String playerName = null;
-    	if (chosenStatisticsType != StatisticType.PRODUCTION_FACTION){
+    	if (chosenStatisticsType != spaceraze.game.StatisticType.PRODUCTION_FACTION){
     		int highlightedPlayerIndex = highlightPlayerChoice.getSelectedIndex();
     		if (highlightedPlayerIndex > 0){
     			playerName = g.getPlayers().get(highlightedPlayerIndex-1).getName();
@@ -314,8 +316,8 @@ public class StatisticsPanel extends SRBasePanel implements SRUpdateablePanel, L
     public void valueChanged(ListSelectionEvent lse){
     	if (lse.getSource() == statisticTypesList){
         	String selectedType = statisticTypesList.getSelectedItem();
-        	StatisticType chosenStatisticsType = StatisticType.findStatisticType(selectedType);
-        	if (chosenStatisticsType == StatisticType.PRODUCTION_FACTION){
+        	spaceraze.game.StatisticType chosenStatisticsType = spaceraze.game.StatisticType.findStatisticType(selectedType);
+        	if (chosenStatisticsType == spaceraze.game.StatisticType.PRODUCTION_FACTION){
 //        		highlightPlayerChoice.setSelectedIndex(0);
         		highlightPlayerChoice.setEnabled(false);
         	}else{

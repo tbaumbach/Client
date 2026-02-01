@@ -22,6 +22,9 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.scrollable.ListPanel;
 import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.game.*;
+import spaceraze.servlethelper.game.orders.OrderMutator;
+import spaceraze.servlethelper.game.orders.OrderPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
@@ -36,9 +39,9 @@ import spaceraze.world.*;
 import spaceraze.servlethelper.comparator.SpaceshipTypeAndBuildCostComparator;
 import spaceraze.world.enums.SpaceShipSize;
 import spaceraze.world.enums.SpaceshipRange;
-import spaceraze.world.orders.Orders;
-import spaceraze.world.orders.ShipMovement;
-import spaceraze.world.orders.ShipToCarrierMovement;
+import spaceraze.game.orders.Orders;
+import spaceraze.game.orders.ShipMovement;
+import spaceraze.game.orders.ShipToCarrierMovement;
 
 /**
  * Shows all ships at a planet and player can give orders to those ships
@@ -48,7 +51,7 @@ import spaceraze.world.orders.ShipToCarrierMovement;
  */
 public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSelectionListener {
 	private static final long serialVersionUID = 1L;
-	private List<Spaceship> spaceships = new ArrayList<Spaceship>();
+	private List<Spaceship> spaceships = new ArrayList<>();
 	private ListPanel shiplist;
 	private SRLabel destinationLabel, shieldsLabel, dcLabel, killsLabel, VIPinfoLabel, weaponsSquadronLabel,
 			weaponsSquadronLabel2;
@@ -74,7 +77,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 
 	public MiniShipPanel(List<Spaceship> spaceships, Player player, SpaceRazePanel client, Planet aPlanet) {
 		this.spaceships = spaceships;
-		Collections.sort(spaceships, new SpaceshipTypeAndBuildCostComparator(player.getGalaxy().getGameWorld()));
+		Collections.sort(spaceships, new SpaceshipTypeAndBuildCostComparator(SpaceRazePanel.gameWorld));
 		this.player = player;
 		this.setLayout(null);
 		this.client = client;
@@ -314,18 +317,18 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			if (SpaceshipPureFunctions.checkShipMove(tempss, player.getOrders())) {
 				prefix += "*";
 				dlm.addElement(
-						prefix + tempss.getName() + slotsString + " --> " + PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, getShipDestinationUuid(tempss, player.getGalaxy(), player.getOrders())));
+						prefix + tempss.getName() + slotsString + " --> " + PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, getShipDestinationUuid(tempss, SpaceRazePanel.galaxy, player.getOrders())));
 			} else if (SpaceshipPureFunctions.checkShipToCarrierMove(tempss, player.getOrders())) {
 				prefix += "*";
 				dlm.addElement(prefix + tempss.getName() + slotsString + " --> "
-						+ getDestinationCarrierName(tempss, player.getGalaxy(), player.getOrders()));
+						+ getDestinationCarrierName(tempss, SpaceRazePanel.galaxy, player.getOrders()));
 			} else {
-				if (SpaceshipPureFunctions.getRange(tempss, player.getGalaxy()) == SpaceshipRange.NONE) {
+				if (SpaceshipPureFunctions.getRange(tempss, SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld) == SpaceshipRange.NONE) {
 					prefix += "-";
 				} else {
 					prefix += " ";
 				}
-				if (player.getShipSelfDestruct(tempss)) {
+				if (OrderPureFunctions.isShipSelfDestruct(player.getOrders(), tempss)) {
 					dlm.addElement(prefix + tempss.getName() + slotsString + " (selfdestruct)");
 				} else {
 					if (tempss.getSize() == SpaceShipSize.SQUADRON) {
@@ -369,7 +372,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 	}
 
 	private int getTakenSlots(Spaceship aSpaceship) {
-		int nrSquadronsAssigned = SpaceshipPureFunctions.getNoSquadronsAssignedToCarrier(aSpaceship, player.getGalaxy().getSpaceships());
+		int nrSquadronsAssigned = SpaceshipPureFunctions.getNoSquadronsAssignedToCarrier(aSpaceship, SpaceRazePanel.galaxy.getSpaceships());
 		int nrSquadronsOrdered = countShipToCarrierMoves(aSpaceship, player.getOrders());
 		int takenSlots = nrSquadronsAssigned + nrSquadronsOrdered;
 
@@ -400,7 +403,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 	}
 
 	private int getTroopsOnShip(Spaceship aSpaceship) {
-		int nrTroopsAssigned = TroopPureFunctions.getNoTroopsAssignedToCarrier(aSpaceship, player, player.getGalaxy().getTroops());
+		int nrTroopsAssigned = TroopPureFunctions.getNoTroopsAssignedToCarrier(aSpaceship, player, SpaceRazePanel.galaxy.getTroops());
 		int nrTroopsOrdered = MiniTroopPanel.countTroopToCarrierMoves(aSpaceship, player.getOrders());
 		int takenSlots = nrTroopsAssigned + nrTroopsOrdered;
 
@@ -417,7 +420,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			Logger.finer("ae.getSource() instanceof SRButton");
 
 			if (action.equalsIgnoreCase("View Details")) {
-				client.showShiptypeDetails(SpaceshipPureFunctions.getSpaceshipTypeByUuid(currentss.getTypeUuid(), player.getGalaxy().getGameWorld()).getName(), "Yours");
+				client.showShiptypeDetails(SpaceshipPureFunctions.getSpaceshipTypeByUuid(currentss.getTypeUuid(), SpaceRazePanel.gameWorld).getName(), "Yours");
 			} else if (action.equalsIgnoreCase("Auto add squadrons")) {
 				// Auto Fill
 				autoFillCarrier();
@@ -455,14 +458,14 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 		List<Spaceship> selectedShips = getSelectedSpaceships();
 		boolean semicolon = false;
 		for (Spaceship aShip : selectedShips) {
-			if (!SpaceshipPureFunctions.getSpaceshipTypeByUuid(aShip.getTypeUuid(), player.getGalaxy().getGameWorld()).isCivilian()) {
+			if (!SpaceshipPureFunctions.getSpaceshipTypeByUuid(aShip.getTypeUuid(), SpaceRazePanel.gameWorld).isCivilian()) {
 				if (semicolon) {
 					sb.append(";");
 				}
-				sb.append(SpaceshipPureFunctions.getSpaceshipTypeByUuid(aShip.getTypeUuid(), player.getGalaxy().getGameWorld()).getName());
+				sb.append(SpaceshipPureFunctions.getSpaceshipTypeByUuid(aShip.getTypeUuid(), SpaceRazePanel.gameWorld).getName());
 				String abilities = getBattleSimAbilities(aShip);
 				// append () if needed
-				String vips = SpaceshipPureFunctions.getAllBattleSimVipsOnShip(aShip, player.getGalaxy().getAllVIPs(), player.getGalaxy().getGameWorld());
+				String vips = SpaceshipPureFunctions.getAllBattleSimVipsOnShip(aShip, SpaceRazePanel.galaxy.getAllVIPs(), SpaceRazePanel.gameWorld);
 				if (!vips.equals("")) {
 					if (!abilities.equals("")) {
 						abilities += ",";
@@ -514,7 +517,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			if (destinationName.equalsIgnoreCase("None")) {
 				for (Iterator<Spaceship> iter = selectedShips.iterator(); iter.hasNext();) {
 					Spaceship aShip = iter.next();
-					if (!player.getShipSelfDestruct(aShip)) {
+					if (!OrderPureFunctions.isShipSelfDestruct(player.getOrders(), aShip)) {
 						addNewShipToCarrierMove(aShip, null, player.getOrders());
 						addNewShipMove(aShip, null, player.getOrders());
 						Logger.finest("New order, remove");
@@ -522,11 +525,11 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 				}
 			} else {
 				// destination is maybe a planet
-				Planet newDestination = PlanetPureFunctions.getPlanetByName(player.getGalaxy(), SpaceRazePanel.galaxyMap, destinationName);
+				Planet newDestination = PlanetPureFunctions.getPlanetByName(SpaceRazePanel.galaxy, SpaceRazePanel.galaxyMap, destinationName);
 				if (newDestination != null) {
 					// destination is a planet
 					for (Spaceship aShip : selectedShips) {
-						if (!player.getShipSelfDestruct(aShip)) {
+						if (!OrderPureFunctions.isShipSelfDestruct(player.getOrders(), aShip)) {
 							addNewShipToCarrierMove(aShip, null, player.getOrders());
 							addNewShipMove(aShip, newDestination, player.getOrders());
 							Logger.finest("New order, add " + destinationName + " " + aShip.getShortName());
@@ -536,7 +539,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 					// destination is a carrier
 					Spaceship destinationCarrier = findSpaceship(destinationName);
 					for (Spaceship aShip : selectedShips) {
-						if (!player.getShipSelfDestruct(aShip)) {
+						if (!OrderPureFunctions.isShipSelfDestruct(player.getOrders(), aShip)) {
 							addNewShipMove(aShip, null, player.getOrders());
 							addNewShipToCarrierMove(aShip, destinationCarrier, player.getOrders());
 							Logger.finest("New order, add carrier move" + destinationName + " " + aShip.getShortName());
@@ -618,7 +621,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 		if (cb == selfDestructCheckBox) {
 			if (cb.isSelected()) {
 				// set up ship for destruction
-				player.addShipSelfDestruct(currentss);
+				player.getOrders().getShipSelfDestructs().add(currentss.getUuid());
 				// remove any old moveorder for that ship
 				addNewShipMove(currentss, null, player.getOrders());
 				addNewShipToCarrierMove(currentss, null, player.getOrders());
@@ -630,14 +633,14 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 				destinationchoice.setEnabled(false);
 			} else {
 				// remove this ship from selfdestruction
-				player.removeShipSelfDestruct(currentss);
+				OrderMutator.removeShipSelfDestruct(player.getOrders(), currentss);
 				// enable destinationchoice
-				if (SpaceshipPureFunctions.getRange(currentss, player.getGalaxy()).greaterThan(SpaceshipRange.NONE)) {
+				if (SpaceshipPureFunctions.getRange(currentss, SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld).greaterThan(SpaceshipRange.NONE)) {
 					destinationchoice.setEnabled(true);
 				}
 			}
 		} else if (cb == screenedCheckBox) {
-			player.getOrders().addOrRemoveScreenedShip(currentss);
+			OrderMutator.addOrRemoveScreenedShip(player.getOrders(), currentss);
 		}
 		client.updateTreasuryLabel();
 	}
@@ -711,12 +714,12 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			weaponsDamageLabel.setVisible(true);
 			weaponsAmmoLabel.setVisible(true);
 			weaponsSquadronLabel.setText("Squadron:");
-			weaponsSquadronLabel2.setText(String.valueOf(SpaceshipPureFunctions.getWeaponsStrengthSquadron(ss, player.getGalaxy().getGameWorld())));
+			weaponsSquadronLabel2.setText(String.valueOf(SpaceshipPureFunctions.getWeaponsStrengthSquadron(ss, SpaceRazePanel.gameWorld)));
 			weaponsSmallLabel.setText("Small:");
-			weaponsSmallLabel2.setText(String.valueOf(SpaceshipPureFunctions.getWeaponsStrengthSmall(ss, player.getGalaxy().getGameWorld())));
-			if (SpaceshipPureFunctions.getWeaponsStrengthMedium(ss, player.getGalaxy().getGameWorld()) > 0) {
+			weaponsSmallLabel2.setText(String.valueOf(SpaceshipPureFunctions.getWeaponsStrengthSmall(ss, SpaceRazePanel.gameWorld)));
+			if (SpaceshipPureFunctions.getWeaponsStrengthMedium(ss, SpaceRazePanel.gameWorld) > 0) {
 				weaponsMediumLabel.setText("Medium:");
-				weaponsMediumLabel2.setText(String.valueOf(SpaceshipPureFunctions.getWeaponsStrengthMedium(ss, player.getGalaxy().getGameWorld())));
+				weaponsMediumLabel2.setText(String.valueOf(SpaceshipPureFunctions.getWeaponsStrengthMedium(ss, SpaceRazePanel.gameWorld)));
 				if (ss.getWeaponsMaxSalvosMedium() < Integer.MAX_VALUE) {
 					weaponsMediumLabel3
 							.setText("(" + ss.getWeaponsSalvoesMedium() + "/" + ss.getWeaponsMaxSalvosMedium() + ")");
@@ -728,9 +731,9 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 				weaponsMediumLabel2.setText("");
 				weaponsMediumLabel3.setText("");
 			}
-			if (SpaceshipPureFunctions.getWeaponsStrengthLarge(ss, player.getGalaxy().getGameWorld()) > 0) {
+			if (SpaceshipPureFunctions.getWeaponsStrengthLarge(ss, SpaceRazePanel.gameWorld) > 0) {
 				weaponsLargeLabel.setText("Large:");
-				weaponsLargeLabel2.setText(String.valueOf(SpaceshipPureFunctions.getWeaponsStrengthLarge(ss, player.getGalaxy().getGameWorld())));
+				weaponsLargeLabel2.setText(String.valueOf(SpaceshipPureFunctions.getWeaponsStrengthLarge(ss, SpaceRazePanel.gameWorld)));
 				if (ss.getWeaponsMaxSalvosLarge() < Integer.MAX_VALUE) {
 					weaponsLargeLabel3
 							.setText("(" + ss.getWeaponsSalvoesLarge() + "/" + ss.getWeaponsMaxSalvosLarge() + ")");
@@ -742,9 +745,9 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 				weaponsLargeLabel2.setText("");
 				weaponsLargeLabel3.setText("");
 			}
-			if (SpaceshipPureFunctions.getWeaponsStrengthHuge(ss, player.getGalaxy().getGameWorld()) > 0) {
+			if (SpaceshipPureFunctions.getWeaponsStrengthHuge(ss, SpaceRazePanel.gameWorld) > 0) {
 				weaponsHugeLabel.setText("Huge:");
-				weaponsHugeLabel2.setText(String.valueOf(SpaceshipPureFunctions.getWeaponsStrengthHuge(ss, player.getGalaxy().getGameWorld())));
+				weaponsHugeLabel2.setText(String.valueOf(SpaceshipPureFunctions.getWeaponsStrengthHuge(ss,SpaceRazePanel.gameWorld)));
 				Logger.fine(ss.getWeaponsMaxSalvosHuge() + " Int.Max=" + Integer.MAX_VALUE);
 				if (ss.getWeaponsMaxSalvosHuge() < Integer.MAX_VALUE) {
 					weaponsHugeLabel3
@@ -757,7 +760,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 				weaponsHugeLabel2.setText("");
 				weaponsHugeLabel3.setText("");
 			}
-			shieldsLabel.setText("Shields: " + SpaceshipPureFunctions.getShields(ss, player.getGalaxy().getGameWorld()));
+			shieldsLabel.setText("Shields: " + SpaceshipPureFunctions.getShields(ss, SpaceRazePanel.gameWorld));
 			dcLabel.setText("Hits: " + ss.getCurrentDc() + "/" + ss.getDamageCapacity());
 			destinationLabel.setText("Destination: ");
 			upkeppLabel.setText("Upkeep: " + ss.getUpkeep());
@@ -765,13 +768,13 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			detailsButton.setVisible(true);
 
 			// show and set selfdestruct cb
-			selfDestructCheckBox.setSelected(player.getShipSelfDestruct(ss));
+			selfDestructCheckBox.setSelected(OrderPureFunctions.isShipSelfDestruct(player.getOrders(), ss));
 			selfDestructCheckBox.setVisible(true);
 
-			if (player.getGalaxy().getGameWorld().isAdjustScreenedStatus()) {
+			if (SpaceRazePanel.gameWorld.isAdjustScreenedStatus()) {
 				// show and set screened cb
 				boolean tempScreened = ss.isScreened();
-				if (player.getOrders().getScreenedShip(ss)) {
+				if (OrderPureFunctions.isScreenedShip(player.getOrders(), ss)) {
 					tempScreened = !tempScreened;
 				}
 				screenedCheckBox.setSelected(tempScreened);
@@ -793,12 +796,12 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			destinationchoice.setVisible(true);
 
 			// set properties and initial value
-			if (player.getGalaxy().getTurn() == 0) {
+			if (SpaceRazePanel.galaxy.getTurn() == 0) {
 				destinationchoice.setEnabled(false);
 				selfDestructCheckBox.setEnabled(false);
-			} else if ((SpaceshipPureFunctions.getRange(ss, player.getGalaxy()) == SpaceshipRange.NONE) & (ss.getSize() != SpaceShipSize.SQUADRON)) {
+			} else if ((SpaceshipPureFunctions.getRange(ss, SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld) == SpaceshipRange.NONE) & (ss.getSize() != SpaceShipSize.SQUADRON)) {
 				destinationchoice.setEnabled(false);
-			} else if (CostPureFunctions.isBroke(player, player.getGalaxy(), SpaceRazePanel.galaxyMap)) {
+			} else if (CostPureFunctions.isBroke(player, SpaceRazePanel.galaxy, SpaceRazePanel.galaxyMap, SpaceRazePanel.gameWorld)) {
 				destinationchoice.setEnabled(false);
 			} else if (player.isRetreatingGovernor()) {
 				destinationchoice.setEnabled(false);
@@ -818,16 +821,16 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 					// ships cannot be selfdestructed when running away
 					selfDestructCheckBox.setEnabled(false);
 				} else {
-					if (player.getShipSelfDestruct(ss)) { // if this ship is to be destroyed no destination can be set
+					if (OrderPureFunctions.isShipSelfDestruct(player.getOrders(), ss)) { // if this ship is to be destroyed no destination can be set
 						destinationchoice.setEnabled(false);
 					} else {
 						destinationchoice.setEnabled(true);
 					}
 					// add possible destinations for this ship
-					addDestinations(destinationchoice, ss.getLocation(), SpaceshipPureFunctions.getRange(ss, player.getGalaxy()), selectedSpaceships);
+					addDestinations(destinationchoice, ss.getLocation(), SpaceshipPureFunctions.getRange(ss, SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld), selectedSpaceships);
 					// if a squadron has a full carrier as destination, we must add the carrier
 					// otherwise to the combobox
-					String tempDest = getDestinationCarrierName(ss, player.getGalaxy(), player.getOrders());
+					String tempDest = getDestinationCarrierName(ss, SpaceRazePanel.galaxy, player.getOrders());
 					Logger.fine("ss.isSquadron(): " + (ss.getSize() == SpaceShipSize.SQUADRON));
 					Logger.fine("tempDest: " + tempDest);
 					Logger.fine("!destinationchoice.contains(tempDest): " + !destinationchoice.contains(tempDest));
@@ -835,9 +838,9 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 						destinationchoice.addItem(tempDest);
 					}
 				}
-				String tempDest = PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, getShipDestinationUuid(ss, player.getGalaxy(), player.getOrders()));
+				String tempDest = PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, getShipDestinationUuid(ss, SpaceRazePanel.galaxy, player.getOrders()));
 				if (tempDest.equals("")) {
-					tempDest = getDestinationCarrierName(ss, player.getGalaxy(), player.getOrders());
+					tempDest = getDestinationCarrierName(ss, SpaceRazePanel.galaxy, player.getOrders());
 				}
 				if (!tempDest.equalsIgnoreCase("")) {
 					destinationchoice.setSelectedItem(tempDest);
@@ -867,16 +870,16 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 
 				if (SpaceshipPureFunctions.checkShipMove(ss, player.getOrders())) {
 
-					for (int i = 0; i < player.getGalaxy().getPlanets().size(); i++) {
-						Planet destanationPlanet = player.getGalaxy().getPlanets().get(i);
-						if (destanationPlanet.getMapPlanetUuid().equalsIgnoreCase(getShipDestinationUuid(ss, player.getGalaxy(), player.getOrders()))) {
-							boolean spy = VipPureFunctions.findVIPSpy(destanationPlanet, player, player.getGalaxy()) != null;
-							if (isFactionPlanet(destanationPlanet, GameWorldHandler.getFactionByUuid(player.getFactionUuid(), player.getGalaxy().getGameWorld()))) {
+					for (int i = 0; i < SpaceRazePanel.galaxy.getPlanets().size(); i++) {
+						Planet destanationPlanet = SpaceRazePanel.galaxy.getPlanets().get(i);
+						if (destanationPlanet.getMapPlanetUuid().equalsIgnoreCase(getShipDestinationUuid(ss, SpaceRazePanel.galaxy, player.getOrders()))) {
+							boolean spy = VipPureFunctions.findVIPSpy(destanationPlanet, player, SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld) != null;
+							if (isFactionPlanet(destanationPlanet, GameWorldHandler.getFactionByUuid(player.getFactionUuid(), SpaceRazePanel.gameWorld))) {
 								if (destanationPlanet.getPlayerInControl() != null || destanationPlanet.isOpen()
-										|| PlayerPureFunctions.playerHasShipsInSystem(player, planet, player.getGalaxy()) || spy) {
+										|| PlayerPureFunctions.playerHasShipsInSystem(player, planet, SpaceRazePanel.galaxy) || spy) {
 									motherShipInfo.setText("Will be supplyed by planet");
 									motherShipInfo.setToolTipText("A sqd needs supply to survive");
-									motherShipInfo2.setText(PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, getShipDestinationUuid(ss, player.getGalaxy(), player.getOrders())));
+									motherShipInfo2.setText(PlanetPureFunctions.getPlanetName(SpaceRazePanel.galaxyMap, getShipDestinationUuid(ss, SpaceRazePanel.galaxy, player.getOrders())));
 									motherShipInfo2.setToolTipText("The destination is friendly planet");
 									motherShipInfo.setVisible(true);
 									motherShipInfo2.setVisible(true);
@@ -887,7 +890,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 
 							} else {
 								if (destanationPlanet.isOpen()
-										|| PlayerPureFunctions.playerHasShipsInSystem(player, planet, player.getGalaxy()) || spy) {
+										|| PlayerPureFunctions.playerHasShipsInSystem(player, planet, SpaceRazePanel.galaxy) || spy) {
 									motherShipInfo.setText("Will lost supply!");
 									motherShipInfo.setToolTipText(
 											"Be sure to take the planet or to have a free slot in a carrier");
@@ -912,14 +915,14 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 					if (tempcarrier != null) {
 						motherShipInfo2.setText(tempcarrier.getName());
 					} else {
-						motherShipInfo2.setText(getDestinationCarrierName(ss, player.getGalaxy(), player.getOrders()));
+						motherShipInfo2.setText(getDestinationCarrierName(ss, SpaceRazePanel.galaxy, player.getOrders()));
 					}
 					motherShipInfo2.setToolTipText("A sqd needs a carrier at non friendly planets");
 					motherShipInfo.setVisible(true);
 					motherShipInfo2.setVisible(true);
 
 				} else {// No orders and on the planet.
-					if (isFactionPlanet(planet, GameWorldHandler.getFactionByUuid(player.getFactionUuid(), player.getGalaxy().getGameWorld()))) {
+					if (isFactionPlanet(planet, GameWorldHandler.getFactionByUuid(player.getFactionUuid(), SpaceRazePanel.gameWorld))) {
 						motherShipInfo.setText("Supplyed by planet.");
 						motherShipInfo.setToolTipText("A sqd needs supply to survive");
 						motherShipInfo.setVisible(true);
@@ -999,7 +1002,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			VIPinfoLabel.setVisible(false);
 			VIPInfoTextArea.setVisible(false);
 			scrollPane2.setVisible(false);
-			if (CostPureFunctions.isBroke(player, player.getGalaxy(), SpaceRazePanel.galaxyMap)) {
+			if (CostPureFunctions.isBroke(player, SpaceRazePanel.galaxy, SpaceRazePanel.galaxyMap, SpaceRazePanel.gameWorld)) {
 				destinationLabel.setText("Destination: ");
 				destinationchoice.setEnabled(false);
 			} else if (player.isRetreatingGovernor()) {
@@ -1044,21 +1047,21 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 		// DefaultListModel dlm = shiplist.getModel();
 		for (Integer index : selectedSpaceships) {
 			Spaceship tempss = spaceships.get(index.intValue());
-			if (SpaceshipPureFunctions.getRange(tempss, player.getGalaxy()).lesserThan(shortestRange)) {
-				shortestRange = SpaceshipPureFunctions.getRange(tempss, player.getGalaxy());
+			if (SpaceshipPureFunctions.getRange(tempss, SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld).lesserThan(shortestRange)) {
+				shortestRange = SpaceshipPureFunctions.getRange(tempss, SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld);
 			}
 		}
 		return shortestRange;
 	}
 
 	private void addVIPs() {
-		List<VIP> allVIPs = VipPureFunctions.findAllVIPsOnShip(currentss,player.getGalaxy().getAllVIPs());
+		List<VIP> allVIPs = VipPureFunctions.findAllVIPsOnShip(currentss,SpaceRazePanel.galaxy.getAllVIPs());
 		if (allVIPs.size() == 0) {
 			VIPInfoTextArea.setText("None");
 		} else {
 			VIPInfoTextArea.setText("");
 			for (VIP aVIP : allVIPs) {
-				VIPInfoTextArea.append(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), player.getGalaxy().getGameWorld()).getName() + "\n");
+				VIPInfoTextArea.append(VipPureFunctions.getVipTypeByUuid(aVIP.getTypeUuid(), SpaceRazePanel.gameWorld).getName() + "\n");
 			}
 		}
 	}
@@ -1085,7 +1088,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			dc.addItem("None");
 		}
 		if (range.greaterThan(SpaceshipRange.NONE)) {
-			List<String> alldest = GalaxyMapPureFunctions.getAllDestinationsUuids(location, range == SpaceshipRange.LONG, player, false, player.getGalaxy());
+			List<String> alldest = GalaxyMapPureFunctions.getAllDestinationsUuids(location, range == SpaceshipRange.LONG, player, false, SpaceRazePanel.galaxy);
 			Collections.sort(alldest);
 			for (int x = 0; x < alldest.size(); x++) {
 				String temp = alldest.get(x);
@@ -1155,7 +1158,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 				for (int i = 0; i < squadronsMovingAway.length; i++) {
 					int nrSqdMovedAway = squadronsMovingAway[i];
 					Spaceship aCarrier = allCarriers.get(i);
-					int nrSquadronsAssigned = SpaceshipPureFunctions.getNoSquadronsAssignedToCarrier(aCarrier, player.getGalaxy().getSpaceships());
+					int nrSquadronsAssigned = SpaceshipPureFunctions.getNoSquadronsAssignedToCarrier(aCarrier, SpaceRazePanel.galaxy.getSpaceships());
 					int nrSquadronsOrdered = countShipToCarrierMoves(aCarrier, player.getOrders());
 					int takenSlots = nrSquadronsAssigned + nrSquadronsOrdered;
 					// none is not ok
@@ -1219,7 +1222,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 				boolean noSqdAtCarrier = checkNoSqdAtCarrier(aSpaceship, selectedShipsIndexes);
 				if (noSqdAtCarrier) {
 					// x=count number of squadrons who already are assigned to the ship
-					int nrSquadronsAssigned = SpaceshipPureFunctions.getNoSquadronsAssignedToCarrier(aSpaceship, player.getGalaxy().getSpaceships());
+					int nrSquadronsAssigned = SpaceshipPureFunctions.getNoSquadronsAssignedToCarrier(aSpaceship, SpaceRazePanel.galaxy.getSpaceships());
 					// y=count number of squadrons who have move orders to the ship
 					int nrSquadronsOrdered = countShipToCarrierMoves(aSpaceship, player.getOrders());
 					// if ((slots-(x+y)) >= minFeeSlots)
@@ -1240,7 +1243,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 	private void addRetreatingDestinations(ComboBoxPanel dc, Spaceship aSpaceship) {
 		// hämta alla möjliga destinationer till skeppet
 		List<Planet> allDestinations = PlanetPureFunctions.getAllDestinations(SpaceRazePanel.galaxy, aSpaceship.getOldLocation(),
-				SpaceshipPureFunctions.getRange(aSpaceship, player.getGalaxy()) == SpaceshipRange.LONG);
+				SpaceshipPureFunctions.getRange(aSpaceship, SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld) == SpaceshipRange.LONG);
 		for (int x = 0; x < allDestinations.size(); x++) {
 			Planet temp = allDestinations.get(x);
 			// om denna planet �r en av spelarens egna...
@@ -1253,8 +1256,8 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 
 	private boolean ownPlanetsWithinRange(Spaceship aSpaceship) {
 		boolean returnValue = false;
-		List<Planet> allDestinations = PlanetPureFunctions.getAllDestinations(player.getGalaxy(), aSpaceship.getOldLocation(),
-				SpaceshipPureFunctions.getRange(aSpaceship, player.getGalaxy()) == SpaceshipRange.LONG);
+		List<Planet> allDestinations = PlanetPureFunctions.getAllDestinations(SpaceRazePanel.galaxy, aSpaceship.getOldLocation(),
+				SpaceshipPureFunctions.getRange(aSpaceship, SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld) == SpaceshipRange.LONG);
 		for (int x = 0; x < allDestinations.size(); x++) {
 			Planet temp = allDestinations.get(x);
 			if (temp.getPlayerInControl() == aSpaceship.getOwner()) {
@@ -1302,8 +1305,8 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 			Logger.fine("foreach ship: " + aSpaceship.getName());
 			// if ship is a squadron
 			if (aSpaceship.getSize() == SpaceShipSize.SQUADRON && aSpaceship.getCarrierLocation() == null
-					&& getDestinationCarrierName(aSpaceship, player.getGalaxy(), player.getOrders()).equals("")
-					&& getShipDestinationUuid(aSpaceship, player.getGalaxy(), player.getOrders()).equals("")) {
+					&& getDestinationCarrierName(aSpaceship, SpaceRazePanel.galaxy, player.getOrders()).equals("")
+					&& getShipDestinationUuid(aSpaceship, SpaceRazePanel.galaxy, player.getOrders()).equals("")) {
 				squadrons.add(aSpaceship);
 			}
 		}
@@ -1321,7 +1324,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 				numberOfEmpty--;
 				Logger.fine(tmpss.getName() + " is on carrier: " + inCarrier.getName());
 			} // Ship move have order to the carrier.
-			else if (getDestinationCarrierName(tmpss, player.getGalaxy(), player.getOrders()).equals(inCarrier.getName())) {
+			else if (getDestinationCarrierName(tmpss, SpaceRazePanel.galaxy, player.getOrders()).equals(inCarrier.getName())) {
 				Logger.fine(tmpss.getName() + " have move order to the carrier: " + inCarrier.getName());
 				numberOfEmpty--;
 			}
@@ -1347,7 +1350,7 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 						totalSqdInTheCarrier--;
 						Logger.fine(tmpss.getName() + " is on carrier: " + aSpaceship.getName());
 					} // Ship move have order to the carrier.
-					else if (getDestinationCarrierName(tmpss, player.getGalaxy(), player.getOrders()).equals(aSpaceship.getName())) {
+					else if (getDestinationCarrierName(tmpss, SpaceRazePanel.galaxy, player.getOrders()).equals(aSpaceship.getName())) {
 						Logger.fine(tmpss.getName() + " have move order to the carrier: " + aSpaceship.getName());
 						totalSqdInTheCarrier--;
 					}
@@ -1369,13 +1372,13 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 				Spaceship tempss = ((Spaceship) spaceships.get(i));
 				Logger.fine("tempss.isSquadron() " + (tempss.getSize() == SpaceShipSize.SQUADRON));
 				Logger.fine("tempss.getCarrierLocation " + tempss.getCarrierLocation());
-				Logger.fine("player.getShipSelfDestruct(tempss) " + player.getShipSelfDestruct(tempss));
+				Logger.fine("OrderPureFunctions.isShipSelfDestruct(player.getOrders(), tempss) " + OrderPureFunctions.isShipSelfDestruct(player.getOrders(), tempss));
 				Logger.fine(
-						"player.getShipDestinationCarrierName(tempss) " + getDestinationCarrierName(tempss, player.getGalaxy(), player.getOrders()));
-				Logger.fine("getShipDestinationUuid " + getShipDestinationUuid(tempss, player.getGalaxy(), player.getOrders()));
-				if (tempss.getSize() == SpaceShipSize.SQUADRON && tempss.getCarrierLocation() == null && !player.getShipSelfDestruct(tempss)
-						&& "".equals(getDestinationCarrierName(tempss, player.getGalaxy(), player.getOrders()))
-						&& getShipDestinationUuid(tempss, player.getGalaxy(), player.getOrders()) == null) {
+						"player.getShipDestinationCarrierName(tempss) " + getDestinationCarrierName(tempss, SpaceRazePanel.galaxy, player.getOrders()));
+				Logger.fine("getShipDestinationUuid " + getShipDestinationUuid(tempss, SpaceRazePanel.galaxy, player.getOrders()));
+				if (tempss.getSize() == SpaceShipSize.SQUADRON && tempss.getCarrierLocation() == null && !OrderPureFunctions.isShipSelfDestruct(player.getOrders(), tempss)
+						&& "".equals(getDestinationCarrierName(tempss, SpaceRazePanel.galaxy, player.getOrders()))
+						&& getShipDestinationUuid(tempss, SpaceRazePanel.galaxy, player.getOrders()) == null) {
 					Logger.fine("sqd = true");
 					return true;
 				}
@@ -1431,10 +1434,10 @@ public class MiniShipPanel extends SRBasePanel implements ActionListener, ListSe
 
 	private List<Troop> getTroopsOnPlanetWithNoMoveOrder() {
 		List<Troop> troopsUnloaded = new LinkedList<Troop>();
-		for (Troop aTroop : TroopPureFunctions.getPlayersTroopsOnPlanet(player, planet, player.getGalaxy().getTroops())) {
+		for (Troop aTroop : TroopPureFunctions.getPlayersTroopsOnPlanet(player, planet, SpaceRazePanel.galaxy.getTroops())) {
 			if (aTroop.getShipLocation() == null && aTroop.isSpaceshipTravel()) {
 				// check if there exist a move order already for this troop to a carrier
-				String destName = MiniTroopPanel.getTroopDestinationCarrierName(aTroop, player.getGalaxy(), player.getOrders());
+				String destName = MiniTroopPanel.getTroopDestinationCarrierName(aTroop, SpaceRazePanel.galaxy, player.getOrders());
 				Logger.finer("destName: " + destName);
 				if (destName.equals("")) {
 					troopsUnloaded.add(aTroop);

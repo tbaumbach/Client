@@ -21,9 +21,9 @@ import spaceraze.servlethelper.handlers.GameWorldHandler;
 import spaceraze.util.general.Logger;
 import spaceraze.util.properties.PropertiesHandler;
 import spaceraze.world.Faction;
-import spaceraze.world.Galaxy;
-import spaceraze.world.Message;
-import spaceraze.world.Player;
+import spaceraze.game.Galaxy;
+import spaceraze.game.Message;
+import spaceraze.game.Player;
 
 /**
  * @author Paul Bodin
@@ -69,7 +69,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
     allMessagesList = new ListPanel();
     allMessagesList.setBounds(10, 40, listWidth, 170);
     allMessagesList.setListSelectionListener(this);
-    addRecipients(p.getGalaxy());
+    addRecipients(SpaceRazePanel.galaxy);
     allMessagesList.updateScrollList();
     add(allMessagesList);
 
@@ -90,7 +90,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
     recievedMessagesList = new ListPanel();
     recievedMessagesList.setBounds(10, 250, listWidth, 170);
     recievedMessagesList.setListSelectionListener(this);
-    addRecievedMessages(recievedMessages, p.getGalaxy());
+    addRecievedMessages(recievedMessages, SpaceRazePanel.galaxy);
     recievedMessagesList.updateScrollList();
     add(recievedMessagesList);
 
@@ -141,8 +141,8 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
     DefaultListModel dlm = (DefaultListModel)allMessagesList.getModel();
     dlm.addElement("Public Statement");
     originalRecipientStrings.add("Public Statement");
-	for (int i = 0; i < g.getFactions().size(); i++){
-      Faction tempFaction = g.getGameWorld().getFactions().get(i);
+	for (int i = 0; i < SpaceRazePanel.gameWorld.getFactions().size(); i++){
+      Faction tempFaction = SpaceRazePanel.gameWorld.getFactions().get(i);
       int tempNr = g.getFactionLivingMemberNr(tempFaction);
       if(tempFaction.getUuid().equalsIgnoreCase(p.getFactionUuid())){
     	  tempNr--;
@@ -155,8 +155,8 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
     for (int i = 0; i < g.getPlayers().size(); i++){
       Player tempPlayer = g.getPlayers().get(i);
       if ((!tempPlayer.isDefeated()) & (tempPlayer != p)){
-      	dlm.addElement("Governor " + tempPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(tempPlayer.getFactionUuid(), p.getGalaxy().getGameWorld()).getName() + ")");
-      	originalRecipientStrings.add("Governor " + tempPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(tempPlayer.getFactionUuid(), p.getGalaxy().getGameWorld()).getName() + ")");
+      	dlm.addElement("Governor " + tempPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(tempPlayer.getFactionUuid(), SpaceRazePanel.gameWorld).getName() + ")");
+      	originalRecipientStrings.add("Governor " + tempPlayer.getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(tempPlayer.getFactionUuid(), SpaceRazePanel.gameWorld).getName() + ")");
       }
     }
   }
@@ -239,19 +239,19 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
 	  String firstWord = selectedString.substring(0,firstSpaceIndex);
 	  if (firstWord.equalsIgnoreCase("Public")){  // skicka till alla spelare
 		  Logger.finest("firstWord.equalsIgnoreCase(\"Public\")");
-		  tempMessage = new Message(messageText,null,p);
+		  tempMessage = new Message(messageText,null,p, SpaceRazePanel.galaxy);
 	  }else
 	  if (firstWord.equalsIgnoreCase("All")){  // skicka till alla spelare i en viss faction
 		  Logger.finest("firstWord.equalsIgnoreCase(\"All\")");
 		  int secondSpaceIndex = selectedString.indexOf(" governors",firstSpaceIndex+1);
-		  Faction recipient = GameWorldHandler.getFactionByName(selectedString.substring(firstSpaceIndex+1,secondSpaceIndex), p.getGalaxy().getGameWorld());
-		  tempMessage = new Message(messageText,recipient,p);
+		  Faction recipient = GameWorldHandler.getFactionByName(selectedString.substring(firstSpaceIndex+1,secondSpaceIndex), SpaceRazePanel.gameWorld);
+		  tempMessage = new Message(messageText,recipient,p, SpaceRazePanel.galaxy);
 	  }else
 	  if (firstWord.equalsIgnoreCase("Governor")){  // skicka till en separat spelare
 		  Logger.finest("firstWord.equalsIgnoreCase(\"Governor\")");
 		  int secondSpaceIndex = selectedString.indexOf("(") - 1;
-		  Player recipient = p.getGalaxy().getPlayerByGovenorName(selectedString.substring(firstSpaceIndex+1,secondSpaceIndex));
-		  tempMessage = new Message(messageText,recipient,p);
+		  Player recipient = SpaceRazePanel.galaxy.getPlayerByGovenorName(selectedString.substring(firstSpaceIndex+1,secondSpaceIndex));
+		  tempMessage = new Message(messageText,recipient,p, SpaceRazePanel.galaxy);
 	  }
 	  
 	  // call addMessge and add message to sent message.
@@ -265,7 +265,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
   	emptyList();
     
 	addSentMessages();  
-	addRecievedMessages(recievedMessages, p.getGalaxy()); 
+	addRecievedMessages(recievedMessages, SpaceRazePanel.galaxy); 
 	  
   	update(getGraphics());
   	Graphics aGraphics = sentMessagesList.getGraphics();
@@ -294,7 +294,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
   
   private void openShowPopup(Message aMessage){
 	  Logger.fine("openShowPopup called: " + aMessage);
-	  popupShow = new MessageShowPopupPanel("Show Message",this,aMessage, p.getGalaxy());
+	  popupShow = new MessageShowPopupPanel("Show Message",this,aMessage, SpaceRazePanel.galaxy);
 	  popupShow.setPopupSize(700,650);
 	  popupShow.setButtonLocation();
 	  popupShow.open(this);
@@ -306,7 +306,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
 		//  DefaultListModel dlm = (DefaultListModel)recievedMessagesList.getModel();
 		//  int index = recievedMessagesList.getSelectedIndex();
 		//  dlm.remove(index);
-		//  dlm.add(index, aMessage.getRecievedMessageListString(p.getGalaxy()));
+		//  dlm.add(index, aMessage.getRecievedMessageListString(SpaceRazePanel.galaxy));
 		  
 	  }
 	  
@@ -335,7 +335,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
     }else
     if (firstWord.equalsIgnoreCase("All")){  // h�mta meddelande till alla spelare i en viss faction
       int secondSpaceIndex = selectedString.indexOf(" governors",firstSpaceIndex+1);
-      Faction recipient = p.getGalaxy().getFaction(selectedString.substring(firstSpaceIndex+1,secondSpaceIndex));
+      Faction recipient = SpaceRazePanel.galaxy.getFaction(selectedString.substring(firstSpaceIndex+1,secondSpaceIndex));
       tempm = p.getMessageTo(recipient);
       if (tempm != null){
       	messageText = tempm.getContent();
@@ -343,7 +343,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
     }else
     if (firstWord.equalsIgnoreCase("Governor")){  // h�mta meddelande till en separat spelare
       int secondSpaceIndex = selectedString.indexOf("(") - 1;
-      Player recipient = p.getGalaxy().getPlayerByGovenorName(selectedString.substring(firstSpaceIndex+1,secondSpaceIndex));
+      Player recipient = SpaceRazePanel.galaxy.getPlayerByGovenorName(selectedString.substring(firstSpaceIndex+1,secondSpaceIndex));
       tempm = p.getMessageTo(recipient);
       if (tempm != null){
         messageText = tempm.getContent();
@@ -369,7 +369,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
   private List<Message> getAllSentMessages(List<Message> messages){
 	  List<Message> tmpList = new ArrayList<Message>();
 	  for (Message aMessage : messages) {
-		  if (aMessage.getSender(p.getGalaxy()).equals(p)){
+		  if (aMessage.getSender(SpaceRazePanel.galaxy).equals(p)){
 			  tmpList.add(aMessage);
 		  }
 	  }
@@ -385,12 +385,12 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
   private List<Message> getAllRecievedMessages(List<Message> messages){
 	  List<Message> tmpList = new ArrayList<Message>();
 	  for (Message aMessage : messages) {
-		  if (aMessage.getSender(p.getGalaxy()) != p){
+		  if (aMessage.getSender(SpaceRazePanel.galaxy) != p){
 			  if (aMessage.getType().equalsIgnoreCase("all")){
 				  tmpList.add(aMessage);
 			  }else
 			  if (aMessage.getType().equalsIgnoreCase("private")){
-				  if (aMessage.getRecipientPlayer(p.getGalaxy()).equals(p)){
+				  if (aMessage.getRecipientPlayer(SpaceRazePanel.galaxy).equals(p)){
 					  tmpList.add(aMessage);
 				  }
 			  }else{ // type == "faction"
@@ -437,7 +437,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
 			recieverString = message.getRecipientFaction() + " faction";
 		}else
 		if (message.getType().equalsIgnoreCase("private")){ // meddelandet ska till en separat spelare
-			recieverString = "Govenor " + aGalaxy.getPlayerByUserName(message.getRecipientPlayer()).getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(aGalaxy.getPlayerByUserName(message.getRecipientPlayer()).getFactionUuid(), aGalaxy.getGameWorld()).getName() + ")";
+			recieverString = "Govenor " + aGalaxy.getPlayerByUserName(message.getRecipientPlayer()).getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(aGalaxy.getPlayerByUserName(message.getRecipientPlayer()).getFactionUuid(), SpaceRazePanel.gameWorld).getName() + ")";
 		}else
 		if (message.getType().equalsIgnoreCase("all")){ // meddelandet ska till en separat spelare
 			recieverString = "all governors";
@@ -452,7 +452,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
   private void addSentMessages(){
 	  DefaultListModel dlm = (DefaultListModel)sentMessagesList.getModel();
 	  for (Message aMessage : sentMessages) {
-		  dlm.addElement(getSentMessageListString(aMessage, p.getGalaxy()));
+		  dlm.addElement(getSentMessageListString(aMessage, SpaceRazePanel.galaxy));
 	  }
   }
 
@@ -500,7 +500,7 @@ public class MessagePanel extends SRBasePanel implements ListSelectionListener, 
   private void addMessage(Message aMessage){
 	  Logger.info("addMessage new called: ");
 	  DefaultListModel dlm = (DefaultListModel)sentMessagesList.getModel();
-	  dlm.add(0, getSentMessageListString(aMessage, p.getGalaxy()));
+	  dlm.add(0, getSentMessageListString(aMessage, SpaceRazePanel.galaxy));
 	  sentMessages.add(0, aMessage);
 	  p.setLatestMessageIdFromServer(getLatestMessageIdFromServer());
 	  TransferWrapper tw = client.getResponse(p,"addMessage",null, aMessage);

@@ -11,9 +11,10 @@ import spaceraze.client.components.BasicPopupPanel;
 import spaceraze.client.components.SRLabel;
 import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.servlethelper.handlers.GameWorldHandler;
-import spaceraze.world.Galaxy;
-import spaceraze.world.Message;
+import spaceraze.game.Galaxy;
+import spaceraze.game.Message;
 
 /**
  * @author wmpabod
@@ -89,7 +90,7 @@ public class MessageShowPopupPanel extends BasicPopupPanel {
 			recieverString = "Faction: " + message.getRecipientFaction();
 		}else
 		if (message.getType().equalsIgnoreCase("private")){ // meddelandet ska till en separat spelare
-			recieverString = "Govenor: " + aGalaxy.getPlayerByUserName(message.getRecipientPlayer()).getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(aGalaxy.getPlayerByUserName(message.getRecipientPlayer()).getFactionUuid(), aGalaxy.getGameWorld()).getName() + ")";
+			recieverString = "Govenor: " + aGalaxy.getPlayerByUserName(message.getRecipientPlayer()).getGovernorName() + " (" + GameWorldHandler.getFactionByUuid(aGalaxy.getPlayerByUserName(message.getRecipientPlayer()).getFactionUuid(), SpaceRazePanel.gameWorld).getName() + ")";
 		}else
 		if (message.getType().equalsIgnoreCase("all")){ // meddelandet ska till en separat spelare
 			recieverString = "Public message";

@@ -28,14 +28,15 @@ import spaceraze.client.components.SRScrollPane;
 import spaceraze.client.components.SRTextArea;
 import spaceraze.client.components.SRTextField;
 import spaceraze.client.components.scrollable.ListPanel;
+import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.client.interfaces.SRUpdateablePanel;
 import spaceraze.servlethelper.game.spaceship.SpaceshipPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.Faction;
-import spaceraze.world.Galaxy;
-import spaceraze.world.Player;
+import spaceraze.game.Galaxy;
+import spaceraze.game.Player;
 import spaceraze.world.SpaceshipType;
 import spaceraze.world.VIPType;
 import spaceraze.servlethelper.comparator.FactionsComparator;
@@ -223,7 +224,7 @@ public class BattleSimPanel extends SRBasePanel
 	}
 
 	private void fillVipsList() {
-		List<VIPType> tmpVipTypes = VipPureFunctions.getSpaceBattleVipTypes(p.getGalaxy().getGameWorld());
+		List<VIPType> tmpVipTypes = VipPureFunctions.getSpaceBattleVipTypes(SpaceRazePanel.gameWorld);
 		Collections.sort(tmpVipTypes, new VIPTypeComparator());
 		DefaultListModel dlm = (DefaultListModel) vipsList.getModel();
 		for (int i = 0; i < tmpVipTypes.size(); i++) {
@@ -247,7 +248,7 @@ public class BattleSimPanel extends SRBasePanel
 	private void fillFilterList() {
 		filterChoice.addItem("All (sort by name)");
 		filterChoice.addItem("All (sort by class & size)");
-		factions = p.getGalaxy().getGameWorld().getFactions().stream().collect(Collectors.toList());
+		factions = SpaceRazePanel.gameWorld.getFactions().stream().collect(Collectors.toList());
 		Collections.sort(factions, new FactionsComparator());
 		for (Faction aFaction : factions) {
 			filterChoice.addItem(aFaction.getName());
@@ -273,7 +274,7 @@ public class BattleSimPanel extends SRBasePanel
 		if (filterChoice.getSelectedIndex() > 1) {
 			// get faction to show ships from
 			Faction showOnlyFaction = factions.get(filterChoice.getSelectedIndex() - 2);
-			tempSstList = showOnlyFaction.getSpaceshipTypes().stream().map(uuid -> SpaceshipPureFunctions.getSpaceshipTypeByUuid(uuid, p.getGalaxy().getGameWorld())).collect(Collectors.toList());
+			tempSstList = showOnlyFaction.getSpaceshipTypes().stream().map(uuid -> SpaceshipPureFunctions.getSpaceshipTypeByUuid(uuid, SpaceRazePanel.gameWorld)).collect(Collectors.toList());
 		} else {
 			tempSstList = militaryShipTypes;
 		}
@@ -375,7 +376,7 @@ public class BattleSimPanel extends SRBasePanel
 	}
 
 	private void startSim() {
-		battleSim = new BattleSim(this, p.getGalaxy().getGameWorld());
+		battleSim = new BattleSim(this, SpaceRazePanel.gameWorld);
 		String tf1ships = aForceTA.getText();
 		String tf2ships = bForceTA.getText();
 		// compute costs
@@ -421,8 +422,7 @@ public class BattleSimPanel extends SRBasePanel
 			if (shiptypeName.contains("*")) {
 				shiptypeName = shiptypeName.substring(1);
 			}
-			Galaxy g = p.getGalaxy();
-			SpaceshipType sst = SpaceshipPureFunctions.getSpaceshipTypeByName(shiptypeName, g.getGameWorld());
+			SpaceshipType sst = SpaceshipPureFunctions.getSpaceshipTypeByName(shiptypeName, SpaceRazePanel.gameWorld);
 			String appendString = "";
 			if (!aTA.getText().equals("")) {
 				appendString = ";";

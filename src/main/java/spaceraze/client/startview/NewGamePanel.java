@@ -26,7 +26,7 @@ import spaceraze.util.general.Logger;
 import spaceraze.util.general.StyleGuide;
 import spaceraze.world.GameWorld;
 import spaceraze.map.GalaxyMap;
-import spaceraze.world.StatisticGameType;
+import spaceraze.game.StatisticGameType;
 import spaceraze.world.enums.DiplomacyGameType;
 
 

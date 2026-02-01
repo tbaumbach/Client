@@ -17,6 +17,10 @@ import spaceraze.client.components.SRTabbedPane;
 import spaceraze.client.components.SRTabbedPaneUI;
 import spaceraze.client.game.ImageHandler;
 import spaceraze.client.game.SpaceRazePanel;
+import spaceraze.game.Galaxy;
+import spaceraze.game.Planet;
+import spaceraze.game.Player;
+import spaceraze.game.Spaceship;
 import spaceraze.servlethelper.game.player.PlayerPureFunctions;
 import spaceraze.servlethelper.game.vip.VipPureFunctions;
 import spaceraze.servlethelper.game.planet.PlanetPureFunctions;
@@ -66,8 +70,8 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 
 	public void showShip(Planet aPlanet, Spaceship aShip) {
 		removOldMiniPanel();
-		if (aPlayer.getGalaxy().isPlayerShipAtPlanet(aPlayer, aPlanet)) {
-			miniShipPanel = new MiniShipPanel(SpaceshipPureFunctions.getPlayersSpaceshipsOnPlanet(aPlayer, aPlanet, aPlayer.getGalaxy().getSpaceships()),
+		if (SpaceRazePanel.galaxy.isPlayerShipAtPlanet(aPlayer, aPlanet)) {
+			miniShipPanel = new MiniShipPanel(SpaceshipPureFunctions.getPlayersSpaceshipsOnPlanet(aPlayer, aPlanet, SpaceRazePanel.galaxy.getSpaceships()),
 					aPlayer, client, aPlanet);
 			miniShipPanel.setBounds(1, 89, MINI_PANEL_WIDTH, MINI_PANEL_HEIGHT);
 			if (aShip != null) {
@@ -112,28 +116,28 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		panelIndex++;
 
 		if (PlanetPureFunctions.isPlanetOwner(aPlanet, aPlayer) && !PlanetPureFunctions.isRazedAndUninfected(aPlanet)
-				&& !(aPlayer.isDefeated() | aPlayer.getGalaxy().isGameOver())) {
+				&& !(aPlayer.isDefeated() | SpaceRazePanel.galaxy.isGameOver())) {
 			tabbedPanel.addTab("Buildings", tempPanel("Buildings"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "Buildings");
 			panelIndex++;
 		}
 
-		if (aPlayer.getGalaxy().isPlayerShipAtPlanet(aPlayer, aPlanet)
-				&& !(aPlayer.isDefeated() | aPlayer.getGalaxy().isGameOver())) {
+		if (SpaceRazePanel.galaxy.isPlayerShipAtPlanet(aPlayer, aPlanet)
+				&& !(aPlayer.isDefeated() | SpaceRazePanel.galaxy.isGameOver())) {
 			tabbedPanel.addTab("Ships", tempPanel("Ships"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "Ships");
 			panelIndex++;
 		}
 
-		if (aPlayer.getGalaxy().isPlayerTroopsAtPlanet(aPlayer, aPlanet)
-				&& !(aPlayer.isDefeated() | aPlayer.getGalaxy().isGameOver())) {
+		if (SpaceRazePanel.galaxy.isPlayerTroopsAtPlanet(aPlayer, aPlanet)
+				&& !(aPlayer.isDefeated() | SpaceRazePanel.galaxy.isGameOver())) {
 			tabbedPanel.addTab("Troops", tempPanel("Troops"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "Troops");
 			panelIndex++;
 		}
 
-		if (VipPureFunctions.isPlayerVIPAtPlanet(aPlayer, aPlanet, aPlayer.getGalaxy())
-				&& !(aPlayer.isDefeated() | aPlayer.getGalaxy().isGameOver())) {
+		if (VipPureFunctions.isPlayerVIPAtPlanet(aPlayer, aPlanet, SpaceRazePanel.galaxy)
+				&& !(aPlayer.isDefeated() | SpaceRazePanel.galaxy.isGameOver())) {
 			tabbedPanel.addTab("VIPs", tempPanel("VIPs"));
 			tabbedPanel.setToolTipTextAt(panelIndex, "VIPs");
 			panelIndex++;
@@ -159,12 +163,12 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		bg.setColor(Color.black);
 		bg.fillRect(0, 0, d.width, d.height);
 		// draw planet
-		boolean spy = VipPureFunctions.findVIPSpy(aPlanet, aPlayer, aPlayer.getGalaxy()) != null;
+		boolean spy = VipPureFunctions.findVIPSpy(aPlanet, aPlayer, SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld) != null;
 		;
-		boolean shipInSystem = PlayerPureFunctions.playerHasShipsInSystem(aPlayer, aPlanet, aPlayer.getGalaxy());
+		boolean shipInSystem = PlayerPureFunctions.playerHasShipsInSystem(aPlayer, aPlanet, SpaceRazePanel.galaxy);
 		boolean lastKnownRazed = PlanetPureFunctions.findPlanetInfo(aPlanet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).isRazed();
-		boolean surveyShip = SpaceshipPureFunctions.findSurveyShip(aPlanet, aPlayer, aPlayer.getGalaxy().getSpaceships(), aPlayer.getGalaxy().getGameWorld()) != null;
-		boolean surveyVIP = VipPureFunctions.findSurveyVIPonShip(aPlanet, aPlayer, aPlayer.getGalaxy()) != null;
+		boolean surveyShip = SpaceshipPureFunctions.findSurveyShip(aPlanet, aPlayer, SpaceRazePanel.galaxy.getSpaceships(), SpaceRazePanel.gameWorld) != null;
+		boolean surveyVIP = VipPureFunctions.findSurveyVIPonShip(aPlanet, aPlayer, SpaceRazePanel.galaxy, SpaceRazePanel.gameWorld) != null;
 		boolean razed = PlanetPureFunctions.isRazed(aPlanet) & (aPlanet.getPlayerInControl() == null);
 		// if player is present in system or was it razed at the last visit
 		if ((razed & (shipInSystem | spy)) | lastKnownRazed) {
@@ -235,7 +239,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 			}
 		}
 		// Rita ut ring om planeten är belägrad
-		if ((aPlayer.getGalaxy().isPlayerShipAtPlanet(aPlayer, aPlanet)) | (aPlanet.getPlayerInControl() == aPlayer)
+		if ((SpaceRazePanel.galaxy.isPlayerShipAtPlanet(aPlayer, aPlanet)) | (aPlanet.getPlayerInControl() == aPlayer)
 				| (spy)) {
 			if (aPlanet.isBesieged()) {
 				bg.setColor(new Color(255, 191, 63));
@@ -244,7 +248,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		}
 		// print owner / razed status
 		if (aPlanet.getPlayerInControl() == aPlayer) {
-			bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), aPlayer.getGalaxy().getGameWorld()).getPlanetHexColor()));
+			bg.setColor(ColorConverter.getColorFromHexString(GameWorldHandler.getFactionByUuid(aPlayer.getFactionUuid(), SpaceRazePanel.gameWorld).getPlanetHexColor()));
 			bg.drawString("Planet is under your control", textX, 54);
 		} else if (aPlanet.isOpen() | spy | shipInSystem) {
 			if (PlanetPureFunctions.isRazed(aPlanet) & (aPlanet.getPlayerInControl() == null)) {
@@ -256,11 +260,11 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 					bg.setColor(StyleGuide.colorNeutralWhite);
 					bg.drawString("Neutral", textX, 54);
 				} else {
-					String tmpOwner = GameWorldHandler.getFactionByUuid(aPlanet.getPlayerInControl().getFactionUuid(), aPlanet.getPlayerInControl().getGalaxy().getGameWorld()).getName();
+					String tmpOwner = GameWorldHandler.getFactionByUuid(aPlanet.getPlayerInControl().getFactionUuid(), SpaceRazePanel.gameWorld).getName();
 					tmpOwner = tmpOwner + " (" + aPlanet.getPlayerInControl().getGovernorName() + ")";
 					// planet belonging to other player
 					bg.setColor(ColorConverter
-							.getColorFromHexString(GameWorldHandler.getFactionByUuid(aPlanet.getPlayerInControl().getFactionUuid(), aPlanet.getPlayerInControl().getGalaxy().getGameWorld()).getPlanetHexColor()));
+							.getColorFromHexString(GameWorldHandler.getFactionByUuid(aPlanet.getPlayerInControl().getFactionUuid(), SpaceRazePanel.gameWorld).getPlanetHexColor()));
 					bg.drawString(tmpOwner, textX, 54);
 				}
 			}
@@ -273,10 +277,10 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 				bg.setColor(StyleGuide.colorNeutralWhite);
 				bg.drawString("Neutral? (info from turn " + PlanetPureFunctions.findPlanetInfo(aPlanet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).getLastInfoTurn() + ")", textX, 54);
 			} else {
-				Faction lastKnownFaction =  findPlayerFaction(lastKnownOwner, aPlayer.getGalaxy());
+				Faction lastKnownFaction =  findPlayerFaction(lastKnownOwner, SpaceRazePanel.galaxy);
 				// bg.setColor(aPlanet.getPlayerInControl().getFaction().getPlanetColor());
 				bg.setColor(ColorConverter.getColorFromHexString(lastKnownFaction.getPlanetHexColor()));
-				bg.drawString(findPlayerFaction(PlanetPureFunctions.findPlanetInfo(aPlanet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).getLastKnownOwner(), aPlayer.getGalaxy()).getName()
+				bg.drawString(findPlayerFaction(PlanetPureFunctions.findPlanetInfo(aPlanet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).getLastKnownOwner(), SpaceRazePanel.galaxy).getName()
 						+ "? (info from turn " + PlanetPureFunctions.findPlanetInfo(aPlanet.getMapPlanetUuid(), aPlayer.getPlanetInformations()).getLastInfoTurn() + ")", textX, 54);
 			}
 		}
@@ -291,7 +295,7 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 		while ((i < galaxy.getPlayers().size()) & (foundFaction == null)) {
 			Player tempPlayer = galaxy.getPlayers().get(i);
 			if (tempPlayer.getName().equalsIgnoreCase(playerName)) {
-				foundFaction = GameWorldHandler.getFactionByUuid(tempPlayer.getFactionUuid(), galaxy.getGameWorld());
+				foundFaction = GameWorldHandler.getFactionByUuid(tempPlayer.getFactionUuid(), SpaceRazePanel.gameWorld);
 			} else {
 				i++;
 			}
@@ -337,18 +341,18 @@ public class ShowPlanet extends SRBasePanel implements ChangeListener {
 				miniPlanetPanel.setBounds(1, 89, MINI_PANEL_WIDTH, MINI_PANEL_HEIGHT);
 				add(miniPlanetPanel);
 			} else if (tabbedPanel.getSelectedComponent().getName().equalsIgnoreCase("ships")) {
-				miniShipPanel = new MiniShipPanel(SpaceshipPureFunctions.getPlayersSpaceshipsOnPlanet(aPlayer, aPlanet, aPlayer.getGalaxy().getSpaceships()),
+				miniShipPanel = new MiniShipPanel(SpaceshipPureFunctions.getPlayersSpaceshipsOnPlanet(aPlayer, aPlanet, SpaceRazePanel.galaxy.getSpaceships()),
 						aPlayer, client, aPlanet);
 				miniShipPanel.setBounds(1, 89, MINI_PANEL_WIDTH, MINI_PANEL_HEIGHT);
 				add(miniShipPanel);
 			} else if (tabbedPanel.getSelectedComponent().getName().equalsIgnoreCase("troops")) {
-				miniTroopPanel = new MiniTroopPanel(TroopPureFunctions.getPlayersTroopsOnPlanet(aPlayer, aPlanet, aPlayer.getGalaxy().getTroops()),
+				miniTroopPanel = new MiniTroopPanel(TroopPureFunctions.getPlayersTroopsOnPlanet(aPlayer, aPlanet, SpaceRazePanel.galaxy.getTroops()),
 						aPlayer, client, aPlanet);
 				miniTroopPanel.setBounds(1, 89, MINI_PANEL_WIDTH, MINI_PANEL_HEIGHT);
 				add(miniTroopPanel);
 			} else if (tabbedPanel.getSelectedComponent().getName().equalsIgnoreCase("vips")) {
 				miniVIPPanel = new MiniVIPPanel(
-						VipPureFunctions.findPlayersVIPsOnPlanetOrShipsOrTroops(aPlanet, aPlayer, aPlayer.getGalaxy()), aPlayer, client,
+						VipPureFunctions.findPlayersVIPsOnPlanetOrShipsOrTroops(aPlanet, aPlayer, SpaceRazePanel.galaxy), aPlayer, client,
 						aPlanet);
 				miniVIPPanel.setBounds(1, 89, MINI_PANEL_WIDTH, MINI_PANEL_HEIGHT);
 				add(miniVIPPanel);
