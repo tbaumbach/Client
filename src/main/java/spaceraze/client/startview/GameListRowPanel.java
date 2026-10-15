@@ -137,10 +137,10 @@ public class GameListRowPanel extends SRBasePanel implements ActionListener{
 					tmpBtn = new SRButton(players[i][0]);
 					tmpBtn.setBounds(x, 2, btnWidth, rowHeight-4);
 					tmpBtn.addActionListener(this);
-					Color btnColor = getColor(players[i][3]);
+					Color btnColor = getColor(players[i][2]);
 					tmpBtn.setForeground(btnColor);
 					tmpBtn.setBorder(new LineBorder(btnColor));
-					if (players[i][2].equals("n")){
+					if (players[i][1].equals("n")){
 						tmpBtn.setForeground(btnColor.darker().darker().darker());
 						tmpBtn.setBorder(new LineBorder(btnColor.darker().darker().darker()));
 					}
@@ -187,9 +187,9 @@ public class GameListRowPanel extends SRBasePanel implements ActionListener{
 		if (ae.getActionCommand().equals("Join") || (ae.getSource() == passwordTF)){
 			if (notifierFrame.getReturnGames() == ReturnGames.ALL || notifierFrame.getReturnGames() == ReturnGames.OWN_AND_OPEN || ((passwordTF != null) && passwordTF.getText().equals(gameData.getPassword()))){
 				if (notifierFrame.getReturnGames() == ReturnGames.OWN_AND_OPEN){
-					notifierFrame.showSpaceRazePanel(gameData.getGameId(),notifierFrame.getUser(),notifierFrame.getPassword());
+					notifierFrame.showSpaceRazePanel(gameData.getGameId(),notifierFrame.getUser());
 				}else{
-					notifierFrame.showSpaceRazePanel(gameData.getGameId(),null,null);
+					notifierFrame.showSpaceRazePanel(gameData.getGameId(),null);
 				}
 			}else{ // wrong password
 				wrongPassword = true;
@@ -218,13 +218,12 @@ public class GameListRowPanel extends SRBasePanel implements ActionListener{
 			popup.open(this);
 		}else
 		if (ae.getActionCommand().equals("Play")){
-			notifierFrame.showSpaceRazePanel(gameData.getGameId(),notifierFrame.getUser(),notifierFrame.getPassword());
+			notifierFrame.showSpaceRazePanel(gameData.getGameId(),notifierFrame.getUser());
 		}else{
 			int index = findLoginName(ae.getActionCommand());
 			String user = gameData.getPlayers()[index][0];
-			String password = gameData.getPlayers()[index][1]; 
-			Logger.fine("Btn pressed: " + user + " " + password);
-			notifierFrame.showSpaceRazePanel(gameData.getGameId(),user,password);
+			Logger.fine("Btn pressed: " + user);
+			notifierFrame.showSpaceRazePanel(gameData.getGameId(),user);
 		}
 	}
 	

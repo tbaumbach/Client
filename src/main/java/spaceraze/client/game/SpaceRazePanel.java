@@ -219,16 +219,14 @@ public class SpaceRazePanel extends SRBasePanel {
 		// StyleGuide.reset();
 
 		String userName = getParameter("username");
-		String userPassword = getParameter("userpassword");
-		Logger.fine("init: " + userName + " " + userPassword);
+		Logger.fine("init: " + userName );
 		if (turn > 0) {
 			Logger.fine("init: Turn > 0");
-			if ((userName != null) && (userPassword != null) && (!userName.equals("")) && (!userPassword.equals(""))) {
+			if (userName != null && !userName.equals("")) {
 				Logger.fine("init: auto login!");
 				String message = "oldlogin ";
-				// setLogin(message + userName + " " + userPassword);
 				setLoginAtStart = true;
-				startMessage = message + userName + " " + userPassword;
+				startMessage = message + userName;
 				// show progress counter panel
 				pp2 = new ProgressPanel(p, "Loading game from server:");
 				pp2.setBounds(150, 100, 600, 315);
@@ -254,8 +252,8 @@ public class SpaceRazePanel extends SRBasePanel {
 			}
 
 			Logger.fine("init: Turn = 0");
-			lpf = new LoginPanelFull(this, userName, userPassword, openFactions, randomFaction);
-			if ((userName != null) && (userPassword != null) && (!userName.equals("")) && (!userPassword.equals(""))) {
+			lpf = new LoginPanelFull(this, userName, openFactions, randomFaction);
+			if ((userName != null) && (!userName.equals(""))) {
 				lpf.setBounds(155, 100, 210, 210);
 			} else {
 				lpf.setBounds(155, 100, 210, 315);
@@ -263,7 +261,7 @@ public class SpaceRazePanel extends SRBasePanel {
 			lpf.setBorder(new LineBorder(StyleGuide.colorNeutral));
 			add(lpf);
 
-			if ((userName != null) && (userPassword != null) && (!userName.equals("")) && (!userPassword.equals(""))) {
+			if ((userName != null)&& (!userName.equals(""))) {
 				lpf.setGovenorfieldFocus();
 			} else {
 				SwingUtilities.invokeLater(new Runnable() {

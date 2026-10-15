@@ -15,7 +15,6 @@ import spaceraze.client.components.ComboBoxPanel;
 import spaceraze.client.components.SRBasePanel;
 import spaceraze.client.components.SRButton;
 import spaceraze.client.components.SRLabel;
-import spaceraze.client.components.SRPasswordField;
 import spaceraze.client.components.SRTextField;
 import spaceraze.client.game.SpaceRazePanel;
 import spaceraze.util.general.Functions;
@@ -26,16 +25,15 @@ import spaceraze.world.Faction;
 public class LoginPanelFull extends SRBasePanel implements ItemListener, ActionListener{
 	private static final long serialVersionUID = 1L;
 	private SRTextField govenorfield,namefield;
-	private SRPasswordField passwordfield;
 	private SRButton okbtn;
 	private CheckBoxPanel firsttime;
-	private SRLabel titleLabel,nameLabel,passwordLabel,factionLabel,govenorLabel;
+	private SRLabel titleLabel,nameLabel,factionLabel,govenorLabel;
 	private SpaceRazePanel client;
 	private ComboBoxPanel factionsChoice;
 	private final int GOV_NAME_MAX_LENGTH = 20;
 	private List<Faction> openFactions;
 
-  public LoginPanelFull(SpaceRazePanel client, String userName, String userPassword, List<Faction> openFactions, boolean randomFaction){
+  public LoginPanelFull(SpaceRazePanel client, String userName, List<Faction> openFactions, boolean randomFaction){
     setLayout(null);
     setBackground(StyleGuide.colorBackground);
     setForeground(StyleGuide.colorNeutral);
@@ -57,16 +55,6 @@ public class LoginPanelFull extends SRBasePanel implements ItemListener, ActionL
     namefield.setToolTipText("Type your login you will use every time you log in to this game");
     namefield.addActionListener(this);
     add(namefield);
-
-    passwordLabel = new SRLabel("Password:");
-    passwordLabel.setBounds(20,95,100,20);
-    passwordLabel.setToolTipText("Type the password you will use every time you log in to this game");
-    add(passwordLabel);
-
-    passwordfield = new SRPasswordField();
-    passwordfield.setBounds(20,115,100,20);
-    passwordfield.setToolTipText("Type the password you will use every time you log in to this game");
-    add(passwordfield);
 
     firsttime = new CheckBoxPanel("Create new player");
     firsttime.setBounds(20,145,140,20);
@@ -121,13 +109,11 @@ public class LoginPanelFull extends SRBasePanel implements ItemListener, ActionL
     factionsChoice.setEnabled(false);
     add(factionsChoice);
     
-  	if ((userName != null) && (userPassword != null) && (!userName.equals("")) && (!userPassword.equals(""))){
+  	if ((userName != null)&& (!userName.equals(""))){
   		// set values
   		namefield.setText(userName);
-  		passwordfield.setText(userPassword);
   		// disable components
   		namefield.setEditable(false);
-  		passwordfield.setEditable(false);
   		// enable components
         govenorfield.setEnabled(true);
         govenorfield.setBackground(StyleGuide.colorBackground);
@@ -137,8 +123,6 @@ public class LoginPanelFull extends SRBasePanel implements ItemListener, ActionL
         // hide components
         nameLabel.setVisible(false);
         namefield.setVisible(false);
-        passwordLabel.setVisible(false);
-		passwordfield.setVisible(false);
 		firsttime.setVisible(false);
 		// move components
 		govenorLabel.setLocation(20,50);
@@ -237,17 +221,17 @@ public void actionPerformed(ActionEvent e){
   	  				// get random faction
   	  				int randomFactionIndex = Functions.getRandomInt(0,openFactions.size()-1);
   	  				String factionName = openFactions.get(randomFactionIndex).getName();
-  	  				client.setLogin(message + namefield.getText() + " " + passwordfield.getText() + " " + govenorfield.getText().replace(' ','#') + " " + factionName);
+  	  				client.setLogin(message + namefield.getText() + " " + govenorfield.getText().replace(' ','#') + " " + factionName);
   				}else{
-  					client.setLogin(message + namefield.getText() + " " + passwordfield.getText() + " " + govenorfield.getText().replace(' ','#') + " " + factionsChoice.getSelectedItem());
+  					client.setLogin(message + namefield.getText() + " " + govenorfield.getText().replace(' ','#') + " " + factionsChoice.getSelectedItem());
   				}
   			}else{
   				message = "oldlogin ";
-  				client.setLogin(message + namefield.getText() + " " + passwordfield.getText());
+  				client.setLogin(message + namefield.getText());
   			}
   			
   			setVisible(false);
-  			Logger.fine("LoginPanelFull closing " + message + namefield.getText() + " " + passwordfield.getText());
+  			Logger.fine("LoginPanelFull closing " + message + namefield.getText());
   		}else{
   			//govenorfield.setText("Fel i namnet...");
   		}

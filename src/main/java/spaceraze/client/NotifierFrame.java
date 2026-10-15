@@ -68,7 +68,7 @@ public class NotifierFrame extends JFrame implements Runnable,ActionListener{
 	private SRTextField mapName;
 	private GameListPanel gameListPanel;	
 	private Thread t;
-	private String user,password;
+	private String user;
 	private String tunnelPath;
 	private TrayIcon trayIcon;
 	private ReturnGames returnGames;
@@ -82,7 +82,7 @@ public class NotifierFrame extends JFrame implements Runnable,ActionListener{
 	private JScrollPane scrollPane;
 	public static String IMAGES_PATH = "images/";
 
-	public NotifierFrame(String aUser, String aPassword, String tunnelPath, boolean showFrameOnStartup, String port){
+	public NotifierFrame(String aUser, String tunnelPath, boolean showFrameOnStartup, String port){
 		super("SpaceRaze - " + aUser);
 		Logger.fine("constructor called: " + aUser + ", " + showFrameOnStartup + ", " + tunnelPath + ", " + port);
 		this.port = port;
@@ -143,9 +143,6 @@ public class NotifierFrame extends JFrame implements Runnable,ActionListener{
 
 		user = aUser;
 		Logger.info("User set to: " + user);
-
-		password = aPassword;
-		Logger.info("Password set to: " + password);
 
 		this.tunnelPath = tunnelPath;
 
@@ -368,7 +365,7 @@ public class NotifierFrame extends JFrame implements Runnable,ActionListener{
 
 	public static void main(String[] args) {
 		if (args.length == 4){ // argument som fås via Eclipse, t.ex. "pabod 5by5 http://localhost:8080/SpaceRaze/ 8080"
-			new NotifierFrame(args[0],args[1],args[2],true,args[3]);
+			new NotifierFrame(args[0], args[1],true,args[2]);
 		}else{ // antas vara 3 argunent via jnlp-filen
 			List<String> port = new ArrayList<String>();
 			List<String> temp = Arrays.asList(args);
@@ -380,9 +377,9 @@ public class NotifierFrame extends JFrame implements Runnable,ActionListener{
 				
 			});
 			if(args.length > 1) {
-				new NotifierFrame(args[0],args[1],args[2],false,port.get(0));
+				new NotifierFrame(args[0],args[1],false,port.get(0));
 			}else {
-				new NotifierFrame("", "", args[0], false, port.get(0));
+				new NotifierFrame("", args[0], false, port.get(0));
 			}
 			
 			/*
@@ -532,7 +529,7 @@ public class NotifierFrame extends JFrame implements Runnable,ActionListener{
 		editMapBtn.setVisible(show);
 	}
 	
-	public void showSpaceRazePanel(int gameId, String playerName, String playerPassword){
+	public void showSpaceRazePanel(int gameId, String playerName){
 		if (spazeRazePanel != null){
 			remove(spazeRazePanel);
 		}
@@ -546,12 +543,10 @@ public class NotifierFrame extends JFrame implements Runnable,ActionListener{
 		if (returnGames == ReturnGames.OWN_AND_OPEN){ // startad via jnlp
 			autouser = "true";
 			applicationParams.put("username", user);
-			applicationParams.put("userpassword", password);
 		}else{ // startad som vanlig applikation
-			if (playerName != null){ // autologin med playerName/playerPassword
+			if (playerName != null){ // autologin med playerName
 				autouser = "true";
 				applicationParams.put("username", playerName);
-				applicationParams.put("userpassword", playerPassword);
 			}else{
 				// ej autologin, detta måste vara ett parti som har status "Starting"
 				autouser = "false";
@@ -587,12 +582,10 @@ public class NotifierFrame extends JFrame implements Runnable,ActionListener{
 		Logger.info("returnGames: " + returnGames);
 		if (returnGames == ReturnGames.OWN_AND_OPEN){ // startad via jnlp
 			applicationParams.put("username", user);
-			//applicationParams.put("userpassword", password);
 		}else{ // startad som vanlig applikation
-			if (playerName != null){ // autologin med playerName/playerPassword
+			if (playerName != null){ // autologin med playerName
 				applicationParams.put("username", playerName);
-				
-				//applicationParams.put("userpassword", playerPassword);
+
 			}
 		}
 		applicationParams.put("action", action);
@@ -620,10 +613,6 @@ public class NotifierFrame extends JFrame implements Runnable,ActionListener{
 		StyleGuide.colorCurrent = StyleGuide.colorNeutral;
 		setVisibleComponents(true);
 		checkWithServer();
-	}
-
-	public String getPassword() {
-		return password;
 	}
 
 	public String getUser() {
